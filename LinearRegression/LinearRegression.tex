@@ -1,0 +1,66 @@
+\chapter{Linear Regression}
+A major component of machine learning, the one that most people associate with ML, is dedicated to making predictions under uncertain conditions. Given some input data, we would like to produce a target output. In this chapter, we're going to focus on the case where our prediction is a continuous, real number. This type of problem is known as \textbf{regression}.
+
+\section{Introduction and Motivation}
+We can imagine many situations where regression is useful:
+\begin{enumerate}
+    \item Predicting a person's height given the height of their parents.
+    \item Predicting the probability that someone pays back a loan given their credit history.
+    \item Predicting what time a package will arrive given current weather and traffic conditions.
+\end{enumerate}
+
+We're specifically going to focus on \textbf{linear regression}, which means that our goal is to find some linear combination of the $x_{1}, ..., x_{D}$ values that predict our target $y$.
+
+\begin{definition}{Linear Regression}{linear-regression}
+Suppose we have an input $\textbf{x}\in\mathbb{R}^D$ and a continuous target $y\in\mathbb{R}$.
+Linear regression determines weights $w_{i}\in\mathbb{R}$ that balance the values of $x_{i}$ to produce $y$:
+\begin{equation}
+    y = w_{0} + w_{1}x_{1} + ... + w_{D}x_{D}
+\end{equation}
+
+\end{definition}
+
+\readernote{Notice $w_{0}$ in the expression above, which doesn't have a corresponding $x_{0}$ value. This is known as the \textit{bias} term. If you consider the definition of a line $y = mx + b$, the bias term is comparable to the intercept $b$. It can account for a general trend in our data, such as if all of our target $y$ values are greater than 50.}
+
+All of these follow a similar formula: a data input $\textbf{x}$ gets transformed into prediction $y$. For example, consider 10 year old Sam. She is curious about how tall she will be when she grows up. She has a data set of parents' heights and the final heights of their children. The inputs \textbf{x} are:
+
+\begin{align*}
+x_{1} = \text{height of mother (cm)} \\
+x_{2} = \text{height of father (cm)} \\
+\end{align*}
+
+Using linear regression, she determines the weights \textbf{w} to be:
+
+\begin{align*}
+\textbf{w} = [34, 0.39, 0.33] \\
+\end{align*}
+
+Sam's mother is 165 cm tall and her father is 185 cm tall. Using the results of the linear regression solution, Sam solves for her expected height:
+
+\begin{align*}
+\text{Sam's height} = 34 + 0.39(165) + 0.33(185) = \textbf{159.4 cm} \\
+\end{align*}
+
+\begin{mlcube}{Linear Regression}
+Let's inspect the categories linear regression falls into for our ML framework cube. First, as we've already stated, linear regression deals with a \textbf{continuous} input and output domain. Second, our goal is to make predictions on future data points, and to construct something capable of making those predictions we first need a labeled data set of inputs and outputs. This makes linear regression is a \textbf{supervised} technique. Third and finally, linear regression is a special case when it comes to being \textbf{probabilistic or non-probabilistic}. Depending on our interpretation, it can be either one! We will explain how this works later in the chapter.
+\begin{center}
+    \begin{tabular}{c|c|c}
+    \textit{\textbf{Domain}} & \textit{\textbf{Training}} & \textit{\textbf{Probabilistic}} \\
+    \hline
+    Continuous & Supervised & Yes / No \\
+    \end{tabular}
+\end{center}
+\end{mlcube}
+
+\section{Technical}
+The most basic form of linear regression is a simple weighted combination of the input variables $\textbf{x}$, which you will often see written as:
+
+\begin{equation}
+    y(\textbf{x}, \textbf{w}) = w_{0} + w_{1}x_{1} + ... + w_{D}x_{D}
+\end{equation}
+
+**TODO: add something about the bias trick here**
+
+Let's think about what this means. Your algorithm is provided with a collection of data points $x_{i}$, and it weights those values using $w_i$ to produce an output value $y$. For example, in the example of Sam's height above, we weighted the height of her mother with the factor 0.39, the height of her father as 0.33, and had a bias term (shift) of 34. Then the natural question arises: how did we find the appropriate values for $\textbf{w}$?
+
+That is the entire goal of linear regression, and the remaining focus of this chapter.
