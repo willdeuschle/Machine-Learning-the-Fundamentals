@@ -16,7 +16,8 @@
 \tcbuselibrary{skins}
 
 % colors for boxes
-\definecolor{light-gray}{gray}{0.92}
+\definecolor{light-gray}{gray}{0.6}
+\definecolor{lightlight-gray}{gray}{0.95}
 \definecolor{light-blue}{RGB}{135,206,250}
 \definecolor{crimson}{RGB}{220,20,60}
 
@@ -25,6 +26,10 @@
 \newtcbtheorem[number within=section]{definition}{Definition}%
 {theorem style=plain,colback=light-gray,colframe=white,coltitle=black,fonttitle=\bfseries,breakable,enhanced,
 oversize,sharp corners, before skip=0.5\baselineskip}{def}
+% derivations
+\newtcbtheorem[number within=section]{derivation}{Derivation}%
+{theorem style=plain,colback=lightlight-gray,colframe=white,coltitle=black,fonttitle=\bfseries,breakable,enhanced,
+oversize,sharp corners, before skip=0.5\baselineskip}{der}
 % examples
 \newcounter{example}
 \newtcbtheorem[number within=chapter, use counter=example]{example}{Example}%
