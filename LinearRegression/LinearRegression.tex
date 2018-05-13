@@ -31,22 +31,17 @@ Linear regression determines weights $w_{i}\in\mathbb{R}$ that balance the value
 \readernote{Notice $w_{0}$ in the expression above, which doesn't have a corresponding $x_{0}$ value. This is known as the \textit{bias} term. If you consider the definition of a line $y = mx + b$, the bias term is comparable to the intercept $b$. It can account for a general trend in our data, such as if all of our target $y$ values are greater than 50.}
 
 All of these follow a similar formula: a data input $\textbf{x}$ gets transformed into prediction $y$. For example, consider 10 year old Sam. She is curious about how tall she will be when she grows up. She has a data set of parents' heights and the final heights of their children. The inputs \textbf{x} are:
-
 \begin{align*}
 x_{1} = \text{height of mother (cm)} \\
-x_{2} = \text{height of father (cm)} \\
+x_{2} = \text{height of father (cm)}
 \end{align*}
-
 Using linear regression, she determines the weights \textbf{w} to be:
-
 \begin{align*}
 \textbf{w} = [34, 0.39, 0.33] \\
 \end{align*}
-
 Sam's mother is 165 cm tall and her father is 185 cm tall. Using the results of the linear regression solution, Sam solves for her expected height:
-
 \begin{align*}
-\text{Sam's height} = 34 + 0.39(165) + 0.33(185) = \textbf{159.4 cm} \\
+\text{Sam's height} = 34 + 0.39(165) + 0.33(185) = \textbf{159.4 cm}
 \end{align*}
 
 \begin{mlcube}{Linear Regression}
@@ -69,51 +64,41 @@ The most basic form of linear regression is a simple weighted combination of the
 
 \subsection{Merging of Bias}
 We're going to introduce a common notational trick here for making the bias term, $w_{0}$, easier to handle. At the moment $w_{0}$ is unwieldly because it is not being multiplied by an $x_{i}$ value. Without the bias term, we could easily express $y(\textbf{x}, \textbf{w})$ as:
-
 \begin{equation}
     y(\textbf{x}, \textbf{w}) = \textbf{w}^{T}\textbf{x} = w_{0}x_{0} + w_{1}x_{1} + ... + w_{D}x_{D}
 \end{equation}
-
  This is more compact, easier to reason about, and makes properties of linear algebra nicer for the calculations we will be performing. An easy way to keep our bias term and still get this nice form of $\textbf{w}^{T}\textbf{x}$ is to simply introduce another variable, $x_{0}$, that is always $1$ for every data point. For example, considering the case of Sam's height from above, we have the height of her parents, \textbf{x}:
-
 \begin{align*}
     \textbf{x} = (165, 185)
 \end{align*}
-
 We now add a $1$ in the first position of the data point to make it:
-
 \begin{align*}
     \textbf{x'} = (1, 165, 185)
 \end{align*}
-
 We do this for every point in our data set. This bias trick lets us write:
-
 \begin{equation}
     y(\textbf{x}, \textbf{w}) = \textbf{w}^{T}\textbf{x} = w_{0}x_{0} + w_{1}x_{1} + ... + w_{D}x_{D}
 \end{equation}
-
 as desired.
 
 \subsection{Visualization of Linear Regression}
-Let's try to build some intuition about how linear regression works. Our algorithm is provided with a collection of data points: inputs \textbf{x} and corresponding targets \textbf{y}. Our goal is to find the best set of weights \textbf{w} such that given a new data point \textbf{x}, we can accurately predict the true target value $y$. This is visualizable in the simple case where $\textbf{x}$ is a 1-dimensional input variable, as in Figure \ref{fig:simple-lin-reg}:
+Let's try to build some intuition about how linear regression works. Our algorithm is provided with a collection of data points: inputs \textbf{x} and corresponding targets \textbf{y}. Our goal is to find the best set of weights \textbf{w} such that given a new data point \textbf{x}, we can accurately predict the true target value $y$. This is visualizable in the simple case where $\textbf{x}$ is a 1-dimensional input variable, as in Figure \ref{fig:simple-lin-reg}.
 
-\begin{figure}[H]
+\begin{figure}
     \centering
-    \includegraphics[width=0.5\paperwidth,angle=270]{../LinearRegression/fig/simple_lin_reg.jpg}
+    \includegraphics[width=0.5\paperwidth]{../LinearRegression/fig/simple_lin_reg_GEN.jpg}
     \caption{Data set with clear trend.}
     \label{fig:simple-lin-reg}
 \end{figure}
 
-Our eyes are naturally able to detect a very clear trend in this data. If we were to be given a new $\textbf{x}$ data point, how would be predict its target value $y$? We would first fit a line to our data, as in Figure \ref{fig:simple-lin-reg-w-line}:
+Our eyes are naturally able to detect a very clear trend in this data. If we were to be given a new $\textbf{x}$ data point, how would be predict its target value $y$? We would first fit a line to our data, as in Figure \ref{fig:simple-lin-reg-w-line}, and then find where on that line the new $\textbf{x}$ value sits.
 
-\begin{figure}[H]
+\begin{figure}
     \centering
-    \includegraphics[width=0.5\paperwidth]{../LinearRegression/fig/simple_lin_reg_w_line.jpg}
+    \includegraphics[width=0.5\paperwidth]{../LinearRegression/fig/simple_lin_reg_w_line_GEN.jpg}
     \caption{Data set with clear trend, best fitting line included.}
     \label{fig:simple-lin-reg-w-line}
 \end{figure}
-
-and then find where on that line the new $\textbf{x}$ value sits.
 
 That is the entirety of linear regression! It fits the `best' line to our data, and then uses that line to make predictions. In 1-D input space, this manifests itself as the simple problem seen above, where we need only find a single bias term $w_{0}$ (which acts as the intercept of the line) and single weight $w_{1}$ (which acts as the slope of the line). However, the same principle applies to higher dimensional data as well. We're always fitting the line (meaning calculate the weights $\textbf{w}$) that give us maximal predictive power.
 
@@ -122,7 +107,7 @@ That is the entirety of linear regression! It fits the `best' line to our data, 
 Now that we have some intuition for what linear regression is, a natural question arises: how do we find these `best' values for $\textbf{w}$? That is the remaining focus of this chapter.
 
 \subsection{Finding the Best Fitting Line: Loss}
-We can inspect a set of data as presented in **some way to reference the figure above**, and are quite good at fitting a line by hand. When we fit that line, whether we think about it or not, what we're trying to do is make the line as close to all of the data points as possible. We can formalize this notion by introducing the concept of \textbf{loss}, and use it to our advantage in developing a method to automatically fit a line to our data.
+We can inspect a set of data as presented in Figure \ref{fig:simple-lin-reg}, and are quite good at fitting a line by hand. When we fit that line, whether we think about it or not, what we're trying to do is make the line as close to all of the data points as possible. We can formalize this notion by introducing the concept of \textbf{loss}, and use it to our advantage in developing a method to automatically fit a line to our data.
 
 
 \begin{definition}{Loss}{loss}
@@ -138,26 +123,23 @@ Loss is a concept that we will come back to very frequently in the context of su
 
 \subsection{Least Squares Loss}
 As we mentioned above, there are different methods for computing loss. One of the most commonly used measurements is known as \textbf{Least Squares Loss}. Least squares, as it is often abbreviated, says that the loss for a given data point is the square of the difference between the target and predicted values:
-
 \begin{equation} \label{least-squares-loss-fn}
     \mathcal{L}(\textbf{w}) = (t - \textbf{w}^{T}\textbf{x})^2
 \end{equation}
-
 There is a satisfying statistical interpretation for using this loss function which we will explain later in this chapter, but for now it will suffice to discuss some of the properties of this loss function that make it desirable.
 
 First, notice that it will always take on positive values. This is convenient because we can focus exclusively on minimizing our loss, and it also allows us to combine the loss incurred from different data points without worrying about them cancelling out.
 
-A more subtle but enormously important property of this loss function is that we know a lot about how to efficiently optimize quadratic functions. This is not a textbook about optimization, but some quick and dirty intuition that we will take advantage of throughout this book is that we can easily and reliably take the derivative of a quadratic function because they are continuously differentiable. We also know that optima of a quadrative function will be located at points where the derivative of the function is equal to 0, as seen in Figure \ref{fig:quad-deriv-at-2}:
+A more subtle but enormously important property of this loss function is that we know a lot about how to efficiently optimize quadratic functions. This is not a textbook about optimization, but some quick and dirty intuition that we will take advantage of throughout this book is that we can easily and reliably take the derivative of a quadratic function because they are continuously differentiable. We also know that optima of a quadrative function will be located at points where the derivative of the function is equal to 0, as seen in Figure \ref{fig:quad-deriv-at-2}.
 
-\begin{figure}[H]
+\begin{figure}
     \centering
-    \includegraphics[width=0.5\paperwidth]{../LinearRegression/fig/deriv_at_2.jpg}
+    \includegraphics[width=0.5\paperwidth]{../LinearRegression/fig/deriv_at_2_GEN.jpg}
     \caption{Quadratic function with clear optimum at $x=2$, where the derivative of the function is 0.}
     \label{fig:quad-deriv-at-2}
 \end{figure}
 
 If we compare this to an alternative loss function, such as an absolute value loss:
-
 \begin{align}
     \mathcal{L}(\textbf{w}) = \lvert t - \textbf{w}^{T}\textbf{x} \rvert
 \end{align}
@@ -168,10 +150,7 @@ We know that this function is not continuously differentiable around its optima,
 ** add a visualization of what the loss actually looks like for a toy data set (small little red lines from predicted to true) **
 
 \subsection{Optimal Weights via Matrix Differentiation}
-Now that we have our least squares loss function, we can finally begin to fit a line to our data.
-
-First, we can define the loss incurred by parameters $\textbf{w}$ over our entire data set $\textbf{X}$ as follows:
-
+Now that we have our least squares loss function, we can finally begin to fit a line to our data. First, we can define the loss incurred by parameters $\textbf{w}$ over our entire data set $\textbf{X}$ as follows:
 \begin{align}
     \mathcal{L}(\textbf{w}) = \frac{1}{2} \sum_{i=1}^{n} (t - \textbf{w}^{T}\textbf{x})^2
 \end{align}
@@ -256,7 +235,7 @@ Basis functions are very general - they could specify that we just keep our inpu
 
 To motivate why we might need basis functions for performing linear regression, let's consider this graph of 1-dimensional inputs \textbf{X} along with their target outputs \textbf{Y}:
 
-\begin{figure}[H]
+\begin{figure}
     \centering
     \includegraphics[width=0.5\paperwidth]{../LinearRegression/fig/lin_reg_no_basis_fn.jpg}
     \caption{Data with no basis function applied.}
@@ -265,7 +244,7 @@ To motivate why we might need basis functions for performing linear regression, 
 
 As we can see, we're not going to be able to fit a good line to this data. The best we can hope to do is something like this:
 
-\begin{figure}[H]
+\begin{figure}
     \centering
     \includegraphics[width=0.5\paperwidth]{../LinearRegression/fig/lin_reg_no_basis_fn_fitted.jpg}
     \caption{Data with no basis function applied, attempt to fit a line.}
@@ -274,7 +253,7 @@ As we can see, we're not going to be able to fit a good line to this data. The b
 
 However, if we just apply a simple basis function to our data, in this case the simple square root function, $\phi(\textbf{x}) = (\sqrt{x_{1}})'$, we now have this data:
 
-\begin{figure}[H]
+\begin{figure}
     \centering
     \includegraphics[width=0.5\paperwidth]{../LinearRegression/fig/lin_reg_w_basis_fn.jpg}
     \caption{Data with square root basis function applied.}
@@ -289,7 +268,6 @@ The answer is that this is not an easy problem to solve. Often, you may have som
 How we can mitigate the problem of overfitting, especially if we want to try a lot of basis functions
 why we need it, different types, what its effects are
 Now that we've introduced the idea of basis functions, you might wonder why we don't just try adding many basis transformations to our input data to find a good transformation. For example, we might use this large basis function:
-
 \begin{align*}
     \phi(\textbf{x}) = (x_{1}, x_{1}^{2}, ..., x_{1}^{100}, x_{2}, x_{2}^{2}, ..., x_{2}^{100}, x_{D}, x_{D}^{2}, ..., x_{D}^{100})'
 \end{align*}
@@ -317,14 +295,19 @@ The concept that we are introducing, penalizing large weights, is what is known 
 There is obviously a tradeoff between how aggressively we regularize our weights, and we will formalize this tradeoff in the next section. However, for now, we will simply introduce a regularization parameter $\lambda$, to our least squares loss function:
 
 \begin{equation} \label{least-squares-loss-fn-w-regularization}
-    \mathcal{L}(\textbf{w}) = \frac{1}{2} \sum_{i=1}^{n} (t - \textbf{w}^{T}\boldsymbol{\phi})^2 + \lambda\textbf{w}^{2}
+    \mathcal{L}(\textbf{w}) = \frac{1}{2} \sum_{i=1}^{n} (t - \textbf{w}^{T}\boldsymbol{\phi})^2 + \frac{\lambda}{2}\textbf{w}^{2}
 \end{equation}
 
 The effect of $\lambda$ is to penalize large weight parameters. The larger $\lambda$ is, the more we will favor simple solutions. In the limit $\lim_{\lambda\to\infty} \mathcal{L}(\textbf{w})$, we will drive all weights to 0, while with a nonexistant $\lambda = 0$ we will apply no regularization at all. Notice that we're squaring our weight parameters - this is known as \textit{L2 norm regularization} or \textit{ridge regression}. We will discuss the different types of regularization later on, but for now just know that L2 norm regularization is very common.
 
 To build some intuition about this regularization parameter, let's see how different values of it will produce different regression lines:
 
-** three graphs at different regularization levels **
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\paperwidth]{../LinearRegression/fig/diffregvalues.jpg}
+    \caption{Effect of different regularization parameter values on final regression solution.}
+    \label{fig:ridge-reg-diff-values}
+\end{figure}
 
 Notice how larger values of $\lambda$ produce less complex lines, which is the effect of applying more regularization. This is very nice for the problem we started with - which was wanting a way to choose which basis functions we wanted to use. With regularization, we can select many basis functions, and then allow regularization to `prune' the ones that aren't meaningful (by driving their weight parameters to 0). While this doesn't mean that we should use as many basis transformations as possible (there will be computational overhead for doing this), it does allow us to create a much more flexible linear regression model without creating a convoluted regression line.
 
@@ -332,7 +315,7 @@ Notice how larger values of $\lambda$ produce less complex lines, which is the e
 Now that you know about regularization, you might have some intuition for why we need to find a balance between complex and simple regression solutions. A complex solution, while it might fit all of our training data, may not generalize well to future data points. On the other hand, a line that is too simple might not vary enough to provide good predictions at all. This phenomenon is not unique to linear regression- it's actually a very fundamental concept in machine learning that's known as the \textbf{bias-variance tradeoff}.
 
 \begin{definition}{Bias-Variance Tradeoff}{bias-variance-tradeoff}
-    When construction machine learning models, we have a choice somewhere on a spectrum between two extremes: fitting exactly to our training data or not varying in response to our training data at all. The first extreme, fitting all of our training data, is a situation of high \textit{variance}, because our output changes heavily in reponse to our input data **TODO figure for high variance**. At the other extreme, a solution that doesn't change in response to our training data at all, is a situation of high \textit{bias}. This means that our target output doesn't fluctuate at all as a result of our training data.
+    When construction machine learning models, we have a choice somewhere on a spectrum between two extremes: fitting exactly to our training data or not varying in response to our training data at all. The first extreme, fitting all of our training data, is a situation of high \textit{variance}, because our output changes heavily in reponse to our input data (see the red line in Figure \ref{fig:ridge-reg-diff-values}). At the other extreme, a solution that doesn't change in response to our training data at all, is a situation of high \textit{bias}. This means that our target output doesn't fluctuate at all as a result of our training data.
 \end{definition}
 
 Obviously a good solution will fall somewhere in between these two extremes of total variance and total bias. Indeed, we have techniques like regularization that help us balance the two extremes, and we have additional techniques like \textit{cross-validation} that help us determine when we have found a good balance between the two.
@@ -414,9 +397,12 @@ Before we discuss how to effectively balance these two outcomes, we will first s
 
 The key takeaway of the bias-variance decomposition is that the controllable error in our model is given by the squared bias and variance. Holding our error constant, to decrease bias requires increasing the variance in our model, and vice-versa. In general, a graph of the source of error in our model might look something like this:
 
-**TODO** graph of high variance, low bias, high bias, low variance.
-
-** I think we should discuss overfitting here actually **
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\paperwidth]{../LinearRegression/fig/biasvariance.jpg}
+    \caption{Bias and variance both contribute to the overall error of our model.}
+    \label{fig:bias-vs-variance}
+\end{figure}
 
 For a moment, consider what happens on the far left side of this graph. Our variance is very high, and our bias is very low. In effect, we're fitting perfectly to all of the data in our data set. This is exactly why we introduced the idea of regularization from before - we're fitting a very convoluted line that is able to pass through all of our data but which doesn't generalize well to new data points. There is a name for this phenomenon: \textbf{overfitting}.
 
@@ -466,9 +452,9 @@ Consider our data set $\textbf{D} = \{(\textbf{x}_{i}, y_{i})\}_{i = 1}^{N}$, $\
 
 Which can be written equivalently as:
 
-\begin{align*}
+\begin{equation} \label{normal-over-w}
     p(y_{i} | \textbf{x}_{i}, \textbf{w}, \beta) = \mathcal{N}(\textbf{w}^{T}\phi(\textbf{x}_{i}), \beta^{-1})
-\end{align*}
+\end{equation}
 
 The interpretation of this is that our target value $y$ is generated according to some linear combination of our inputs \textbf{x}, but there is also some noise in the data generating process described by the variance parameter $\beta^{-1}$. This is exactly the same setup as before, except now we are acknowledging some noise in existing in our data.
 
@@ -516,9 +502,83 @@ As before, we now ask the question: how do we solve for the optimal weights \tex
 Notice that our final solution is exactly the same form as the solution in Equation \ref{least-squares-solved-for-w}, which we solved for by minimizing the least squares loss! \textbf{The takeaway here is that minimizing a least squares loss function is equivalent to maximizing the probability under the assumption of a linear model with Gaussian noise}.
 
 \subsection{Regularization Interpretation}
-ridge regression as adding zero response data, sequential estimation, different types of regularization
+We've thus far only discussed one form of regularization: ridge regression. Remember that under ridge regression, the loss function takes the form:
+
+\begin{align*}
+    \mathcal{L}(\textbf{w}) = \frac{1}{2} \sum_{i=1}^{n} (t - \textbf{w}^{T}\boldsymbol{\phi})^2 + \frac{\lambda}{2}\textbf{w}^{2}
+\end{align*}
+
+Where the $\frac{\lambda}{2}\textbf{w}^{2}$ term is for the regularization. We can generalize our type of regularization by writing it as:
+
+\begin{align*}
+    \mathcal{L}(\textbf{w}) = \frac{1}{2} \sum_{i=1}^{n} (t - \textbf{w}^{T}\boldsymbol{\phi})^2 + \frac{\lambda}{2}\big|\textbf{w}\big|^{h}
+\end{align*}
+
+where $h$ determines the type of regularization we are using and thus the form of the optimal solution that we recover.
+
+The three most commonly used forms of regression are Lasso regression, ridge regression, and Elastic Net.
+
+\subsubsection{Ridge Regression}
+This is the case of $h = 2$, which we've already discussed, but what type of solutions does it tend to uncover? Ridge regression prevents any individual weight from growing too large, providing us with solutions that are generally moderate.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\paperwidth]{../LinearRegression/fig/ridgereg.jpg}
+    \caption{Form of the ridge regression function (left), effect on optimal weight selection (right).}
+    \label{fig:ridge-reg-fn-form}
+\end{figure}
+
+\subsubsection{Lasso Regression}
+Lasso regression is the case of $h = 1$. Unlike ridge regression, Lasso regression will drive some parameters $\textbf{w}_{i}$ to zero if they aren't informative for our final solution. Thus, Lasso regression is good if you wish to recover a sparse solution that will allow you to throw out some of your basis functions.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\paperwidth]{../LinearRegression/fig/lassoreg.jpg}
+    \caption{Form of the lasso regression function (left), effect on optimal weight selection (right).}
+    \label{fig:lasso-reg-fn-form}
+\end{figure}
+
+\subsubsection{Elastic Net}
+Elastic Net is a middle ground between ridge and Lasso regression, which it achieves by using a linear combination of the respective regularization terms. Depending on how heavily each regularization term is weighted, this can produce results on a spectrum between Lasso and ridge regression. \\
+
+sequential estim? ridge regression as adding zero response data? Interpretation of regularization as a prior?
 
 \subsection{Predictive Distribution}
-What the predictive distribution is, how we use it
+Returning to the setting of Bayesian Linear Regression, what if we wished to get a distribution of $\textbf{w}$ instead of a point estimator for it using maximum likelihood? If we introduce a prior distribution over $\textbf{w}$, then together with our observed data, we can produce a posterior distribution over $\textbf{w}$ as we desire.
+
+For the sake of simplicity and ease of use, let's make our prior over $\textbf{w}$ a Normal distribution with mean $\boldsymbol{\mu}_{0}$ and variance $\boldsymbol{S}_{0}^{-1}$:
+\begin{align*}
+    p(\textbf{w}) = \mathcal{N}(\boldsymbol{\mu}_{0}, \boldsymbol{S}_{0}^{-1})
+\end{align*}
+Remember that the distribution over our observed data is Normal as well from Equation \ref{normal-over-w}, written here in terms of our entire data set:
+\begin{align*}
+    p(\textbf{Y} | \textbf{X}, \textbf{w}, \beta) = \mathcal{N}(\textbf{X}\textbf{w}, \beta^{-1}\textbf{I})
+\end{align*}
+We want to combine the likelihood and the prior to recover the posterior distribution of $\textbf{w}$, which follows directly from Bayes' Theorem:
+\begin{align*}
+    p(\textbf{w}|\textbf{X},\textbf{Y}, \beta) \propto p(\textbf{Y}| \textbf{X}, \textbf{w}, \beta)p(\textbf{w})
+\end{align*}
+Accounting for Normal-Normal conjugacy, our posterior distribution will be a Normal as well:
+\begin{align*}
+    p(\textbf{w}|\textbf{X},\textbf{Y}, \beta) = \mathcal{N}(\boldsymbol{\mu}_{N}, \boldsymbol{S}_{N}^{-1})
+\end{align*}
+where
+\begin{align*}
+    \boldsymbol{S}_{N} = (\boldsymbol{S}_{0}^{-1} + \beta\textbf{X}^{T}\textbf{X})^{-1} \\
+    \boldsymbol{\mu}_{N} = \boldsymbol{S}_{N}(\boldsymbol{S}_{0}^{-1}\boldsymbol{\mu}_{0} + \beta\textbf{X}\textbf{Y})
+\end{align*}
+
+We now have a posterior distribution over \textbf{w}. However, usually this distribution is not what we care about. We're actually interested in making a point prediction for the target $y^{*}$ given a new input $\textbf{x}^{*}$. How do we go from a posterior distribution over \textbf{w} to this prediction?
+
+The answer is using what's known as the posterior predictive over $y^{*}$ given by:
+
+\begin{equation}
+\begin{split}
+    p(y^{*} | \textbf{x}^{*}, \textbf{X}, \textbf{Y}) = \int_{\textbf{w}} p(y^{*} | \textbf{x}^{*}, \textbf{w})p(\textbf{w} | \textbf{X}, \textbf{Y})d\textbf{w} \\
+    = \mathcal{N}(y^{*} | \textbf{w}^{T}\textbf{x}^{*}, \beta^{-1})\mathcal{N}(\textbf{w} | \boldsymbol{\mu}_{N}, \boldsymbol{S}_{N}^{-1})d\textbf{w}
+\end{split}
+\end{equation}
+
+The idea here is to average the probability of $y^{*}$ over all the possible setting of \textbf{w}, weighting the probabilities by how likely each setting of \textbf{w} is according to its posterior distribution.
 
 \section{Practice Problems}
