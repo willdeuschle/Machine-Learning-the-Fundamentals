@@ -1,1 +1,172 @@
 \chapter{Classification}
+In the last chapter we explored ways of predicting a continuous, real-number target. In this chapter, we're going to think about a different problem- one where our target output is discrete valued. This type of problem is known as \textbf{classification}.
+
+\section{Introduction and Motivation}
+There are many problems where we want to make a prediction that chooses between finite class options. These are \textbf{classification} problems.
+
+\begin{definition}{Classification}{classification}
+A set of problems that seeks to make predictions about unknown target classes given observed input variables.
+\end{definition}
+
+\subsection{Examples of Classification}
+We can imagine many situations where classification is useful:
+\begin{enumerate}
+	\item Predicting whether a given email is spam.
+    \item Predicting the type of animal in an image.
+    \item Predicting whether a manufactured good is defective.
+\end{enumerate}
+
+There are several different routes for solving classification problems. We're going to discuss three in this chapter: discriminant functions, probabilistic discriminative models (also known as logistic regression), and probabilistic generative models. Note that these are not the only methods for performing classification tasks, but they are similar enough that it makes sense to present and explore them together. Specifically, these techniques all use some linear combination of input variables to produce a class prediction. For that reason, we will refer to these techniques as \textbf{generalized linear models}.
+
+\begin{mlcube}{Generalized Linear Models}
+Let's inspect the categories that generalized linear models fall into for our ML framework cube. First, since we are using these techniques to perform classification, generalized linear models deal with a \textbf{discrete} output domain. Note that the input domain is usually continuous. Second, as with linear regression, our goal is to make predictions on future data points given an initial set of data to learn from. Thus, generalized linear models are \textbf{supervised} techniques. Finally, depending on the type of generalized linear model, they can be either \textbf{probabilistic or non-probabilistic}.
+\begin{center}
+    \begin{tabular}{c|c|c}
+    \textit{\textbf{Domain}} & \textit{\textbf{Training}} & \textit{\textbf{Probabilistic}} \\
+    \hline
+    Discrete & Supervised & Yes / No \\
+    \end{tabular}
+\end{center}
+\end{mlcube}
+
+\section{Technical}
+Generalized linear models for classification come in several different flavors. The most straightforward method carries over very easily from linear regression: discriminant functions. As we will see, with discriminant functions we are linearly separating the input space into sections belonging to different target classes. We will explore this method first. One thing to keep in mind while we discuss these techniques is that it's generally easiest to first explore these methods in the case where we have only two target classes, but there is typically a generalization that allows us to handle the multi-class case as well.
+
+\textit{explain before any subsections that there are different ways of going about the problem of classification, and we're going to explore those different methods and talk about their implications. potentially also discuss the generalization from two classes to multiple classes as being and important thing to keep in mind}
+
+\subsection{Discriminant Functions}
+As with linear regression, discriminant functions seek to find a weighted combination of our input variables to make a prediction about the target class:
+\begin{equation} \label{basic-discriminant-fn}
+	h(\textbf{x}, \textbf{w}) = w_{0} + w_{1}x_{1} + ... + w_{D}x_{D}
+\end{equation}
+
+\subsubsection{Two Classes (Binary Linear Classification)}
+The simplest case for a discriminant function is when we only have two classes that we are trying to decide between. Let's denote these two classes \textbf{1} and \textbf{-1}. Our discriminant function in Equation \ref{basic-discriminant-fn} will then predict class 1 if $h(\textbf{x}, \textbf{w}) \geq 0$ and class -1 if $h(\textbf{x}, \textbf{w}) < 0$:
+\begin{align*}
+	\begin{cases} 
+    	1 & \text{if } h(\textbf{x}, \textbf{w}) \geq 0 \\
+    	-1 & \text{if } h(\textbf{x}, \textbf{w}) < 0
+   \end{cases}
+\end{align*}
+Geometrically, the linear separation between these two classes then looks like so:
+
+** graph here of the linear separation between two classes **
+
+Notice the line where our prediction switches from class 1 to class -1. This is precisely where $h(\textbf{x}, \textbf{w}) = 0$, and it is known as the \textbf{decision boundary}.
+
+\begin{definition}{Decision Boundary}{decision-boundary}
+	The decision boundary is the line that divides the input space into different target classes. It is learned from an initial data set, and then the target class of new data points can be predicted based on where they fall relative to the decision boundary. At the decision boundary, the discriminant function takes on a value of 0.
+\end{definition}
+
+\readernote{You will sometimes see the term \textbf{decision surface} in place of decision boundary, particularly if the input space is larger than two dimensions.}
+
+\subsubsection{Multiple Classes}
+Now consider the case that we have $K > 2$ classes $C_{k}$ to choose between. One obvious approach we might try is to use $K$ different discriminant functions that simply determine whether or not a given input is in that class $C_{k}$. This is known as a \textit{one-versus-all} technique, and it doesn't work properly because we end up with ambiguous regions as follows:
+
+** image of the ambiguious regions we get from this **
+
+Another obvious approach we might employ is to use $\binom{K}{2}$ discriminant functions that each determine whether a given point is more likely to be in class $C_{j}$ or class $C_{k}$. This is known as a \textit{one-versus-one} technique, and it also doesn't work because we again end up with ambiguous regions as follows:
+
+** graph of the other ambiguous regions we introduce by doing this **
+
+Instead, we can avoid these ambiguities in the multiclass case by using $K$ different linear classifiers $h_{k}(\textbf{x}, \textbf{w}_{k})$, and then assigning new data points to the class $C_{k}$ for which $h_{k}(\textbf{x}, \textbf{w}_{k}) > h_{j}(\textbf{x}, \textbf{w}_{j})$ for all $j \neq k$. Then, similar to the 2-class case, the decision boundaries are described by the surface along which $h_{k}(\textbf{x}, \textbf{w}_{k}) = h_{j}(\textbf{x}, \textbf{w}_{j})$.
+
+Now that we've explored the multiclass generalization, we can discuss how to learn the weights $w$ that define the optimal discriminant functions.
+
+\subsubsection{Solving for Decision Boundaries: Least Squares}
+To find the set of weights \textbf{w} that form the optimal decision boundary between target classes, we will start with a technique that we also used for linear regression: minimizing a least squares loss function.
+
+We first need to introduce the idea of \textit{one-hot encoding}, which simply means that the class of a given data point is described by a vector with $K$ options that has a 1 in the position that corresponds to class $C_{k}$ and 0s everywhere else (note that this is usually 0-indexed). For example, class $C_{1}$ of 4 classes would be represented by the vector:
+
+** vector here that represents this one-hot encoding **.
+
+Now that we have the idea of one-hot encoding, we can describe our target classes for each data point in terms of a one-hot encoded vector, which can then be used in our training process for least squares.
+
+Each class $C_{k}$ gets its own linear function with a different set of weights $\textbf{w}_{k}$:
+\begin{align*}
+	h_{k}(\textbf{x}, \textbf{w}_{k}) = \textbf{w}_{k}^{T}\textbf{x}
+\end{align*}
+We can combine the set of weights for each class into a matrix $\textbf{W}$, which gives us our linear classifier:
+\begin{equation}
+	h(\textbf{x}, \textbf{W}) = \textbf{W}^{T}\textbf{x}
+\end{equation}
+where each row in the weight matrix \textbf{W} corresponds to the linear function of an individual class. We can use the results derived in the last chapter to find the solution for \textbf{W} that minimizes the least squares loss function. Assuming a data set of input data points \textbf{X} and one-hot encoded target vectors \textbf{Y} (where every row is a single target vector), the optimal solution for \textbf{W} is given by:
+\begin{align*}
+	\textbf{W}^{*} = (\textbf{X}^{T}\textbf{X})^{-1}\textbf{X}^{T}\textbf{Y}
+\end{align*}
+which we can then use in our discriminant function $h(\textbf{x}, \textbf{W})$ to make predictions on new data points.
+
+While least squares gives us an analytic solution for our discriminant function, it also has some significant limitations. For one, least squares penalizes data points that are `too good', meaning they fall too far on the correct side of the decision boundary. Furthermore, it is not robust to outliers, meaning the decision boundary significantly changes with the addition of just a few outlier data points.
+
+** graph here showing the outlier phenomenon **
+
+We can help remedy the problems with least squares by using different methods for solving for our weight parameters.
+
+\subsubsection{Solving for Decision Boundaries: Fisher's Linear Discriminant}
+Should we mention this here? Is it necessary?
+
+\subsubsection{Perceptron Algorithm}
+To motivate the perceptron algorithm, we must first motivate something called \textbf{0/1 loss}, which is just a different loss function than least squares. The idea behind it is very simple: if we misclassify a point, we incur a loss of 1, and if we classify it correctly, we incur no loss.
+
+While this is a very logical loss function, it does not have a closed form solution like least squares and it is non-convex so it is not easily optimized. However, the 0/1 loss function inspires a different loss function, known as the \textbf{perceptron loss function}.
+
+The perceptron loss function is a modification of the 0/1 loss function that both provides more useful information and makes it differentiable (which will be important for our ability to optimize our parameters).
+
+To understand the perceptron loss function, it's first necessary to introduce the \textit{rectified linear activation unit}, known as ReLU.
+\begin{equation}
+	\text{ReLU}(x) = \text{max}\{0, x\}
+\end{equation}
+** put a graph here of what the relu looks like **
+
+We can use this form of function to our advantage in constructing the perceptron loss by recognizing that we wish to incur error when we're wrong (which corresponds to the right side of the graph $x > 0$, which is continuously increasing), and we wish to incur 0 error if we are correct (which corresponds to the left side of the graph $x < 0$).
+
+Remember from the previous section on least squares that in the two-class case, we classify a data point $\textbf{x}^{*}$ as being from class 1 if $h(\textbf{x}^{*}, \textbf{w}) \geq 0$, and class -1 otherwise. We can combine this with ReLU by recognizing that $-h(\textbf{x}^{*}, \textbf{w})y^{*} \geq 0$ when there is a classification error, where $y^{*}$ is the true class of data point $\textbf{x}^{*}$. This has exactly the properties we described above: we incur error when we misclassify, and otherwise we do not incur error.
+
+We can then write the entirety of the perceptron loss function:
+\begin{align}
+	\mathcal{L}(\textbf{w}) &= \sum_{i}^{N} \text{ReLU}(-h(\textbf{x}_{i}, \textbf{w})y_{i}) \\
+	&= -\sum_{y_{i} \neq \hat{y}_{i}}^{N} h(\textbf{x}_{i}, \textbf{w})y_{i} \\
+	&= -\sum_{y_{i} \neq \hat{y}_{i}}^{N} \textbf{w}^{T}\textbf{x}_{i} y_{i}
+\end{align}
+
+Notice that misclassified examples contribute positive loss, as desired. We can take the gradient of this loss function, which will allow us to optimize it using stochastic gradient descent. The gradient of the loss with respect to our parameters \textbf{w}:
+\begin{align*}
+	\frac{\partial \mathcal{L}(\textbf{w})}{\partial \textbf{w}} = -\sum_{y_{i} \neq \hat{y}_{i}}^{N} \textbf{x}_{i} y_{i}
+\end{align*}
+and then our update equation from time $t$ to time $t+1$ for a single misclassified example and with learning rate $\eta$ is given by:
+\begin{align*}
+	\textbf{w}^{(t+1)} = \textbf{w}^{(t)} - \eta\frac{\partial \mathcal{L}(\textbf{w})}{\partial \textbf{w}} = \textbf{w}^{(t)} + \eta \textbf{x}_{i} y_{i}
+\end{align*}
+
+To sum up, the benefits of the perceptron loss function are its differentiability (which allows us to optimize our weight parameters using SGD), the fact that it doesn't penalize any correctly classified data points (unlike basic linear classification), and it penalizes more heavily data points that are more poorly misclassified. Furthermore, the perceptron algorithm guarantees that if there is a perfect classification of all our data points, if we run the algorithm for long enough, we will find that setting of parameters. The proof for this is beyond the scope of this textbook.
+
+\subsubsection{Basis Changes in Classification}
+One thing we have not yet mentioned in this chapter, but that applies as much to linear classificaiton as it does to linear regression, is the idea of basis changes. Basis changes are just as important for classification as they are for regression. For example, consider this data set:
+
+** graph of the circle of one class and the inner sphere of another class **
+
+It's obviously not possible for us to use a linear classifier as is in this data set. However, if we apply a basis change by squaring one of the data points, we instead have this graph:
+
+** new graph with some of the points raised up and others low down **
+
+which is now linearly separable by a plane between the two classes.
+
+\subsection{Probabilistic Discriminative Models}
+logistic regression, linear classification, max'ing a likelihood fn defined through conditional distribution directly, logistic sigmoid (applying nonlinearities), softmax, similarity to linear regression (solving for weights), one-hot encodings, still have basis functions
+
+\subsubsection{Use of the Conditional Distribution}
+\subsubsection{Applying Nonlinearities}
+\subsubsection{Logistic Regression}
+\subsubsection{Multi-Class Logistic Regression and Softmax}
+
+\subsection{Probabilistic Generative Models}
+... what is a generative model, class priors, class-conditional distributions, modeling and then making a decision, logistic sigmoid, why we use it, softmax fn, naive bayes, max like soln
+
+\subsubsection{Generative Models}
+\subsubsection{Comparison to Discriminative Models}
+\subsubsection{Modeling Step}
+\subsubsection{Decision Making Step}
+\subsubsection{Naive Bayes}
+
+\section{Conclusion}
+\section{Practice Problems}
