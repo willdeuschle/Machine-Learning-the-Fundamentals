@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2018.4.27)  2 MAY 2018 10:09
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2018.4.27)  7 JUN 2018 07:35
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -379,11 +379,15 @@ Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
 \symAMSb=\mathgroup5
 LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
 (Font)                  U/euf/m/n --> U/euf/b/n on input line 106.
-)))
-(./commands.tex
-(/usr/local/texlive/2017basic/texmf-dist/tex/latex/tcolorbox/tcbtheorems.code.t
-ex
-Library (tcolorbox): 'tcbtheorems.code.tex' version '4.13'
+))
+(/usr/local/texlive/2017basic/texmf-dist/tex/latex/float/float.sty
+Package: float 2001/11/08 v1.3d Float enhancements (AL)
+\c@float@type=\count106
+\float@exts=\toks30
+\float@box=\box41
+\@float@everytoks=\toks31
+\@floatcapt=\box42
+))
 (/usr/local/texlive/2017basic/texmf-dist/tex/latex/amsmath/amsmath.sty
 Package: amsmath 2016/11/05 v2.16a AMS math features
 \@mathmargin=\skip43
@@ -394,7 +398,7 @@ Package: amstext 2000/06/29 v2.01 AMS text
 
 (/usr/local/texlive/2017basic/texmf-dist/tex/latex/amsmath/amsgen.sty
 File: amsgen.sty 1999/11/30 v2.0 generic functions
-\@emptytoks=\toks30
+\@emptytoks=\toks32
 \ex@=\dimen150
 ))
 (/usr/local/texlive/2017basic/texmf-dist/tex/latex/amsmath/amsbsy.sty
@@ -404,50 +408,55 @@ Package: amsbsy 1999/11/29 v1.2d Bold Symbols
 (/usr/local/texlive/2017basic/texmf-dist/tex/latex/amsmath/amsopn.sty
 Package: amsopn 2016/03/08 v2.02 operator names
 )
-\inf@bad=\count106
+\inf@bad=\count107
 LaTeX Info: Redefining \frac on input line 213.
-\uproot@=\count107
-\leftroot@=\count108
+\uproot@=\count108
+\leftroot@=\count109
 LaTeX Info: Redefining \overline on input line 375.
-\classnum@=\count109
-\DOTSCASE@=\count110
+\classnum@=\count110
+\DOTSCASE@=\count111
 LaTeX Info: Redefining \ldots on input line 472.
 LaTeX Info: Redefining \dots on input line 475.
 LaTeX Info: Redefining \cdots on input line 596.
-\Mathstrutbox@=\box41
-\strutbox@=\box42
+\Mathstrutbox@=\box43
+\strutbox@=\box44
 \big@size=\dimen152
 LaTeX Font Info:    Redeclaring font encoding OML on input line 712.
 LaTeX Font Info:    Redeclaring font encoding OMS on input line 713.
-\macc@depth=\count111
-\c@MaxMatrixCols=\count112
+\macc@depth=\count112
+\c@MaxMatrixCols=\count113
 \dotsspace@=\muskip10
-\c@parentequation=\count113
-\dspbrk@lvl=\count114
-\tag@help=\toks31
-\row@=\count115
-\column@=\count116
-\maxfields@=\count117
-\andhelp@=\toks32
+\c@parentequation=\count114
+\dspbrk@lvl=\count115
+\tag@help=\toks33
+\row@=\count116
+\column@=\count117
+\maxfields@=\count118
+\andhelp@=\toks34
 \eqnshift@=\dimen153
 \alignsep@=\dimen154
 \tagshift@=\dimen155
 \tagwidth@=\dimen156
 \totwidth@=\dimen157
 \lineht@=\dimen158
-\@envbody=\toks33
+\@envbody=\toks35
 \multlinegap=\skip44
 \multlinetaggap=\skip45
-\mathdisplay@stack=\toks34
+\mathdisplay@stack=\toks36
 LaTeX Info: Redefining \[ on input line 2817.
 LaTeX Info: Redefining \] on input line 2818.
-))
+)
+(./commands.tex
+(/usr/local/texlive/2017basic/texmf-dist/tex/latex/tcolorbox/tcbtheorems.code.t
+ex
+Library (tcolorbox): 'tcbtheorems.code.tex' version '4.13'
+)
 (/usr/local/texlive/2017basic/texmf-dist/tex/latex/tcolorbox/tcbbreakable.code.
 tex
 Library (tcolorbox): 'tcbbreakable.code.tex' version '4.13'
-\tcb@testbox=\box43
-\tcb@totalupperbox=\box44
-\tcb@totallowerbox=\box45
+\tcb@testbox=\box45
+\tcb@totalupperbox=\box46
+\tcb@totallowerbox=\box47
 )
 (/usr/local/texlive/2017basic/texmf-dist/tex/latex/tcolorbox/tcbskins.code.tex
 Library (tcolorbox): 'tcbskins.code.tex' version '4.13'
@@ -465,8 +474,8 @@ Package: pgffor 2013/12/13 v3.0.1a (rcs-revision 1.25)
 (/usr/local/texlive/2017basic/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex)
 \pgffor@iter=\dimen159
 \pgffor@skip=\dimen160
-\pgffor@stack=\toks35
-\pgffor@toks=\toks36
+\pgffor@stack=\toks37
+\pgffor@toks=\toks38
 ))
 (/usr/local/texlive/2017basic/texmf-dist/tex/generic/pgf/frontendlayer/tikz/tik
 z.code.tex
@@ -475,7 +484,7 @@ Package: tikz 2015/08/07 v3.0.1a (rcs-revision 1.151)
 (/usr/local/texlive/2017basic/texmf-dist/tex/generic/pgf/libraries/pgflibrarypl
 othandlers.code.tex
 File: pgflibraryplothandlers.code.tex 2013/08/31 v3.0.1a (rcs-revision 1.20)
-\pgf@plot@mark@count=\count118
+\pgf@plot@mark@count=\count119
 \pgfplotmarksize=\dimen161
 )
 \tikz@lastx=\dimen162
@@ -484,55 +493,56 @@ File: pgflibraryplothandlers.code.tex 2013/08/31 v3.0.1a (rcs-revision 1.20)
 \tikz@lastysaved=\dimen165
 \tikzleveldistance=\dimen166
 \tikzsiblingdistance=\dimen167
-\tikz@figbox=\box46
-\tikz@figbox@bg=\box47
-\tikz@tempbox=\box48
-\tikz@tempbox@bg=\box49
-\tikztreelevel=\count119
-\tikznumberofchildren=\count120
-\tikznumberofcurrentchild=\count121
-\tikz@fig@count=\count122
+\tikz@figbox=\box48
+\tikz@figbox@bg=\box49
+\tikz@tempbox=\box50
+\tikz@tempbox@bg=\box51
+\tikztreelevel=\count120
+\tikznumberofchildren=\count121
+\tikznumberofcurrentchild=\count122
+\tikz@fig@count=\count123
 
 (/usr/local/texlive/2017basic/texmf-dist/tex/generic/pgf/modules/pgfmodulematri
 x.code.tex
 File: pgfmodulematrix.code.tex 2013/09/17  (rcs-revision 1.8)
-\pgfmatrixcurrentrow=\count123
-\pgfmatrixcurrentcolumn=\count124
-\pgf@matrix@numberofcolumns=\count125
+\pgfmatrixcurrentrow=\count124
+\pgfmatrixcurrentcolumn=\count125
+\pgf@matrix@numberofcolumns=\count126
 )
-\tikz@expandcount=\count126
+\tikz@expandcount=\count127
 
 (/usr/local/texlive/2017basic/texmf-dist/tex/generic/pgf/frontendlayer/tikz/lib
 raries/tikzlibrarytopaths.code.tex
 File: tikzlibrarytopaths.code.tex 2008/06/17 v3.0.1a (rcs-revision 1.2)
 )))
-\tcb@waterbox=\box50
+\tcb@waterbox=\box52
 
 (/usr/local/texlive/2017basic/texmf-dist/tex/latex/tcolorbox/tcbskinsjigsaw.cod
 e.tex
 Library (tcolorbox): 'tcbskinsjigsaw.code.tex' version '4.13'
 ))
-\c@tcb@cnt@definition=\count127
-\c@example=\count128
+\c@tcb@cnt@definition=\count128
+\c@tcb@cnt@derivation=\count129
+\c@example=\count130
 ) (/usr/local/texlive/2017basic/texmf-dist/tex/latex/tools/enumerate.sty
 Package: enumerate 2015/07/23 v3.00 enumerate extensions (DPC)
-\@enLab=\toks37
+\@enLab=\toks39
 )
 (./master.aux)
 \openout1 = `master.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 8.
-LaTeX Font Info:    ... okay on input line 8.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 8.
-LaTeX Font Info:    ... okay on input line 8.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 8.
-LaTeX Font Info:    ... okay on input line 8.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 8.
-LaTeX Font Info:    ... okay on input line 8.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 8.
-LaTeX Font Info:    ... okay on input line 8.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 8.
-LaTeX Font Info:    ... okay on input line 8.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 9.
+LaTeX Font Info:    ... okay on input line 9.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 9.
+LaTeX Font Info:    ... okay on input line 9.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 9.
+LaTeX Font Info:    ... okay on input line 9.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 9.
+LaTeX Font Info:    ... okay on input line 9.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 9.
+LaTeX Font Info:    ... okay on input line 9.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 9.
+LaTeX Font Info:    ... okay on input line 9.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
@@ -571,17 +581,17 @@ LaTeX Font Info:    ... okay on input line 8.
 ABD: EveryShipout initializing macros
 (/usr/local/texlive/2017basic/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count129
+\scratchcounter=\count131
 \scratchdimen=\dimen168
-\scratchbox=\box51
-\nofMPsegments=\count130
-\nofMParguments=\count131
-\everyMPshowfont=\toks38
-\MPscratchCnt=\count132
+\scratchbox=\box53
+\nofMPsegments=\count132
+\nofMParguments=\count133
+\everyMPshowfont=\toks40
+\MPscratchCnt=\count134
 \MPscratchDim=\dimen169
-\MPnumerator=\count133
-\makeMPintoPDFobject=\count134
-\everyMPtoPDFconversion=\toks39
+\MPnumerator=\count135
+\makeMPintoPDFobject=\count136
+\everyMPtoPDFconversion=\toks41
 ) (/usr/local/texlive/2017basic/texmf-dist/tex/generic/oberdiek/pdftexcmds.sty
 Package: pdftexcmds 2017/03/19 v0.25 Utility functions of pdfTeX for LuaTeX (HO
 )
@@ -648,52 +658,201 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
  [2
 
 ]
-(../MLIntroduction/MLIntroduction.tex
-Chapter 1.
+(../LinearRegression/LinearRegression.tex
+Chapter 2.
 [1
 
 
 ] [2]
-Underfull \hbox (badness 10000) in paragraph at lines 36--37
+<../LinearRegression/fig/simple_lin_reg_GEN.jpg, id=34, 433.62pt x 289.08pt>
+File: ../LinearRegression/fig/simple_lin_reg_GEN.jpg Graphic file (type jpg)
+
+<use ../LinearRegression/fig/simple_lin_reg_GEN.jpg>
+Package pdftex.def Info: ../LinearRegression/fig/simple_lin_reg_GEN.jpg used on
+ input line 89.
+(pdftex.def)             Requested size: 307.14749pt x 204.77625pt.
+
+<../LinearRegression/fig/simple_lin_reg_w_line_GEN.jpg, id=35, 433.62pt x 289.0
+8pt>
+File: ../LinearRegression/fig/simple_lin_reg_w_line_GEN.jpg Graphic file (type 
+jpg)
+ <use ../LinearRegression/fig/simple_lin_reg_w_line_GEN.jpg>
+Package pdftex.def Info: ../LinearRegression/fig/simple_lin_reg_w_line_GEN.jpg 
+used on input line 98.
+(pdftex.def)             Requested size: 307.14749pt x 204.77625pt.
+ [3 <../LinearRegression/fig/simple_lin_reg_GEN.jpg>] [4 <../LinearRegression/f
+ig/simple_lin_reg_w_line_GEN.jpg>]
+<../LinearRegression/fig/deriv_at_2_GEN.jpg, id=44, 433.62pt x 289.08pt>
+File: ../LinearRegression/fig/deriv_at_2_GEN.jpg Graphic file (type jpg)
+
+<use ../LinearRegression/fig/deriv_at_2_GEN.jpg>
+Package pdftex.def Info: ../LinearRegression/fig/deriv_at_2_GEN.jpg used on inp
+ut line 137.
+(pdftex.def)             Requested size: 307.14749pt x 204.77625pt.
+
+Underfull \vbox (badness 3417) has occurred while \output is active []
+
+ [5 <../LinearRegression/fig/deriv_at_2_GEN.jpg>]
+Underfull \hbox (badness 10000) in paragraph at lines 162--164
 
  []
 
-) (../LinearRegression/LinearRegression.tex [3]
-Chapter 2.
-[4
+[6]
+Underfull \hbox (badness 10000) in paragraph at lines 215--217
 
-]) [5] (./master.aux) ) 
+ []
+
+
+<../LinearRegression/fig/lin_reg_no_basis_fn_GEN.jpg, id=53, 433.62pt x 289.08p
+t>
+File: ../LinearRegression/fig/lin_reg_no_basis_fn_GEN.jpg Graphic file (type jp
+g)
+ <use ../LinearRegression/fig/lin_reg_no_basis_fn_GEN.jpg>
+Package pdftex.def Info: ../LinearRegression/fig/lin_reg_no_basis_fn_GEN.jpg us
+ed on input line 240.
+(pdftex.def)             Requested size: 307.14749pt x 204.77625pt.
+ [7]
+<../LinearRegression/fig/lin_reg_no_basis_fn_fitted_GEN.jpg, id=59, 433.62pt x 
+289.08pt>
+File: ../LinearRegression/fig/lin_reg_no_basis_fn_fitted_GEN.jpg Graphic file (
+type jpg)
+ <use ../LinearRegression/fig/lin_reg_no_basis_fn_fitted_GEN.jpg>
+Package pdftex.def Info: ../LinearRegression/fig/lin_reg_no_basis_fn_fitted_GEN
+.jpg used on input line 249.
+(pdftex.def)             Requested size: 307.14749pt x 204.77625pt.
+
+<../LinearRegression/fig/lin_reg_w_basis_fn_GEN.jpg, id=60, 433.62pt x 289.08pt
+>
+File: ../LinearRegression/fig/lin_reg_w_basis_fn_GEN.jpg Graphic file (type jpg
+)
+ <use ../LinearRegression/fig/lin_reg_w_basis_fn_GEN.jpg>
+Package pdftex.def Info: ../LinearRegression/fig/lin_reg_w_basis_fn_GEN.jpg use
+d on input line 258.
+(pdftex.def)             Requested size: 307.14749pt x 204.77625pt.
+
+<../LinearRegression/fig/data_set_scattered_GEN.jpg, id=61, 433.62pt x 289.08pt
+>
+File: ../LinearRegression/fig/data_set_scattered_GEN.jpg Graphic file (type jpg
+)
+ <use ../LinearRegression/fig/data_set_scattered_GEN.jpg>
+Package pdftex.def Info: ../LinearRegression/fig/data_set_scattered_GEN.jpg use
+d on input line 279.
+(pdftex.def)             Requested size: 307.14749pt x 204.77625pt.
+ [8 <../LinearRegression/fig/lin_reg_no_basis_fn_GEN.jpg>] [9 <../LinearRegress
+ion/fig/lin_reg_no_basis_fn_fitted_GEN.jpg> <../LinearRegression/fig/lin_reg_w_
+basis_fn_GEN.jpg>]
+<../LinearRegression/fig/data_set_natural_fit_GEN.jpg, id=68, 433.62pt x 289.08
+pt>
+File: ../LinearRegression/fig/data_set_natural_fit_GEN.jpg Graphic file (type j
+pg)
+ <use ../LinearRegression/fig/data_set_natural_fit_GEN.jpg>
+Package pdftex.def Info: ../LinearRegression/fig/data_set_natural_fit_GEN.jpg u
+sed on input line 286.
+(pdftex.def)             Requested size: 307.14749pt x 204.77625pt.
+
+<../LinearRegression/fig/data_set_unnatural_fit_GEN.jpg, id=69, 433.62pt x 289.
+08pt>
+File: ../LinearRegression/fig/data_set_unnatural_fit_GEN.jpg Graphic file (type
+ jpg)
+ <use ../LinearRegression/fig/data_set_unnatural_fit_GEN.jpg>
+Package pdftex.def Info: ../LinearRegression/fig/data_set_unnatural_fit_GEN.jpg
+ used on input line 295.
+(pdftex.def)             Requested size: 307.14749pt x 204.77625pt.
+ [10 <../LinearRegression/fig/data_set_scattered_GEN.jpg>] [11 <../LinearRegres
+sion/fig/data_set_natural_fit_GEN.jpg> <../LinearRegression/fig/data_set_unnatu
+ral_fit_GEN.jpg>]
+<../LinearRegression/fig/diffregvalues_GEN.jpg, id=77, 433.62pt x 289.08pt>
+File: ../LinearRegression/fig/diffregvalues_GEN.jpg Graphic file (type jpg)
+
+<use ../LinearRegression/fig/diffregvalues_GEN.jpg>
+Package pdftex.def Info: ../LinearRegression/fig/diffregvalues_GEN.jpg used on 
+input line 322.
+(pdftex.def)             Requested size: 307.14749pt x 204.77625pt.
+ [12 <../LinearRegression/fig/diffregvalues_GEN.jpg>]
+Underfull \hbox (badness 10000) in paragraph at lines 349--351
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 383--385
+
+ []
+
+[13]
+<../LinearRegression/fig/biasvariance_GEN.jpg, id=86, 433.62pt x 289.08pt>
+File: ../LinearRegression/fig/biasvariance_GEN.jpg Graphic file (type jpg)
+
+<use ../LinearRegression/fig/biasvariance_GEN.jpg>
+Package pdftex.def Info: ../LinearRegression/fig/biasvariance_GEN.jpg used on i
+nput line 417.
+(pdftex.def)             Requested size: 307.14749pt x 204.77625pt.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [14]
+[15 <../LinearRegression/fig/biasvariance_GEN.jpg>] [16] [17]
+Underfull \hbox (badness 10000) in paragraph at lines 527--528
+
+ []
+
+
+<../LinearRegression/fig/ridgeandlassoreg_GEN.jpg, id=102, 433.62pt x 289.08pt>
+File: ../LinearRegression/fig/ridgeandlassoreg_GEN.jpg Graphic file (type jpg)
+<use ../LinearRegression/fig/ridgeandlassoreg_GEN.jpg>
+Package pdftex.def Info: ../LinearRegression/fig/ridgeandlassoreg_GEN.jpg used 
+on input line 533.
+(pdftex.def)             Requested size: 307.14749pt x 204.77625pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 539--540
+
+ []
+
+[18] [19 <../LinearRegression/fig/ridgeandlassoreg_GEN.jpg>]
+Underfull \hbox (badness 10000) in paragraph at lines 606--607
+
+ []
+
+[20]) [21] (./master.aux) ) 
 Here is how much of TeX's memory you used:
- 16309 strings out of 494437
- 343377 string characters out of 6166645
- 418310 words of memory out of 5000000
- 19345 multiletter control sequences out of 15000+600000
- 14627 words of font info for 54 fonts, out of 8000000 for 9000
+ 16518 strings out of 494437
+ 348760 string characters out of 6166645
+ 428836 words of memory out of 5000000
+ 19530 multiletter control sequences out of 15000+600000
+ 18391 words of font info for 66 fonts, out of 8000000 for 9000
  319 hyphenation exceptions out of 8191
- 56i,13n,83p,1543b,920s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/local/texlive/2017basic/texmf-dist/fonts/type1/pub
-lic/amsfonts/cm/cmbx10.pfb></usr/local/texlive/2017basic/texmf-dist/fonts/type1
-/public/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2017basic/texmf-dist/fonts/t
-ype1/public/amsfonts/cm/cmbxti10.pfb></usr/local/texlive/2017basic/texmf-dist/f
-onts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2017basic/texmf-di
-st/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2017basic/texmf
--dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/local/texlive/2017basic/te
-xmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2017basic
-/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2017ba
-sic/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/local/texlive/201
-7basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive/2
-017basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive
-/2017basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/texli
-ve/2017basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmsl10.pfb></usr/local/t
-exlive/2017basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/loc
-al/texlive/2017basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/
-local/texlive/2017basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmti9.pfb></u
-sr/local/texlive/2017basic/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm1
-0.pfb>
-Output written on master.pdf (7 pages, 196855 bytes).
+ 56i,20n,83p,846b,1004s stack positions out of 5000i,500n,10000p,200000b,80000s
+</usr/local/texlive/2017basic/texmf-dist/fonts/type1
+/public/amsfonts/cm/cmbx10.pfb></usr/local/texlive/2017basic/texmf-dist/fonts/t
+ype1/public/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2017basic/texmf-dist/fon
+ts/type1/public/amsfonts/cm/cmbx8.pfb></usr/local/texlive/2017basic/texmf-dist/
+fonts/type1/public/amsfonts/cm/cmbx9.pfb></usr/local/texlive/2017basic/texmf-di
+st/fonts/type1/public/amsfonts/cm/cmbxti10.pfb></usr/local/texlive/2017basic/te
+xmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2017basi
+c/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2017
+basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/texlive/2
+017basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texliv
+e/2017basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/local/tex
+live/2017basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></usr/loca
+l/texlive/2017basic/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib8.pfb><
+/usr/local/texlive/2017basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pf
+b></usr/local/texlive/2017basic/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12
+.pfb></usr/local/texlive/2017basic/texmf-dist/fonts/type1/public/amsfonts/cm/cm
+r17.pfb></usr/local/texlive/2017basic/texmf-dist/fonts/type1/public/amsfonts/cm
+/cmr6.pfb></usr/local/texlive/2017basic/texmf-dist/fonts/type1/public/amsfonts/
+cm/cmr8.pfb></usr/local/texlive/2017basic/texmf-dist/fonts/type1/public/amsfont
+s/cm/cmr9.pfb></usr/local/texlive/2017basic/texmf-dist/fonts/type1/public/amsfo
+nts/cm/cmsl10.pfb></usr/local/texlive/2017basic/texmf-dist/fonts/type1/public/a
+msfonts/cm/cmsy10.pfb></usr/local/texlive/2017basic/texmf-dist/fonts/type1/publ
+ic/amsfonts/cm/cmsy6.pfb></usr/local/texlive/2017basic/texmf-dist/fonts/type1/p
+ublic/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2017basic/texmf-dist/fonts/type
+1/public/amsfonts/cm/cmsy9.pfb></usr/local/texlive/2017basic/texmf-dist/fonts/t
+ype1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/2017basic/texmf-dist/fon
+ts/type1/public/amsfonts/cm/cmti9.pfb></usr/local/texlive/2017basic/texmf-dist/
+fonts/type1/public/amsfonts/symbols/msbm10.pfb>
+Output written on master.pdf (23 pages, 536782 bytes).
 PDF statistics:
- 99 PDF objects out of 1000 (max. 8388607)
- 72 compressed objects within 1 object stream
+ 198 PDF objects out of 1000 (max. 8388607)
+ 133 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
- 13 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 73 words of extra memory for PDF output out of 10000 (max. 10000000)
 
