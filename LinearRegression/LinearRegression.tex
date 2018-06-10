@@ -20,19 +20,24 @@ A class of techniques that seeks to make predictions about unknown continuous ta
 Now that you understand the type of problems we are trying to solve with regression, we can start to think at a high level of the different ways we might arrive at a solution. Here is a short, nonexhaustive list of regression techniques with a corresponding brief explanation:
 
 \subsection{K-Nearest-Neighbors}
-explanation! todo
+K-Nearest-Neighbors is an extremely intuitive, non-parametric technique for regression (or classification). It works as follows:
+
+\begin{itemize}
+    \item[1.] Identify the $K$ points in our data set that are closest to the new data point. `Closest' is some measure of distance, usually Euclidean.
+    \item[2.] Average the value of interest of those $K$ data points.
+    \item[3.] Return that averaged value of interest: it is the prediction for our new data point.
+\end{itemize}
+
+\readernote{A \textit{non-parametric} model simply means we don't make any assumptions about the form of our data. We only need to use the data itself to make predictions.}
 
 \subsection{Neural Networks}
-explanation! todo
-
-\subsection{K-Nearest-Neighbors}
-explanation! todo
+A neural network works by scaling and combining input variables many times. Furthermore, at each step of scaling and combining inputs, we typically apply some form of \textit{nonlinearity} over our data values. The proof is beyond the scope of this textbook, but neural networks are known to be \textit{universal function approximators}. This means that given enough scaling and combining steps, we can approximate any function to an arbitrarily high degree of accuracy using a neural network.
 
 \subsection{Random Forests}
-explanation! todo
+Random forests are what's known as an \textit{ensemble method}. This means we average the results of many smaller regressors known as \textit{decision trees} to produce a prediction. These decision trees individually operate by partitioning our original data set with respect to the value of predictive interest using a subset of the features present in that data set. Each decision tree individually may not be a reliable regressor; by combining many of them we achieve a model with better performance.
 
 \subsection{Gradient Boosted Trees}
-explanation! todo
+Gradient boosted trees are another technique built on decision trees. Assume we start with a set of decision trees that together achieve a certain level of performance. Then, we iteratively add new trees to improve performance on the hardest examples in our data set, and reweight our new set of decision trees to produce the best level of performance possible.
 
 \subsection{Turning to Linear Regression}
 explanation! todo
@@ -129,9 +134,11 @@ That is the entirety of linear regression! It fits the `best' line to our data, 
 
 Now that we have some intuition for what linear regression is, a natural question arises: how do we find the optimal values for $\textbf{w}$? That is the remaining focus of this chapter.
 
-\section{Finding the Best Fitting Line: Loss}
-We can inspect a set of data as presented in Figure \ref{fig:simple-lin-reg}, and are quite good at fitting a line by hand. When we fit that line, whether we think about it or not, what we're trying to do is make the line as close to all of the data points as possible. We can formalize this notion by introducing the concept of \textbf{loss}, also known as an \textit{objective function}, and use it to our advantage in developing a method to automatically fit a line to our data.
+\section{Finding the Best Fitting Line}
+Linear regression is ultimately concerned with fitting the best line possible to our data, which is then used to make predictions about future input data points. We can inspect a set of data like that presented in Figure \ref{fig:simple-lin-reg} and are quite good at fitting a line by hand. When we fit that line, whether we think about it or not, we're trying to make the line as close to all of the data points as possible. We can formalize this notion by introducing the concept of \textit{loss}.
 
+\subsection{Loss}
+Loss, also known as an \textit{objective function}, can be used in developing a method that automatically fits a line to our data.
 
 \begin{definition}{Loss}{loss}
 Loss (or an objective function) is the error incurred for a given prediction. It can be thought of as a measurement of difference between the target ($t$) and predicted ($y(\textbf{x}, \textbf{w}$)) values:
@@ -142,7 +149,7 @@ Loss (or an objective function) is the error incurred for a given prediction. It
 Notice that loss is denoted $\mathcal{L}(\textbf{w})$, and it is a function of our parameters $\textbf{w}$, which are used to generate our prediction. Loss can be computed in different manners, and the choice of what loss function to use has important implications that we will discuss.
 \end{definition}
 
-Loss is a concept that we will come back to very frequently in the context of supervised machine learning methods.
+Loss is a concept that we will come back to very frequently in the context of supervised machine learning methods. Before exploring exactly how we use loss to fit a line, let's consider a specific instance of loss: \textit{least squares}.
 
 \subsection{Least Squares Loss}
 As we mentioned above, there are different methods for computing loss. One of the most commonly used measurements is known as \textbf{Least Squares Loss}. Least squares, as it is often abbreviated, says that the loss for a given data point is the square of the difference between the target and predicted values:
@@ -235,7 +242,7 @@ We now want to solve for the values of $\textbf{w}$ that minimize this expressio
 
 Note that the quantity $(\textbf{X}^{T}\textbf{X})^{-1}\textbf{X}^{T}$ in Derivation \ref{der:least-squares-derivation} has a special name: the \textbf{\textit{Moore-Penrose pseudo inverse}}. You can think of it as a generalization of a matrix inversion operation to a non-square matrix.
 
-\subsection{Bayesian Solution}
+\subsection{Bayesian Solution: Maximum Likelihood Estimation}
 We've thus far been discussing linear regression exclusively in terms of a loss function that helps us fit a set of weights to our data. In particular, we have been working with least squares, which has nice properties that make it a reasonable loss function.
 
 In a very satisfying fashion, least squares also has a statistical foundation. In fact, you can recover the least squares loss function purely from a statistical derivation that we present here.
@@ -291,7 +298,7 @@ As before, we now ask the question: how do we solve for the optimal weights \tex
 Notice that our final solution is exactly the same form as the solution in Equation \ref{least-squares-solved-for-w}, which we solved for by minimizing the least squares loss! \textbf{The takeaway here is that minimizing a least squares loss function is equivalent to maximizing the probability under the assumption of a linear model with Gaussian noise}.
 
 \section{Model Flexibility}
-... intro stuff here
+Occasionally, linear regression will fail to recover a good solution for a data set. While this may be because our data doesn't actually have predictive power, it might also just indicate that our data is provided in a format unsuitable for linear regression. This section explores that problem, in particular focusing on how we can manipulate the flexibility of our models to make them perform better.
 
 \subsection{Basis Functions}
 There are some situations where our input data $\textbf{X}$ is not the best form of our data for performing linear regression. Because linear regression only scales and combines input variables, it is unable to apply more complex transformations to our data such as a \textit{sin} or square root function. In those situations where we need to transform our input variable somehow prior to performing linear regression (which is known as moving our data into a new \textit{basis}), we apply what is known as a \textbf{basis function}.
@@ -457,6 +464,7 @@ The answer is that we can interpret regularizing out weight parameters as adding
 
 \textbf{The interpretation of this is that adding a prior over the distribution of our weight parameters \textbf{w} is equivalent to adding a regularization term where $\lambda = \frac{\boldsymbol{S}_{0}}{\beta}$}
 
+\section{Choosing Between Models}
 \subsection{Bias-Variance Tradeoff and Decomposition}
 Now that you know about regularization, you might have some intuition for why we need to find a balance between complex and simple regression solutions. A complex solution, while it might fit all of our training data, may not generalize well to future data points. On the other hand, a line that is too simple might not vary enough to provide good predictions at all. This phenomenon is not unique to linear regression- it's actually a very fundamental concept in machine learning that's known as the \textbf{bias-variance tradeoff}.
 
@@ -567,8 +575,6 @@ So you can hopefully now see that the bias-variance tradeoff is important to man
 
 In general, we would like to find a sweet spot of moderate bias and variance that produces minimal error. In the next section, we will explore how we find this sweet spot.
 
-\section{Managing Solution Complexity}
-
 \subsection{Cross-Validation}
 We've seen that in choosing a model, we incur error that can be described in terms of bias and variance. We've also seen that we can regulate the source of error through regularization, where heavier regularization increases the bias of our model. A natural question then is how do we know how much regularization to apply to achieve a good balance of bias and variance?
 
@@ -588,6 +594,14 @@ You might wonder why we need to perform cross-validation at all - why can't we t
 
 The answer is again overfitting. If we train over the entire data set and then validate our results on the exact same data set, we are likely to choose a regularization parameter that encourages our model to conform to the exact variation in our data set instead of finding the generalizable trends. By training on one set of data, and then validating on a completely different set of data, we force our model to find good generalizations in our data set. This ultimately allows us to pick the regularization term $\lambda$ that finds the sweet spot between bias and variance, overfitting and underfitting.
 
+\subsection{Bayesian Model Averaging}
+... todo here ...
+
+\subsection{Making a Choice}
+... more todo here ...
+
+\section{Linear Regression Extras}
+With most of linear regression under our belt at this point, it's useful to drill down on a few concepts to come to a deeper understanding of how we can use them in the context of linear regression and beyond.
 \subsection{Generalizing Regularization}
 We've thus far only discussed one form of regularization: ridge regression. Remember that under ridge regression, the loss function takes the form:
 \begin{align*}
