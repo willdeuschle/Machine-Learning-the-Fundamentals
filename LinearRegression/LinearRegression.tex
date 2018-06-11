@@ -17,10 +17,10 @@ A class of techniques that seeks to make predictions about unknown continuous ta
 \end{definition}
 
 \section{High-Level Solution}
-Now that you understand the type of problems we are trying to solve with regression, we can start to think at a high level of the different ways we might arrive at a solution. Here is a short, nonexhaustive list of regression techniques with a corresponding brief explanation:
+Now that you understand the type of problems we are trying to solve with regression, we can start to think at a high level of the different ways we might arrive at a solution. Here is a short, nonexhaustive list of regression techniques with brief explanations:
 
 \subsection{K-Nearest-Neighbors}
-K-Nearest-Neighbors is an extremely intuitive, non-parametric technique for regression (or classification). It works as follows:
+K-Nearest-Neighbors is an extremely intuitive, non-parametric technique for regression or classification. It works as follows in the regression case:
 
 \begin{itemize}
     \item[1.] Identify the $K$ points in our data set that are closest to the new data point. `Closest' is some measure of distance, usually Euclidean.
@@ -40,7 +40,7 @@ Random forests are what's known as an \textit{ensemble method}. This means we av
 Gradient boosted trees are another technique built on decision trees. Assume we start with a set of decision trees that together achieve a certain level of performance. Then, we iteratively add new trees to improve performance on the hardest examples in our data set, and reweight our new set of decision trees to produce the best level of performance possible.
 
 \subsection{Turning to Linear Regression}
-You've likely never even heard of some of these preceding techniques - that's okay. The point is that we have a number of existing methods that take different approaches to solving regression problems. Each of these will have their own strengths and weaknesses that contribute to a decision about whether or not you might use them for a given regression problem. We obviously do not cover these methods in great detail; what's more important is the understanding that there are a variety of ways to go about solving regression problems. From here on out, we will take a deeper dive into linear regression. There are several reasons for which we are exploring this specific technique in greater detail. The two main reasons are that it has been around for the longest and thus is very well understood, and it also will introduce many concepts and terms that will be utilized extensively in other machine learning topics.
+You've likely never even heard of some of these preceding techniques - that's okay. The point is that we have a number of existing methods that take different approaches to solving regression problems. Each of these will have their own strengths and weaknesses that contribute to a decision about whether or not you might use them for a given regression problem. We obviously do not cover these methods in great detail here; what's more important is the understanding that there are a variety of ways to go about solving regression problems. From here on out, we will take a deeper dive into linear regression. There are several reasons for which we are exploring this specific technique in greater detail. The two main reasons are that it has been around for the longest and thus is very well understood, and it also will introduce many concepts and terms that will be utilized extensively in other machine learning topics.
 
 \section{Introduction to Linear Regression}
 In this chapter, we're specifically going to focus on \textbf{linear regression}, which means that our goal is to find some linear combination of the $x_{1}, ..., x_{D}$ input values that predict our target $y$.
@@ -85,13 +85,13 @@ Let's inspect the categories linear regression falls into for our ML framework c
 The most basic form of linear regression is a simple weighted combination of the input variables $\textbf{x}$, which you will often see written as:
 
 \begin{equation}
-    y(\textbf{x}, \textbf{w}) = w_{0} + w_{1}x_{1} + ... + w_{D}x_{D}
+    f(\textbf{x}, \textbf{w}) = w_{0} + w_{1}x_{1} + ... + w_{D}x_{D}
 \end{equation}
 
 \subsection{Merging of Bias}
-We're going to introduce a common notational trick here for making the bias term, $w_{0}$, easier to handle. At the moment $w_{0}$ is unwieldly because it is not being multiplied by an $x_{i}$ value. Without the bias term, we could easily express $y(\textbf{x}, \textbf{w})$ as:
+We're going to introduce a common notational trick here for making the bias term, $w_{0}$, easier to handle. At the moment $w_{0}$ is unwieldly because it is not being multiplied by an $x_{i}$ value. Without the bias term, we could easily express $f(\textbf{x}, \textbf{w})$ as:
 \begin{equation}
-    y(\textbf{x}, \textbf{w}) = \textbf{w}^{T}\textbf{x} = w_{0}x_{0} + w_{1}x_{1} + ... + w_{D}x_{D}
+    f(\textbf{x}, \textbf{w}) = \textbf{w}^{T}\textbf{x} = w_{0}x_{0} + w_{1}x_{1} + ... + w_{D}x_{D}
 \end{equation}
  This is more compact, easier to reason about, and makes properties of linear algebra nicer for the calculations we will be performing. An easy way to keep our bias term and still get this nice form of $\textbf{w}^{T}\textbf{x}$ is to simply introduce another variable, $x_{0}$, that is always $1$ for every data point. For example, considering the case of Sam's height from above, we have the height of her parents, \textbf{x}:
 \begin{align*}
@@ -103,7 +103,7 @@ We now add a $1$ in the first position of the data point to make it:
 \end{align*}
 We do this for every point in our data set. This bias trick lets us write:
 \begin{equation}
-    y(\textbf{x}, \textbf{w}) = \textbf{w}^{T}\textbf{x} = w_{0}x_{0} + w_{1}x_{1} + ... + w_{D}x_{D}
+    f(\textbf{x}, \textbf{w}) = \textbf{w}^{T}\textbf{x} = w_{0}x_{0} + w_{1}x_{1} + ... + w_{D}x_{D}
 \end{equation}
 as desired.
 
@@ -139,9 +139,9 @@ Linear regression is ultimately concerned with fitting the best line possible to
 Loss, also known as an \textit{objective function}, can be used in developing a method that automatically fits a line to our data.
 
 \begin{definition}{Loss}{loss}
-Loss (or an objective function) is the error incurred for a given prediction. It can be thought of as a measurement of difference between the target ($t$) and predicted ($y(\textbf{x}, \textbf{w}$)) values:
+Loss (or an objective function) is the error incurred for a given prediction. It can be thought of as a measurement of difference between the target ($y$) and predicted ($y(\textbf{x}, \textbf{w}$)) values:
 \begin{align*}
-    \mathcal{L}(\textbf{w}) = \text{target} - \text{prediction} = t - y(\textbf{x}, \textbf{w}) = \boxed{t - \textbf{w}^{T}\textbf{x}}
+    \mathcal{L}(\textbf{w}) = \text{target} - \text{prediction} = y - f(\textbf{x}, \textbf{w}) = \boxed{y - \textbf{w}^{T}\textbf{x}}
 \end{align*}
 
 Notice that loss is denoted $\mathcal{L}(\textbf{w})$, and it is a function of our parameters $\textbf{w}$, which are used to generate our prediction. Loss can be computed in different manners, and the choice of what loss function to use has important implications that we will discuss.
@@ -152,7 +152,7 @@ Loss is a concept that we will come back to very frequently in the context of su
 \subsection{Least Squares Loss}
 As we mentioned above, there are different methods for computing loss. One of the most commonly used measurements is known as \textbf{Least Squares Loss}. Least squares, as it is often abbreviated, says that the loss for a given data point is the square of the difference between the target and predicted values:
 \begin{equation} \label{least-squares-loss-fn}
-    \mathcal{L}(\textbf{w}) = (t - \textbf{w}^{T}\textbf{x})^2
+    \mathcal{L}(\textbf{w}) = (y - \textbf{w}^{T}\textbf{x})^2
 \end{equation}
 There is a satisfying statistical interpretation for using this loss function which we will explain later in this chapter, but for now it will suffice to discuss some of the properties of this loss function that make it desirable.
 
@@ -169,7 +169,7 @@ A more subtle but enormously important property of this loss function is that we
 
 If we compare this to an alternative loss function, such as an absolute value loss:
 \begin{align}
-    \mathcal{L}(\textbf{w}) = \lvert t - \textbf{w}^{T}\textbf{x} \rvert
+    \mathcal{L}(\textbf{w}) = \lvert y - \textbf{w}^{T}\textbf{x} \rvert
 \end{align}
 
 We know that this function is not continuously differentiable around its optima, and as a result, it is much less convenient to work with as compared to least squares loss.
@@ -201,13 +201,13 @@ We were able to recover our targets $\textbf{Y}$ exactly because $\textbf{X}$ is
 \end{align*}
 where $\hat{\textbf{Y}}$ can be thought of as the closest projection of $\textbf{Y}$ into the column space of $\textbf{X}$. Furthermore, this motivates the intuition that $\textbf{w}^{*}$ is the set of coefficients that best transforms our input space $\textbf{X}$ into our target values $\textbf{Y}$.
 
-\section{Linear Regression Algorithm}
+\section{Linear Regression Algorithms}
 Now that we have our least squares loss function, we can finally begin to fit a line to our data. We will walk through the derivation of how this is done, in the process revealing the algorithm used for linear regression.
 
 \subsection{Optimal Weights via Matrix Differentiation}
 First, we can define the loss incurred by parameters $\textbf{w}$ over our entire data set $\textbf{X}$ as follows:
 \begin{align}
-    \mathcal{L}(\textbf{w}) = \frac{1}{2} \sum_{i=1}^{n} (t - \textbf{w}^{T}\textbf{x})^2
+    \mathcal{L}(\textbf{w}) = \frac{1}{2} \sum_{i=1}^{n} (y - \textbf{w}^{T}\textbf{x})^2
 \end{align}
 
 \readernote{Note that we added a constant $\frac{1}{2}$ to the beginning of our loss expression. This scales the loss, which will not change our final result for the optimal parameters. It has the benefit of making our calculations cleaner once we've taken the gradient of the loss.}
@@ -219,15 +219,15 @@ We now want to solve for the values of $\textbf{w}$ that minimize this expressio
 
     Start by taking the gradient of the loss with respect to our parameter $\textbf{w}$:
     \begin{align*}
-        \nabla \mathcal{L}(\textbf{w}) = \sum_{i=1}^{n} (t - \textbf{w}^{T}\textbf{x})\textbf{x}^{T}
+        \nabla \mathcal{L}(\textbf{w}) = \sum_{i=1}^{n} (y - \textbf{w}^{T}\textbf{x})\textbf{x}^{T}
     \end{align*}
 
     Setting this gradient to 0, we have:
     \begin{equation} \label{least-squares-solving-for-w}
-        0 = \sum_{i=1}^{n} t \textbf{x}^{T} - \textbf{w}^{T} \sum_{i=1}^{n} \textbf{x}\textbf{x}^{T}
+        0 = \sum_{i=1}^{n} y \textbf{x}^{T} - \textbf{w}^{T} \sum_{i=1}^{n} \textbf{x}\textbf{x}^{T}
     \end{equation}
 
-    At this point, it is convenient to rewrite these summations as matrix operations in terms of $\textbf{w}$ instead of $\textbf{w}^{T}$. Note that $(\textbf{w}^{T} \sum_{i=1}^{n} \textbf{x}\textbf{x}^{T})^{T} = \textbf{X}^{T}\textbf{X}\textbf{w}$ and $(\sum_{i=1}^{n} t \textbf{x}^{T})^{T} = \textbf{X}^{T}\textbf{Y}$. Rewriting:
+    At this point, it is convenient to rewrite these summations as matrix operations in terms of $\textbf{w}$ instead of $\textbf{w}^{T}$. Note that $(\textbf{w}^{T} \sum_{i=1}^{n} \textbf{x}\textbf{x}^{T})^{T} = \textbf{X}^{T}\textbf{X}\textbf{w}$ and $(\sum_{i=1}^{n} y \textbf{x}^{T})^{T} = \textbf{X}^{T}\textbf{Y}$. Rewriting:
     \begin{align*}
         0 = \textbf{X}^{T}\textbf{Y} - \textbf{X}^{T}\textbf{X}\textbf{w}
     \end{align*}
@@ -247,11 +247,11 @@ In a very satisfying fashion, least squares also has a statistical foundation. I
 
 Consider our data set $\textbf{D} = \{(\textbf{x}_{i}, y_{i})\}_{i = 1}^{N}$, $\textbf{x}_{i} \in\mathbb{R}^m$, $y \in\mathbb{R}$. Let's imagine that our data was generated according to the following process:
 \begin{align*}
-    y_{i} \sim \mathcal{N}(\textbf{w}^{T}\phi(\textbf{x}_{i}), \beta^{-1})
+    y_{i} \sim \mathcal{N}(\textbf{w}^{T}\textbf{x}_{i}, \beta^{-1})
 \end{align*}
 Which can be written equivalently as:
 \begin{equation} \label{normal-over-w}
-    p(y_{i} | \textbf{x}_{i}, \textbf{w}, \beta) = \mathcal{N}(\textbf{w}^{T}\phi(\textbf{x}_{i}), \beta^{-1})
+    p(y_{i} | \textbf{x}_{i}, \textbf{w}, \beta) = \mathcal{N}(\textbf{w}^{T}\textbf{x}_{i}, \beta^{-1})
 \end{equation}
 The interpretation of this is that our target value $y$ is generated according to a linear combination of our inputs \textbf{x}, but there is also some noise in the data generating process described by the variance parameter $\beta^{-1}$. It's an acknowledgement that some noise exists naturally in our data.
 
@@ -262,34 +262,30 @@ As before, we now ask the question: how do we solve for the optimal weights \tex
 \begin{derivation}{Maximum Likelihood Estimation for Bayesian Linear Regression}{mle-bayesian}
     The likelihood of our data set is given by:
     \begin{align*}
-        p(\textbf{Y} | \textbf{X}, \textbf{w}, \beta) = \prod_{i=1}^{N} \mathcal{N}(\textbf{w}^{T}\phi(\textbf{x}_{i}), \beta^{-1})
+        p(\textbf{Y} | \textbf{X}, \textbf{w}, \beta) = \prod_{i=1}^{N} \mathcal{N}(\textbf{w}^{T}\textbf{x}_{i}, \beta^{-1})
     \end{align*}
     We then take the logarithm of the likelihood, and since the logarithm is a strictly increasing, continuous function, this will not change our optimal weights \textbf{w}:
     \begin{align*}
-        \ln{p(\textbf{Y} | \textbf{X}, \textbf{w}, \beta)} = \sum_{i=1}^{N} \ln{\mathcal{N}(\textbf{w}^{T}\phi(\textbf{x}_{i}), \beta^{-1})}
+        \ln{p(\textbf{Y} | \textbf{X}, \textbf{w}, \beta)} = \sum_{i=1}^{N} \ln{\mathcal{N}(\textbf{w}^{T}\textbf{x}_{i}, \beta^{-1})}
     \end{align*}
     Using the density function of a univariate Gaussian:
     \begin{align*}
-        \ln{p(\textbf{Y} | \textbf{X}, \textbf{w}, \beta)} &= \sum_{i=1}^{N} \ln{\frac{1}{\sqrt{2\pi\beta^{-1}}} e^{-(y_{i} - \textbf{w}^{T}\phi(\textbf{x}_{i}))^2 / 2\beta^{-1}}} \\
-        &= \frac{N}{2}\ln{\beta} - \frac{N}{2}\ln{(2\pi)} - \frac{\beta}{2} \sum_{i=1}^{N} (y_{i} - \textbf{w}^{T}\phi(\textbf{x}_{i}))^2
+        \ln{p(\textbf{Y} | \textbf{X}, \textbf{w}, \beta)} &= \sum_{i=1}^{N} \ln{\frac{1}{\sqrt{2\pi\beta^{-1}}} e^{-(y_{i} - \textbf{w}^{T}\textbf{x}_{i})^2 / 2\beta^{-1}}} \\
+        &= \frac{N}{2}\ln{\beta} - \frac{N}{2}\ln{(2\pi)} - \frac{\beta}{2} \sum_{i=1}^{N} (y_{i} - \textbf{w}^{T}\textbf{x}_{i})^2
     \end{align*}
     Notice that this is a quadratic function in \textbf{w}, which means that we can solve for it by taking the derivative with respect to \textbf{w}, setting that expression to 0, and solving for \textbf{w}:
     \begin{align*}
-        \frac{\partial \ln{p(\textbf{Y} | \textbf{X}, \textbf{w}, \beta)}}{\partial \textbf{w}} = \beta \sum_{i=1}^{N} (y_{i} - \textbf{w}^{T}\phi(\textbf{x}_{i}))\phi(\textbf{x}_{i})^{T}
+        \frac{\partial \ln{p(\textbf{Y} | \textbf{X}, \textbf{w}, \beta)}}{\partial \textbf{w}} = \beta \sum_{i=1}^{N} (y_{i} - \textbf{w}^{T}\textbf{x}_{i})\textbf{x}_{i}^{T}
     \end{align*}
     \begin{align*}
-        0 = \beta \sum_{i=1}^{N} (y_{i} - \textbf{w}^{T}\phi(\textbf{x}_{i}))\phi(\textbf{x}_{i})^{T}
+        0 = \beta \sum_{i=1}^{N} (y_{i} - \textbf{w}^{T}\textbf{x}_{i})\textbf{x}_{i}^{T}
     \end{align*}
     \begin{align*}
-        0 = \sum_{i=1}^{N} y_{i}\phi(\textbf{x}_{i})^{T} - \textbf{w}^{T} \sum_{i=1}^{N} \phi(\textbf{x}_{i})\phi(\textbf{x}_{i})^{T}
+        0 = \sum_{i=1}^{N} y_{i}\textbf{x}_{i}^{T} - \textbf{w}^{T} \sum_{i=1}^{N} \textbf{x}_{i}\textbf{x}_{i}^{T}
     \end{align*}
     Notice that this is exactly the same form as Equation \ref{least-squares-solving-for-w}. Solving for \textbf{w} as before:
-    \begin{align*}
-        \textbf{w}^{*} = (\phi(\textbf{X})^{T}\phi(\textbf{X}))^{-1}\phi(\textbf{X})^{T}\textbf{Y}
-    \end{align*}
-    Note that you'll often see $\textbf{X} = \boldsymbol{\Phi}$, which is known as the \textit{design matrix}, giving us:
     \begin{equation} \label{bayesian-solved-for-w}
-        \textbf{w}^{*} = (\boldsymbol{\Phi}^{T}\boldsymbol{\Phi})^{-1}\boldsymbol{\Phi}^{T}\textbf{Y}
+        \textbf{w}^{*} = (\textbf{X}^{T}\textbf{X})^{-1}\textbf{X}^{T}\textbf{Y}
     \end{equation}
 \end{derivation}
 
@@ -319,7 +315,7 @@ There are some situations where our input data $\textbf{X}$ is not the best form
 Basis functions are very general - they could specify that we just keep our input data the same. As a result, it's common to rewrite the least squares loss function from Equation \ref{least-squares-loss-fn} for linear regression in terms of the basis function applied to our input data:
 
 \begin{equation} \label{least-squares-loss-fn-w-basis}
-    \mathcal{L}(\textbf{w}) = \frac{1}{2} \sum_{i=1}^{n} (t - \textbf{w}^{T}\boldsymbol{\phi})^2
+    \mathcal{L}(\textbf{w}) = \frac{1}{2} \sum_{i=1}^{n} (y - \textbf{w}^{T}\boldsymbol{\phi})^2
 \end{equation}
 
 To motivate why we might need basis functions for performing linear regression, let's consider this graph of 1-dimensional inputs \textbf{X} along with their target outputs \textbf{Y}, presented in Figure \ref{fig:lin-reg-no-basis-fn}.
@@ -399,7 +395,7 @@ The concept that we are introducing, penalizing large weights, is what is known 
 There is obviously a tradeoff between how aggressively we regularize our weights and how tightly our solution fits to our data, and we will formalize this tradeoff in the next section. However, for now, we will simply introduce a regularization parameter $\lambda$ to our least squares loss function:
 
 \begin{equation} \label{least-squares-loss-fn-w-regularization}
-    \mathcal{L}(\textbf{w}) = \frac{1}{2} \sum_{i=1}^{n} (t - \textbf{w}^{T}\boldsymbol{\phi})^2 + \frac{\lambda}{2}\textbf{w}^{2}
+    \mathcal{L}(\textbf{w}) = \frac{1}{2} \sum_{i=1}^{n} (y - \textbf{w}^{T}\boldsymbol{\phi})^2 + \frac{\lambda}{2}\textbf{w}^{2}
 \end{equation}
 
 The effect of $\lambda$ is to penalize large weight parameters. The larger $\lambda$ is, the more we will favor simple solutions. In the limit $\lim_{\lambda\to\infty} \mathcal{L}(\textbf{w})$, we will drive all weights to 0, while with a nonexistant $\lambda = 0$ we will apply no regularization at all. Notice that we're squaring our weight parameters - this is known as \textit{L2 norm regularization} or \textbf{ridge regression}. We will discuss the different types of regularization later on, but for now just know that L2 norm regularization is very common.
@@ -593,25 +589,25 @@ You might wonder why we need to perform cross-validation at all - why can't we t
 The answer is again overfitting. If we train over the entire data set and then validate our results on the exact same data set, we are likely to choose a regularization parameter that encourages our model to conform to the exact variation in our data set instead of finding the generalizable trends. By training on one set of data, and then validating on a completely different set of data, we force our model to find good generalizations in our data set. This ultimately allows us to pick the regularization term $\lambda$ that finds the sweet spot between bias and variance, overfitting and underfitting.
 
 \subsection{Making a Model Choice}
-Now that we're aware of overfitting, underfitting, and how those concepts relate to the bias-variance tradeoff, we still need to come back to the question of how we actually select a model. Intuitively, we are trying to find the middle ground between bias and variance: picking a model that fits our data well but that is also general enough to perform well on yet unseen data. Furthermore, there is no such thing as the `right' model choice. Instead, there are only model options that are either better or worse than others. To that end, it can be best to rely on the techniques presented above, specifically cross-validation, to make your model selection. Then, although you will not be able to make any sort of guarantee about your selection being the `best' of all possible models, you can at least have confidence your model achieved the best generalizability that could be proven through cross-validation.
+Now that we're aware of overfitting, underfitting, and how those concepts relate to the bias-variance tradeoff, we still need to come back to the question of how we actually select a model. Intuitively, we are trying to find the middle ground between bias and variance: picking a model that fits our data but that is also general enough to perform well on yet unseen data. Furthermore, there is no such thing as the `right' model choice. Instead, there are only model options that are either better or worse than others. To that end, it can be best to rely on the techniques presented above, specifically cross-validation, to make your model selection. Then, although you will not be able to make any sort of guarantee about your selection being the `best' of all possible models, you can at least have confidence your model achieved the best generalizability that could be proven through cross-validation.
 
 \subsection{Bayesian Model Averaging}
 We can also handle model selection using a Bayesian approach. This means we account for our uncertainty about the true model by averaging over the possible candidate models, weighting each model by our prior certainty that it is the one producing our data. If we have $M$ models indexed by $m = 1, ..., M$, we can write the likelihood of observing our data set $\textbf{X}$ as follows:
 \begin{align*}
     p(\textbf{X}) = \sum_{i=1}^{M} p(\textbf{X}|m)p(m)
 \end{align*}
-where $p(m)$ is our prior certainty for a given model and $p(\textbf{X}|m)$ is the likelihood of our data set given that model. The elegance of this approach is that we don't have to pick any particular model, instead choosing to average out our uncertainty.
+where $p(m)$ is our prior certainty for a given model and $p(\textbf{X}|m)$ is the likelihood of our data set given that model. The elegance of this approach is that we don't have to pick any particular model, instead choosing to marginalize out our uncertainty.
 
 \section{Linear Regression Extras}
 With most of linear regression under our belt at this point, it's useful to drill down on a few concepts to come to a deeper understanding of how we can use them in the context of linear regression and beyond.
 \subsection{Generalizing Regularization}
 We've thus far only discussed one form of regularization: ridge regression. Remember that under ridge regression, the loss function takes the form:
 \begin{align*}
-    \mathcal{L}(\textbf{w}) = \frac{1}{2} \sum_{i=1}^{n} (t - \textbf{w}^{T}\boldsymbol{\phi})^2 + \frac{\lambda}{2}\textbf{w}^{2}
+    \mathcal{L}(\textbf{w}) = \frac{1}{2} \sum_{i=1}^{n} (y - \textbf{w}^{T}\boldsymbol{\phi})^2 + \frac{\lambda}{2}\textbf{w}^{2}
 \end{align*}
 Where the $\frac{\lambda}{2}\textbf{w}^{2}$ term is for the regularization. We can generalize our type of regularization by writing it as:
 \begin{align*}
-    \mathcal{L}(\textbf{w}) = \frac{1}{2} \sum_{i=1}^{n} (t - \textbf{w}^{T}\boldsymbol{\phi})^2 + \frac{\lambda}{2}\big|\textbf{w}\big|^{h}
+    \mathcal{L}(\textbf{w}) = \frac{1}{2} \sum_{i=1}^{n} (y - \textbf{w}^{T}\boldsymbol{\phi})^2 + \frac{\lambda}{2}\big|\textbf{w}\big|^{h}
 \end{align*}
 where $h$ determines the type of regularization we are using and thus the form of the optimal solution that we recover. The three most commonly used forms of regularization are lasso, ridge, and elastic net. \newline \newline
 \textbf{Ridge Regression} \newline
