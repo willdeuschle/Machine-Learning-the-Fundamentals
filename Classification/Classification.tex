@@ -1,20 +1,19 @@
 \chapter{Classification}
-In the last chapter we explored ways of predicting a continuous, real-number target. In this chapter, we're going to think about a different problem- one where our target output is discrete-valued. This type of problem is known as \textbf{classification}.
+In the last chapter we explored ways of predicting a continuous, real-number target. In this chapter, we're going to think about a different problem- one where our target output is discrete-valued. This type of problem, one where we make a prediction by choosing between finite class options, is known as \textbf{classification}.
 
-\section{Introduction and Motivation}
-Many problems require that we make a prediction choosing between finite class options: these are \textbf{classification} tasks.
-
+\section{Defining the Problem}
+As we did when studying regression, let's begin by thinking about the type of problems we are trying to solve. Here are a few examples of classification tasks:
+\begin{enumerate}
+    \item Predicting whether a given email is spam.
+    \item Predicting the type of animal in an image.
+    \item Predicting whether a manufactured good is defective.
+\end{enumerate}
+The point of classification is hopefully clear: we're trying to identify the most appropriate class for an input data point.
 \begin{definition}{Classification}{classification}
 A set of problems that seeks to make predictions about unobserved target classes given observed input variables.
 \end{definition}
 
-\subsection{Examples of Classification}
-We can imagine many situations where classification is useful:
-\begin{enumerate}
-	\item Predicting whether a given email is spam.
-    \item Predicting the type of animal in an image.
-    \item Predicting whether a manufactured good is defective.
-\end{enumerate}
+\section{Solution Options}
 
 There are several different means by which we can solve classification problems. We're going to discuss three in this chapter: discriminant functions, probabilistic discriminative models (also known as logistic regression), and probabilistic generative models. Note that these are not the only methods for performing classification tasks, but they are similar enough that it makes sense to present and explore them together. Specifically, these techniques all use some linear combination of input variables to produce a class prediction. For that reason, we will refer to these techniques as \textbf{generalized linear models}.
 
@@ -29,17 +28,15 @@ Let's inspect the categories that generalized linear models fall into for our ML
 \end{center}
 \end{mlcube}
 
-\section{Technical}
-Generalized linear models for classification come in several different flavors. The most straightforward method carries over very easily from linear regression: \textbf{discriminant functions}. As we will see, with discriminant functions we are linearly separating the input space into sections belonging to different target classes. We will explore this method first. One thing to keep in mind is that it's generally easiest to initially learn these techniques in the case where we have only two target classes, but there is typically a generalization that allows us to handle the multi-class case as well.
-
-\subsection{Discriminant Functions}
+\section{Discriminant Functions}
+Generalized linear models for classification come in several different flavors. The most straightforward method carries over very easily from linear regression: \textbf{discriminant functions}. As we will see, with discriminant functions we are linearly separating the input space into sections belonging to different target classes. We will explore this method first. One thing to keep in mind is that it's generally easiest to initially learn these techniques in the case where we have only two target classes, but there is typically a generalization that allows us to handle the multi-class case as well. \newline \newline
 As with linear regression, discriminant functions $h(\textbf{x}, \textbf{w})$ seek to find a weighted combination of our input variables to make a prediction about the target class:
 \begin{equation} \label{basic-discriminant-fn}
 	h(\textbf{x}, \textbf{w}) = w_{0}x_{0} + w_{1}x_{1} + ... + w_{D}x_{D}
 \end{equation}
 where we are using the bias trick of appending $x_{0} = 1$ to all of our data points.
 
-\subsubsection{Two Classes (Binary Linear Classification)}
+\subsection{Basic Setup: Binary Linear Classification}
 The simplest use case for a discriminant function is when we only have two classes that we are trying to decide between. Let's denote these two classes \textbf{1} and \textbf{-1}. Our discriminant function in Equation \ref{basic-discriminant-fn} will then predict class \textbf{1} if $h(\textbf{x}, \textbf{w}) \geq 0$ and class \textbf{-1} if $h(\textbf{x}, \textbf{w}) < 0$:
 \begin{align*}
 	\begin{cases} 
@@ -62,7 +59,7 @@ Notice the line where our prediction switches from class 1 to class -1. This is 
 
 \readernote{You will sometimes see the term \textbf{decision surface} in place of decision boundary, particularly if the input space is larger than two dimensions.}
 
-\subsubsection{Multiple Classes}
+\subsection{Multiple Classes}
 Now consider the case that we have $K > 2$ classes $C_{1}, C_{2}, ..., C_{K}$ to choose between. One obvious approach we might try is to use $K$ different discriminant functions that simply determine whether or not a given input is in that class $C_{k}$. This is known as a \textit{one-versus-all} approach, and it doesn't work properly because we end up with ambiguous regions as demonstrated in Figure \ref{fig:one-vs-all-ambig}.
 
 \begin{figure}
@@ -85,7 +82,32 @@ Instead, we can avoid these ambiguities in the multi-class case by using $K$ dif
 
 Now that we've explored the multi-class generalization, we can discuss how to learn the weights $w$ that define the optimal discriminant functions.
 
-\subsubsection{Solving for Decision Boundaries: Least Squares}
+\subsection{Basis Changes in Classification}
+We initially discussed basis changes in the context of linear regression, and they are equally important for classification tasks. For example, consider the data set in Figure \ref{fig:circles-without-basis-change}.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\paperwidth]{../Classification/fig/circles_without_basis_change.jpg}
+    \caption{Data set without any basis functions applied, not linearly separable.}
+    \label{fig:circles-without-basis-change}
+\end{figure}
+
+It's obviously not possible for us to use a linear classifier to separate this data set. However, if we apply a basis change by squaring one of the data points, we instead have Figure \ref{fig:circles-with-basis-change}, which is now linearly separable by a plane between the two classes.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\paperwidth]{../Classification/fig/circles_with_basis_change.jpg}
+    \caption{Data set with basis functions applied, now linearly separable.}
+    \label{fig:circles-with-basis-change}
+\end{figure}
+Thus, from now on we will incorporate a generic basis change $\phi(\cdot)$ by default and write our generalized linear model as:
+\begin{equation} \label{basis-changed-linear-model}
+    h_{k}(\textbf{x}, \textbf{w}_{k}) = \textbf{w}_{k}^{T}\phi{(\textbf{x})}
+\end{equation}
+
+\section{Algorithms for Decision Boundaries}
+... TODO here ...
+
+\subsection{Least Squares}
 To find the set of weights \textbf{w} that form the optimal decision boundary between target classes, we will start with a technique that we also used for linear regression: minimizing a least squares loss function.
 
 We first need to introduce the idea of \textit{one-hot encoding}, which simply means that the class of a given data point is described by a vector with $K$ options that has a 1 in the position that corresponds to class $C_{k}$ and 0s everywhere else (note that these classes aren't usually 0-indexed). For example, class $C_{1}$ of 4 classes would be represented by the vector:
@@ -132,10 +154,10 @@ While least squares gives us an analytic solution for our discriminant function,
 
 We can help remedy the problems with least squares by using alternative methods for solving for our weight parameters.
 
-\subsubsection{Solving for Decision Boundaries: Fisher's Linear Discriminant}
+\subsection{Fisher's Linear Discriminant}
 Should we mention this here? Is it necessary?
 
-\subsubsection{Perceptron Algorithm}
+\subsection{Perceptron Algorithm}
 To explain the perceptron algorithm, we must first motivate something called \textbf{0/1 loss}, which is simply an alternative loss function to least squares. The idea behind it is very simple: if we misclassify a point, we incur a loss of 1, and if we classify it correctly, we incur no loss.
 
 While this is a very intuitive loss function, it does not have a closed form solution like least squares does, and it is non-convex so it is not easily optimized. However, the 0/1 loss function inspires a different loss function, known as the \textbf{perceptron loss function}.
@@ -173,27 +195,8 @@ and then our update equation from time $t$ to time $t+1$ for a single misclassif
 
 There is no need to understand what a learning rate $\eta$ is at the moment, just know for now that it's needed in order to efficiently optimize our parameters $\textbf{w}$. (Should I explain SGD here???) To sum up, the benefits of the perceptron loss function are its differentiability (which allows us to optimize our weight parameters), the fact that it doesn't penalize any correctly classified data points (unlike basic linear classification), and that it penalizes more heavily data points that are more poorly misclassified. Furthermore, the perceptron algorithm guarantees that if there is separability between all of our data points and we run the algorithm for long enough, we will find a setting of parameters that perfectly separates our data set. The proof for this is beyond the scope of this textbook.
 
-\subsubsection{Basis Changes in Classification}
-We initially discussed basis changes in the context of linear regression, and they are equally important for classification tasks. For example, consider the data set in Figure \ref{fig:circles-without-basis-change}.
-
-\begin{figure}
-    \centering
-    \includegraphics[width=0.5\paperwidth]{../Classification/fig/circles_without_basis_change.jpg}
-    \caption{Data set without any basis functions applied, not linearly separable.}
-    \label{fig:circles-without-basis-change}
-\end{figure}
-
-It's obviously not possible for us to use a linear classifier to separate this data set. However, if we apply a basis change by squaring one of the data points, we instead have Figure \ref{fig:circles-with-basis-change}, which is now linearly separable by a plane between the two classes.
-\begin{figure}
-    \centering
-    \includegraphics[width=0.5\paperwidth]{../Classification/fig/circles_with_basis_change.jpg}
-    \caption{Data set with basis functions applied, now linearly separable.}
-    \label{fig:circles-with-basis-change}
-\end{figure}
-Thus, from now on we will incorporate a generic basis change $\phi(\cdot)$ by default and write our generalized linear model as:
-\begin{equation} \label{basis-changed-linear-model}
-	h_{k}(\textbf{x}, \textbf{w}_{k}) = \textbf{w}_{k}^{T}\phi{(\textbf{x})}
-\end{equation}
+\section{Probabilistic Methods}
+...TODO... intro stuff
 
 \subsection{Probabilistic Discriminative Models}
 Ultimately, our classification task can be summarized as follows: \textit{given a new data point $\textbf{x}^{*}$, can we accurately predict the target class $y^{*}$?}
@@ -206,7 +209,7 @@ Given this problem statement, it makes sense that we might try to model the dist
 
 This means that we will start with the functional form of the generalized linear model described by Equation \ref{basis-changed-linear-model}, convert this to a conditional distribution, and then optimize the parameters of the conditional distribution directly using a maximum likelihood procedure. From here, we will be able to make predictions on new data points $\textbf{x}^{*}$. The key feature of this procedure, which is known as \textit{discriminative training}, is that it optimizes the parameters of a conditional distribution directly. We describe a specific, common example of this type of procedure called \textbf{logistic regression} in the next section.
 
-\subsubsection{Logistic Regression}
+\subsection{Logistic Regression}
 One problem we need to face in our discriminative modeling paradigm is that the results of our generalized linear model are not probabilities; they are simply real numbers. This is why in the previous paragraph we mentioned needing to convert our generalized linear model to a conditional distribution. That step boils down to somehow squashing the outputs of our generalized linear model onto the real numbers between 0 and 1, which will then correspond to probabilities. To do this, we will apply what is known as the \textbf{logistic sigmoid function}, $\sigma(\cdot)$.
 
 \begin{definition}{Logistic Sigmoid Function, $\sigma(\cdot)$}{logistic-sigmoid-function}
@@ -266,7 +269,7 @@ which we arrive at by recognizing that the derivative of the logistic sigmoid fu
 
 While a closed form solution does not present itself here as it did in the case of linear regression due to the nonlinearity of the logistic sigmoid function, we can still optimize the parameters \textbf{w} of our model using an iterative procedure that updates our parameters by moving toward the minimum of the error function defined in Equation \ref{cross-entropy-error-fn}.
 
-\subsubsection{Multi-Class Logistic Regression and Softmax}
+\subsection{Multi-Class Logistic Regression and Softmax}
 As we saw when working with discriminant functions, we also need to account for multi-class problems, which are practically speaking more common than the simple two-class scenario.
 
 In the logistic regression setting (which is a form of \textit{discriminative modeling}, not to be confused with \textit{discriminant functions}), we are now working with probabilities, which is why we introduced the `probability squashing' sigmoidal function $\sigma(\cdot)$. Note that the sigmoidal function is also sometimes known as the sigmoidal activation function.
@@ -338,7 +341,7 @@ To model the data generating process in classification tasks generally acknowled
 
 \readernote{Notice that with probabilistic generative modeling, we choose a specific distribution for our class-conditional densities instead of simply using a generalized linear model combined with a sigmoid/softmax function as we did in the logistic regression setting. This highlights the difference between discriminative and generative modeling: in the generative setting, we are modeling the production of the data itself instead of simply optimizing the parameters of a more general model that predicts class membership directly.}
 
-\subsubsection{Classification in the Generative Setting}
+\subsection{Classification in the Generative Setting}
 Now that we're situated in the generative setting, we turn our attention to the actual problem of using our model to predict class membership of new data points $\textbf{x}^{*}$.
 
 To perform classification, we will pick the class $C_{k}$ that maximizes the probability of $\textbf{x}^{*}$ being from that class as defined by $p(y^{*} = C_{k} | \textbf{x}^{*})$. We can relate this conditional density to the joint density $p(y^{*}, \textbf{x}^{*})$ through Bayes' Rule:
@@ -349,7 +352,7 @@ where $p(\textbf{x}^{*})$ is a constant that can be ignored as it will be the sa
 
 Recall that the class prior $p(y)$ will always be a categorical distribution (the multi-class generalization of the Bernoulli distribution), while the class-conditional distribution can be specified using prior knowledge of the problem domain. Once we have specified this class conditional distribution, we can solve for the parameters of both that model and the categorical distribution using a maximum likelihood procedure.
 
-\subsubsection{Maximum Likelihood Solution}
+\subsection{Maximum Likelihood Solution}
 We're going to derive the maximum likelihood solution for the parameters of our probabilistic generative model in the two-class setting, allowing that the multi-class generalization will be a straightforward exercise.
 
 Let's start by assuming a Gaussian conditional distribution for our data $p(\textbf{x} | y = C_{k})$. Given a data set \{$\textbf{x}_{i}, y_{i}$\} for $i = 1..N$, where $y_{i} = 1$ corresponds to class $C_{1}$ and $y_{i} = 0$ corresponds to class $C_{2}$, we can construct our maximum likelihood solution. Let's first specify our class priors:
@@ -412,7 +415,7 @@ which has the intuitive interpretation that the maximum likelihood solution for 
 
 It is relatively straightforward to extend these maximum likelihood derivations from their two-class form to their more general, multi-class form.
 
-\subsubsection{Naive Bayes}
+\subsection{Naive Bayes}
 There exists a further simplification to probabilistic generative modeling known as \textbf{Naive Bayes}.
 
 \begin{definition}{Naive Bayes}{naive-bayes-definition}
