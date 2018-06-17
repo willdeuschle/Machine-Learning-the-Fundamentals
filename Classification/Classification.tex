@@ -1,20 +1,19 @@
 \chapter{Classification}
-In the last chapter we explored ways of predicting a continuous, real-number target. In this chapter, we're going to think about a different problem- one where our target output is discrete-valued. This type of problem is known as \textbf{classification}.
+In the last chapter we explored ways of predicting a continuous, real-number target. In this chapter, we're going to think about a different problem- one where our target output is discrete-valued. This type of problem, one where we make a prediction by choosing between finite class options, is known as \textbf{classification}.
 
-\section{Introduction and Motivation}
-Many problems require that we make a prediction choosing between finite class options: these are \textbf{classification} tasks.
-
+\section{Defining the Problem}
+As we did when studying regression, let's begin by thinking about the type of problems we are trying to solve. Here are a few examples of classification tasks:
+\begin{enumerate}
+    \item Predicting whether a given email is spam.
+    \item Predicting the type of animal in an image.
+    \item Predicting whether a manufactured good is defective.
+\end{enumerate}
+The point of classification is hopefully clear: we're trying to identify the most appropriate class for an input data point.
 \begin{definition}{Classification}{classification}
 A set of problems that seeks to make predictions about unobserved target classes given observed input variables.
 \end{definition}
 
-\subsection{Examples of Classification}
-We can imagine many situations where classification is useful:
-\begin{enumerate}
-	\item Predicting whether a given email is spam.
-    \item Predicting the type of animal in an image.
-    \item Predicting whether a manufactured good is defective.
-\end{enumerate}
+\section{Solution Options}
 
 There are several different means by which we can solve classification problems. We're going to discuss three in this chapter: discriminant functions, probabilistic discriminative models (also known as logistic regression), and probabilistic generative models. Note that these are not the only methods for performing classification tasks, but they are similar enough that it makes sense to present and explore them together. Specifically, these techniques all use some linear combination of input variables to produce a class prediction. For that reason, we will refer to these techniques as \textbf{generalized linear models}.
 
@@ -29,17 +28,15 @@ Let's inspect the categories that generalized linear models fall into for our ML
 \end{center}
 \end{mlcube}
 
-\section{Technical}
-Generalized linear models for classification come in several different flavors. The most straightforward method carries over very easily from linear regression: \textbf{discriminant functions}. As we will see, with discriminant functions we are linearly separating the input space into sections belonging to different target classes. We will explore this method first. One thing to keep in mind is that it's generally easiest to initially learn these techniques in the case where we have only two target classes, but there is typically a generalization that allows us to handle the multi-class case as well.
-
-\subsection{Discriminant Functions}
+\section{Discriminant Functions}
+Generalized linear models for classification come in several different flavors. The most straightforward method carries over very easily from linear regression: \textbf{discriminant functions}. As we will see, with discriminant functions we are linearly separating the input space into sections belonging to different target classes. We will explore this method first. One thing to keep in mind is that it's generally easiest to initially learn these techniques in the case where we have only two target classes, but there is typically a generalization that allows us to handle the multi-class case as well. \newline \newline
 As with linear regression, discriminant functions $h(\textbf{x}, \textbf{w})$ seek to find a weighted combination of our input variables to make a prediction about the target class:
 \begin{equation} \label{basic-discriminant-fn}
 	h(\textbf{x}, \textbf{w}) = w_{0}x_{0} + w_{1}x_{1} + ... + w_{D}x_{D}
 \end{equation}
 where we are using the bias trick of appending $x_{0} = 1$ to all of our data points.
 
-\subsubsection{Two Classes (Binary Linear Classification)}
+\subsection{Basic Setup: Binary Linear Classification}
 The simplest use case for a discriminant function is when we only have two classes that we are trying to decide between. Let's denote these two classes \textbf{1} and \textbf{-1}. Our discriminant function in Equation \ref{basic-discriminant-fn} will then predict class \textbf{1} if $h(\textbf{x}, \textbf{w}) \geq 0$ and class \textbf{-1} if $h(\textbf{x}, \textbf{w}) < 0$:
 \begin{align*}
 	\begin{cases} 
@@ -62,7 +59,7 @@ Notice the line where our prediction switches from class 1 to class -1. This is 
 
 \readernote{You will sometimes see the term \textbf{decision surface} in place of decision boundary, particularly if the input space is larger than two dimensions.}
 
-\subsubsection{Multiple Classes}
+\subsection{Multiple Classes}
 Now consider the case that we have $K > 2$ classes $C_{1}, C_{2}, ..., C_{K}$ to choose between. One obvious approach we might try is to use $K$ different discriminant functions that simply determine whether or not a given input is in that class $C_{k}$. This is known as a \textit{one-versus-all} approach, and it doesn't work properly because we end up with ambiguous regions as demonstrated in Figure \ref{fig:one-vs-all-ambig}.
 
 \begin{figure}
@@ -85,7 +82,35 @@ Instead, we can avoid these ambiguities in the multi-class case by using $K$ dif
 
 Now that we've explored the multi-class generalization, we can discuss how to learn the weights $w$ that define the optimal discriminant functions.
 
-\subsubsection{Solving for Decision Boundaries: Least Squares}
+\subsection{Basis Changes in Classification}
+We initially discussed basis changes in the context of linear regression, and they are equally important for classification tasks. For example, consider the data set in Figure \ref{fig:circles-without-basis-change}.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\paperwidth]{../Classification/fig/circles_without_basis_change.jpg}
+    \caption{Data set without any basis functions applied, not linearly separable.}
+    \label{fig:circles-without-basis-change}
+\end{figure}
+
+It's obviously not possible for us to use a linear classifier to separate this data set. However, if we apply a basis change by squaring one of the data points, we instead have Figure \ref{fig:circles-with-basis-change}, which is now linearly separable by a plane between the two classes.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\paperwidth]{../Classification/fig/circles_with_basis_change.jpg}
+    \caption{Data set with basis functions applied, now linearly separable.}
+    \label{fig:circles-with-basis-change}
+\end{figure}
+Applying a generic basis change $\phi(\cdot)$, we can write our generalized linear model as:
+\begin{equation} \label{basis-changed-linear-model}
+    h_{k}(\textbf{x}, \textbf{w}_{k}) = \textbf{w}_{k}^{T}\phi{(\textbf{x})} = \ \textbf{w}_{k}^{T}\boldsymbol{\phi}
+\end{equation}
+For the sake of simplicity in the rest of this chapter, we will leave out any basis changes in our derivations, but you should recognize that they could be applied to any of our input data to make the problems more tractable.
+
+\readernote{For an input matrix \textbf{X}, there is a matrix generalization of our basis transformed inputs: $\boldsymbol{\Phi} = \phi(\textbf{X})$, where $\boldsymbol{\Phi}$ is known as the \textit{design matrix}.}
+
+\section{Algorithms for Decision Boundaries}
+Now that we have a high-level understanding of what we're trying to accomplish with discriminant functions, we can consider how to solve for the decision boundaries that will dictate our classification decisions.
+
+\subsection{Least Squares Loss}
 To find the set of weights \textbf{w} that form the optimal decision boundary between target classes, we will start with a technique that we also used for linear regression: minimizing a least squares loss function.
 
 We first need to introduce the idea of \textit{one-hot encoding}, which simply means that the class of a given data point is described by a vector with $K$ options that has a 1 in the position that corresponds to class $C_{k}$ and 0s everywhere else (note that these classes aren't usually 0-indexed). For example, class $C_{1}$ of 4 classes would be represented by the vector:
@@ -115,7 +140,7 @@ We can combine the set of weights for each class into a matrix $\textbf{W}$, whi
 \begin{equation}
 	h(\textbf{x}, \textbf{W}) = \textbf{W}^{T}\textbf{x}
 \end{equation}
-where each row in the weight matrix \textbf{W} corresponds to the linear function of an individual class. We can use the results derived in the last chapter to find the solution for \textbf{W} that minimizes the least squares loss function. Assuming a data set of input data points \textbf{X} and one-hot encoded target vectors \textbf{Y} (where every row is a single target vector), the optimal solution for \textbf{W} is given by:
+where each row in the weight matrix \textbf{W} corresponds to the linear function of an individual class. We can use the results derived in the last chapter to find the solution for \textbf{W} that minimizes the least squares loss function. Assuming a data set of input data points $\textbf{X}$ and one-hot encoded target vectors \textbf{Y} (where every row is a single target vector), the optimal solution for \textbf{W} is given by:
 \begin{align*}
 	\textbf{W}^{*} = (\textbf{X}^{T}\textbf{X})^{-1}\textbf{X}^{T}\textbf{Y}
 \end{align*}
@@ -132,10 +157,10 @@ While least squares gives us an analytic solution for our discriminant function,
 
 We can help remedy the problems with least squares by using alternative methods for solving for our weight parameters.
 
-\subsubsection{Solving for Decision Boundaries: Fisher's Linear Discriminant}
+\subsection{Fisher's Linear Discriminant}
 Should we mention this here? Is it necessary?
 
-\subsubsection{Perceptron Algorithm}
+\subsection{Perceptron Algorithm}
 To explain the perceptron algorithm, we must first motivate something called \textbf{0/1 loss}, which is simply an alternative loss function to least squares. The idea behind it is very simple: if we misclassify a point, we incur a loss of 1, and if we classify it correctly, we incur no loss.
 
 While this is a very intuitive loss function, it does not have a closed form solution like least squares does, and it is non-convex so it is not easily optimized. However, the 0/1 loss function inspires a different loss function, known as the \textbf{perceptron loss function}.
@@ -144,9 +169,9 @@ The perceptron loss function is a modification of the 0/1 loss function that bot
 
 To understand the perceptron loss function, it's first necessary to introduce the \textit{rectified linear activation unit}, known as ReLU, seen in Figure \ref{fig:relu-fn}.
 \begin{equation}
-	\text{ReLU}(x) = \text{max}\{0, x\}
+	\text{ReLU}(z) = \text{max}\{0, z\}
 \end{equation}
-We can use the form of this function to our advantage in constructing the perceptron loss by recognizing that we wish to incur error when we're wrong (which corresponds to $x > 0$, the right side of the graph that is continuously increasing), and we wish to incur 0 error if we are correct (which corresponds to the left side of the graph where $x < 0$).
+We can use the form of this function to our advantage in constructing the perceptron loss by recognizing that we wish to incur error when we're wrong (which corresponds to $z > 0$, the right side of the graph that is continuously increasing), and we wish to incur 0 error if we are correct (which corresponds to the left side of the graph where $z < 0$).
 \begin{figure}
     \centering
     \includegraphics[width=0.5\paperwidth]{../Classification/fig/relu_fn_GEN.jpg}
@@ -173,27 +198,8 @@ and then our update equation from time $t$ to time $t+1$ for a single misclassif
 
 There is no need to understand what a learning rate $\eta$ is at the moment, just know for now that it's needed in order to efficiently optimize our parameters $\textbf{w}$. (Should I explain SGD here???) To sum up, the benefits of the perceptron loss function are its differentiability (which allows us to optimize our weight parameters), the fact that it doesn't penalize any correctly classified data points (unlike basic linear classification), and that it penalizes more heavily data points that are more poorly misclassified. Furthermore, the perceptron algorithm guarantees that if there is separability between all of our data points and we run the algorithm for long enough, we will find a setting of parameters that perfectly separates our data set. The proof for this is beyond the scope of this textbook.
 
-\subsubsection{Basis Changes in Classification}
-We initially discussed basis changes in the context of linear regression, and they are equally important for classification tasks. For example, consider the data set in Figure \ref{fig:circles-without-basis-change}.
-
-\begin{figure}
-    \centering
-    \includegraphics[width=0.5\paperwidth]{../Classification/fig/circles_without_basis_change.jpg}
-    \caption{Data set without any basis functions applied, not linearly separable.}
-    \label{fig:circles-without-basis-change}
-\end{figure}
-
-It's obviously not possible for us to use a linear classifier to separate this data set. However, if we apply a basis change by squaring one of the data points, we instead have Figure \ref{fig:circles-with-basis-change}, which is now linearly separable by a plane between the two classes.
-\begin{figure}
-    \centering
-    \includegraphics[width=0.5\paperwidth]{../Classification/fig/circles_with_basis_change.jpg}
-    \caption{Data set with basis functions applied, now linearly separable.}
-    \label{fig:circles-with-basis-change}
-\end{figure}
-Thus, from now on we will incorporate a generic basis change $\phi(\cdot)$ by default and write our generalized linear model as:
-\begin{equation} \label{basis-changed-linear-model}
-	h_{k}(\textbf{x}, \textbf{w}_{k}) = \textbf{w}_{k}^{T}\phi{(\textbf{x})}
-\end{equation}
+\section{Probabilistic Methods}
+Unsurprisingly, we can also cast the problem of classification into a probabilistic context, which we now turn our attention to. Within this setting, we have a secondary choice to make between two distinct probabilistic approaches: discriminative or generative. We will explore both of these options.
 
 \subsection{Probabilistic Discriminative Models}
 Ultimately, our classification task can be summarized as follows: \textit{given a new data point $\textbf{x}^{*}$, can we accurately predict the target class $y^{*}$?}
@@ -228,23 +234,16 @@ One problem we need to face in our discriminative modeling paradigm is that the 
 
 Using the logistic sigmoid function, we now have a means of generating a probability that a new data point $\textbf{x}^{*}$ is part of class $y^{*}$. Because we are currently operating in the two-class case, which in this context will be denoted $C_{1}$ and $C_{2}$, we'll write the probability for each of these classes as:
 \begin{align*}
-	p(y^{*}=C_{1}|\textbf{x}^{*}) &= \sigma(\textbf{w}^{T}\phi{(\textbf{x}^{*})}) \\
+	p(y^{*}=C_{1}|\textbf{x}^{*}) &= \sigma(\textbf{w}^{T}\textbf{x}^{*}) \\
 	p(y^{*}=C_{2}|\textbf{x}^{*}) &= 1 - p(y^{*}=C_{1}|\textbf{x}^{*})
 \end{align*}
-For further simplicity, and to remember that we will be applying some sort of basis transformation to our input data $\textbf{x}$, we will rewrite these equations further as:
-\begin{align*}
-	p(y^{*}=C_{1}|\boldsymbol{\phi}^{*}) &= \sigma(\textbf{w}^{T}\boldsymbol{\phi}^{*}) \\
-	p(y^{*}=C_{2}|\boldsymbol{\phi}^{*}) &= 1 - p(y^{*}=C_{1}|\boldsymbol{\phi}^{*})
-\end{align*}
-where $\boldsymbol{\phi}^{*} = \phi{(\textbf{x}^{*})}$.
-
 Now that we have such functions, we can apply the maximum likelihood procedure to determine the optimal parameters for our logistic regression model.
 
-For a data set \{$\textbf{x}_{i}, y_{i}$\} where $i = 1..N$, $y_{i} \in \{0,1\}$, and $\boldsymbol{\phi}_{i} = \phi{(\textbf{x}_{i})}$, the likelihood for our setting of parameters $\textbf{w}$ can be written as:
+For a data set \{$\textbf{x}_{i}, y_{i}$\} where $i = 1..N$ and $y_{i} \in \{0,1\}$, the likelihood for our setting of parameters $\textbf{w}$ can be written as:
 \begin{equation} \label{log-reg-likelihood}
 	p(\{y_{i}\}|\textbf{w}) = \prod_{i=1}^{N} \hat{y}_{i}^{y_{i}} \{1 - \hat{y}_{i}\}^{1 - y_{i}}
 \end{equation}
-where $\hat{y}_{i} = p(y_{i}=C_{1}|\boldsymbol{\phi}_{i}) = \sigma(\textbf{w}^{T}\boldsymbol{\phi}_{i})$.
+where $\hat{y}_{i} = p(y_{i}=C_{1}|\textbf{x}_{i}) = \sigma(\textbf{w}^{T}\textbf{x}_{i})$.
 
 In general, we would like to maximize this probability to find the optimal setting of our parameters. This is exactly what we intend to do, but with two further simplifications. First, we're going to maximize the probability of the \textit{logarithm} of the likelihood. As a monotonically increasing function, maximizing the logarithm of the likelihood (called the \textit{log likelihood}) will result in the same optimal setting of parameters as if we had just optimized the likelihood directly. Furthermore, using the log likelihood has the nice effect of turning what is currently a product of terms from $1..N$ to a sum of terms from $1..N$, which will make our calculations nicer. Second, we will turn our log likelihood into an \textit{error function} by taking the negative of our log likelihood expression. Now, instead of maximizing the log likelihood, we will be minimizing the error function, which will again find us the same setting of parameters.
 
@@ -254,15 +253,15 @@ After taking the negative logarithm of the likelihood function defined by Equati
 \begin{equation} \label{cross-entropy-error-fn}
 	\mathrm{E}(\textbf{w}) = - \ln{p(\{y_{i}\}|\textbf{w})} = - \sum_{i=1}^{N} \{y_{i}\ln{\hat{y}_i} + (1 - y_{i})\ln{(1-\hat{y_{i}})}\}
 \end{equation}
-where as before $\hat{y}_{i} = p(y_{i}=C_{1}|\boldsymbol{\phi}_{i}) = \sigma(\textbf{w}^{T}\boldsymbol{\phi}_{i})$. Now, to solve for the optimal setting of parameters using a maximum likelihood approach as we've done previously, we start by taking the gradient of the cross-entropy error function with respect to \textbf{w}:
+where as before $\hat{y}_{i} = p(y_{i}=C_{1}|\textbf{x}_{i}) = \sigma(\textbf{w}^{T}\textbf{x}_{i})$. Now, to solve for the optimal setting of parameters using a maximum likelihood approach as we've done previously, we start by taking the gradient of the cross-entropy error function with respect to \textbf{w}:
 \begin{equation} \label{log-reg-gradient}
-	\nabla \mathrm{E}(\textbf{w}) = \sum_{i=1}^{N}(\hat{y}_{i} - y_{i})\boldsymbol{\phi}_{i}
+	\nabla \mathrm{E}(\textbf{w}) = \sum_{i=1}^{N}(\hat{y}_{i} - y_{i})\textbf{x}_{i}
 \end{equation}
 which we arrive at by recognizing that the derivative of the logistic sigmoid function can be written in terms of itself as:
 \begin{align*}
 	\frac{\partial \sigma(z)}{\partial z} = \sigma(z)(1 - \sigma(z))
 \end{align*}
-(I can include the derivation if that's helpful, thoughts???) Let's inspect the form of Equation \ref{log-reg-gradient} for a moment to understand its implications. First, it's a summation over all of our data points, as we would expect. Then, for each data point, we are taking the difference between our predicted value $\hat{y}_{i}$ and the actual value $y_{i}$, and multiplying that difference by the magnitude of the transformed input vector $\boldsymbol{\phi}_{i}$.
+(I can include the derivation if that's helpful, thoughts???) Let's inspect the form of Equation \ref{log-reg-gradient} for a moment to understand its implications. First, it's a summation over all of our data points, as we would expect. Then, for each data point, we are taking the difference between our predicted value $\hat{y}_{i}$ and the actual value $y_{i}$, and multiplying that difference by the input vector $\textbf{x}_{i}$.
 
 While a closed form solution does not present itself here as it did in the case of linear regression due to the nonlinearity of the logistic sigmoid function, we can still optimize the parameters \textbf{w} of our model using an iterative procedure that updates our parameters by moving toward the minimum of the error function defined in Equation \ref{cross-entropy-error-fn}.
 
@@ -283,9 +282,9 @@ Softmax is the multi-class generalization of the sigmoidal activation function. 
 Multi-class logistic regression uses softmax over a vector of activations to select the most likely target class for a new data point. It does this by applying softmax and then assigning the new data point to the class with the highest probability.
 
 \begin{example}{Softmax Example}{softmax-example}
-	Consider an example that has three classes: $C_{1}, C_{2}, C_{3}$. Let's say we have an activation vector \textbf{z} for our new data point \textbf{x} that we wish to classify, given by:
+	Consider an example that has three classes: $C_{1}, C_{2}, C_{3}$. Let's say we have an activation vector \textbf{z} for our new data point $\textbf{x}$ that we wish to classify, given by:
 	\begin{align*}
-		\textbf{z} = \textbf{W}^{T}\boldsymbol{\phi} =
+		\textbf{z} = \textbf{W}^{T}\textbf{x} =
 			\begin{bmatrix}
 		    	4 \\
 		        1 \\
@@ -294,7 +293,7 @@ Multi-class logistic regression uses softmax over a vector of activations to sel
 	\end{align*}
 	where
 	\begin{align*}
-		\textbf{z}_{j} = \textbf{w}_{j}^{T}\boldsymbol{\phi}
+		\textbf{z}_{j} = \textbf{w}_{j}^{T}\textbf{x}
 	\end{align*}
 	Then, using our definition of softmax, we have:
 	\begin{align*}
@@ -305,15 +304,15 @@ Multi-class logistic regression uses softmax over a vector of activations to sel
 				0.950
 		    \end{bmatrix}
 	\end{align*}
-	And therefore, we would assign our new data point \textbf{x} to class $C_{3}$, which has the largest activation.
+	And therefore, we would assign our new data point $\textbf{x}$ to class $C_{3}$, which has the largest activation.
 \end{example}
 
 As in the two-class logistic regression case, we now need to solve for the parameters \textbf{W} of our model, also written as \{$\textbf{w}_{j}$\}. Assume we have an observed data set \{$\textbf{x}_{i}, \textbf{y}_{i}$\} for $i=1..N$ where $\textbf{y}_{i}$ are one-hot encoded target vectors.  We begin this process by writing the likelihood for our data, which is only slightly modified here to account for multiple classes:
 
 \begin{equation} \label{multi-class-log-reg-likelihood}
-	p(\{\textbf{y}_{i}\}|\textbf{W}) = \prod_{i=1}^{N}\prod_{j=1}^{K} p(\textbf{y}_{i}=C_{k}|\boldsymbol{\phi}_{i})^{y_{ij}} = \prod_{i=1}^{N}\prod_{j=1}^{K} \hat{y}_{ij}^{y_{ij}}
+	p(\{\textbf{y}_{i}\}|\textbf{W}) = \prod_{i=1}^{N}\prod_{j=1}^{K} p(\textbf{y}_{i}=C_{k}|\textbf{x}_{i})^{y_{ij}} = \prod_{i=1}^{N}\prod_{j=1}^{K} \hat{y}_{ij}^{y_{ij}}
 \end{equation}
-where $\boldsymbol{\phi}_{i} = \phi(\textbf{x}_{i})$ and $\hat{y}_{ij} = \text{softmax}_{j}(\textbf{W}\boldsymbol{\phi}_{i})$ \newline
+where $\hat{y}_{ij} = \text{softmax}_{j}(\textbf{W}\textbf{x}_{i})$ \newline
 
 We can now take the negative logarithm to get the cross-entropy error function for the multi-class classification problem:
 \begin{equation} \label{multi-class-cross-entropy-error-fn}
@@ -321,7 +320,7 @@ We can now take the negative logarithm to get the cross-entropy error function f
 \end{equation}
 As in the two-class case, we now take the gradient with respect to one of our weight parameter vectors $\textbf{w}_{j}$:
 \begin{equation} \label{multi-class-log-reg-gradient}
-	\nabla_{\textbf{w}_{j}} \mathrm{E}(\textbf{W}) = \sum_{i=1}^{N}(\hat{y}_{ij} - y_{ij})\boldsymbol{\phi}_{i}
+	\nabla_{\textbf{w}_{j}} \mathrm{E}(\textbf{W}) = \sum_{i=1}^{N}(\hat{y}_{ij} - y_{ij})\textbf{x}_{i}
 \end{equation}
 which we arrived at by recognizing that the derivative of the softmax function with respect to the input activations $z_{j}$ can be written in terms of itself:
 \begin{align*}
