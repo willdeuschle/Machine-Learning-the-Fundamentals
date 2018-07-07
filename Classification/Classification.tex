@@ -5,7 +5,7 @@ In the last chapter we explored ways of predicting a continuous, real-number tar
 As we did when studying regression, let's begin by thinking about the type of problems we are trying to solve. Here are a few examples of classification tasks:
 \begin{enumerate}
     \item Predicting whether a given email is spam.
-    \item Predicting the type of animal in an image.
+    \item Predicting the type of object in an image.
     \item Predicting whether a manufactured good is defective.
 \end{enumerate}
 The point of classification is hopefully clear: we're trying to identify the most appropriate class for an input data point.
@@ -18,7 +18,7 @@ A set of problems that seeks to make predictions about unobserved target classes
 There are several different means by which we can solve classification problems. We're going to discuss three in this chapter: discriminant functions, probabilistic discriminative models (also known as logistic regression), and probabilistic generative models. Note that these are not the only methods for performing classification tasks, but they are similar enough that it makes sense to present and explore them together. Specifically, these techniques all use some linear combination of input variables to produce a class prediction. For that reason, we will refer to these techniques as \textbf{generalized linear models}.
 
 \begin{mlcube}{Generalized Linear Models}
-Let's inspect the categories that generalized linear models fall into for our ML framework cube. First, since we are using these techniques to perform classification, generalized linear models deal with a \textbf{discrete} output domain. Note that the input domain is usually continuous. Second, as with linear regression, our goal is to make predictions on future data points given an initial set of data to learn from. Thus, generalized linear models are \textbf{supervised} techniques. Finally, depending on the type of generalized linear model, they can be either \textbf{probabilistic or non-probabilistic}.
+Since we are using these techniques to perform classification, generalized linear models deal with a \textbf{discrete} output domain. Second, as with linear regression, our goal is to make predictions on future data points given an initial set of data to learn from. Thus, generalized linear models are \textbf{supervised} techniques. Finally, depending on the type of generalized linear model, they can be either \textbf{probabilistic or non-probabilistic}.
 \begin{center}
     \begin{tabular}{c|c|c}
     \textit{\textbf{Domain}} & \textit{\textbf{Training}} & \textit{\textbf{Probabilistic}} \\
@@ -108,7 +108,7 @@ For the sake of simplicity in the rest of this chapter, we will leave out any ba
 \readernote{For an input matrix \textbf{X}, there is a matrix generalization of our basis transformed inputs: $\boldsymbol{\Phi} = \phi(\textbf{X})$, where $\boldsymbol{\Phi}$ is known as the \textit{design matrix}.}
 
 \section{Algorithms for Decision Boundaries}
-Now that we have a high-level understanding of what we're trying to accomplish with discriminant functions, we can consider how to solve for the decision boundaries that will dictate our classification decisions.
+Now that we have a high-level understanding of what we're trying to accomplish with discriminant functions, we can consider how to solve for the decision boundaries that will dictate our classification decisions. Similar to linear regression, this means we need to establish an objective function to optimize over a training data set. We begin with an objective function that should be familiar from the last chapter: least squares loss.
 
 \subsection{Least Squares Loss}
 To find the set of weights \textbf{w} that form the optimal decision boundary between target classes, we will start with a technique that we also used for linear regression: minimizing a least squares loss function.
@@ -372,42 +372,46 @@ As usual, we will take the logarithm which is easier to work with:
 \begin{align*}
 	\ln \mathcal{L}(\pi, \boldsymbol{\mu}_{1}, \boldsymbol{\mu}_{2}, \boldsymbol{\Sigma}) = \sum_{i=1}^{N} y_{i} \ln \bigg( \pi\mathcal{N}(\textbf{x}_{i} | \boldsymbol{\mu}_{1}, \boldsymbol{\Sigma}) \bigg) + (1 - y_{i}) \ln \bigg( (1-\pi)\mathcal{N}(\textbf{x}_{i} | \boldsymbol{\mu}_{2}, \boldsymbol{\Sigma}) \bigg)
 \end{align*}
-We can now optimize for our parameters $\pi, \boldsymbol{\mu}_{1}, \boldsymbol{\mu}_{2}, \text{and}, \boldsymbol{\Sigma}$ separately, using the usual procedure of taking the derivative, setting equal to 0, and then solving for the parameter of interest. Beginning with $\pi$, we'll concern ourselves only with the terms that depend on $\pi$ which are:
-\begin{align*}
-	\sum_{i=1}^{N} y_{i}\ln{\pi} + (1-y_{i})\ln{(1 - \pi)}
-\end{align*}
-Taking the derivative with respect to $\pi$, setting equal to 0, rearranging, we get:
-\begin{align*}
-	\pi = \frac{1}{N} \sum_{i=1}^{N} y_{i} = \frac{N_{1}}{N} = \frac{N_{1}}{N_{1} + N_{2}}
-\end{align*}
-where $N_{1}$ is the number of data points in our data set from class $C_{1}$, $N_{2}$ is the number of data points from class $C_{2}$, and $N$ is just the total number of data points. This means that the maximum likelihood solution for $\pi$ is the fraction of points that are assigned to class $C_{1}$, a fairly intuitive solution and one that will be commonly seen when working with maximum likelihood calculations.
+We can now optimize for our parameters $\pi, \boldsymbol{\mu}_{1}, \boldsymbol{\mu}_{2}, \text{and}, \boldsymbol{\Sigma}$ separately, using the usual procedure of taking the derivative, setting equal to 0, and then solving for the parameter of interest.
 
-Let's now perform the maximization for $\boldsymbol{\mu}_{1}$. Start by considering the terms from our log likelihood involving $\boldsymbol{\mu}_{1}$:
-\begin{align*}
-	\sum_{i=1}^{N} y_{i} \ln \mathcal{N}(\textbf{x}_{i} | \boldsymbol{\mu}_{1}, \boldsymbol{\Sigma}) = -\frac{1}{2} \sum_{i=1}^{N} y_{i} (\textbf{x}_{i} - \boldsymbol{\mu}_{1})^{T}\boldsymbol{\Sigma}^{-1}(\textbf{x}_{i} - \boldsymbol{\mu}_{1}) + c
-\end{align*}
-where $c$ are constants not involving the $\boldsymbol{\mu}_{1}$ term. Taking the derivative with respect to $\boldsymbol{\mu}_{1}$, setting equal to 0, and rearranging:
-\begin{align*}
-	\boldsymbol{\mu}_{1} = \frac{1}{N_{1}} \sum_{i=1}^{N} y_{i}\textbf{x}_{i}
-\end{align*}
-which is simply the average of all the data points $\textbf{x}_{i}$ assigned to class $C_{1}$, a very intuitive result. By the same derivation, the maximum likelihood solution for $\boldsymbol{\mu}_{2}$ is:
-\begin{align*}
-	\boldsymbol{\mu}_{2} = \frac{1}{N_{2}} \sum_{i=1}^{N} (1-y_{i})\textbf{x}_{i}
-\end{align*}
+\begin{derivation}{MLE Solution}{mle-solution-derivation}
+    Beginning with $\pi$, we'll concern ourselves only with the terms that depend on $\pi$ which are:
+    \begin{align*}
+    	\sum_{i=1}^{N} y_{i}\ln{\pi} + (1-y_{i})\ln{(1 - \pi)}
+    \end{align*}
+    Taking the derivative with respect to $\pi$, setting equal to 0, rearranging, we get:
+    \begin{align*}
+    	\pi = \frac{1}{N} \sum_{i=1}^{N} y_{i} = \frac{N_{1}}{N} = \frac{N_{1}}{N_{1} + N_{2}}
+    \end{align*}
+    where $N_{1}$ is the number of data points in our data set from class $C_{1}$, $N_{2}$ is the number of data points from class $C_{2}$, and $N$ is just the total number of data points. This means that the maximum likelihood solution for $\pi$ is the fraction of points that are assigned to class $C_{1}$, a fairly intuitive solution and one that will be commonly seen when working with maximum likelihood calculations.
 
-And finally, we can derive the maximum likelihood solution for the shared covariance matrix $\boldsymbol{\Sigma}$. Start by considering the terms in our log likelihood expression involving $\boldsymbol{\Sigma}$:
-\begin{align*}
-	-\frac{1}{2} \sum_{i=1}^{N} y_{i} \ln{|\boldsymbol{\Sigma}|} -\frac{1}{2} \sum_{i=1}^{N} y_{i} (\textbf{x}_{i} - \boldsymbol{\mu}_{1})^{T}\boldsymbol{\Sigma}^{-1}(\textbf{x}_{i} - \boldsymbol{\mu}_{1}) -\frac{1}{2} \sum_{i=1}^{N} (1-y_{i}) \ln{|\boldsymbol{\Sigma}|} -\frac{1}{2} \sum_{i=1}^{N} (1-y_{i}) (\textbf{x}_{i} - \boldsymbol{\mu}_{2})^{T}\boldsymbol{\Sigma}^{-1}(\textbf{x}_{i} - \boldsymbol{\mu}_{2})
-\end{align*}
-Taking the derivative with respect to $\boldsymbol{\Sigma}$:
-\begin{align*}
-	N\boldsymbol{\Sigma}^{-T} - \frac{1}{2}\sum_{i=1}^{N} y_{i} \boldsymbol{\Sigma}^{-T}(\textbf{x}_{i} - \boldsymbol{\mu}_{1})(\textbf{x}_{i} - \boldsymbol{\mu}_{1})^{T}\boldsymbol{\Sigma}^{-T} - \frac{1}{2}\sum_{i=1}^{N} (1-y_{i}) \boldsymbol{\Sigma}^{-T}(\textbf{x}_{i} - \boldsymbol{\mu}_{2})(\textbf{x}_{i} - \boldsymbol{\mu}_{2})^{T}\boldsymbol{\Sigma}^{-T}
-\end{align*}
-Setting equal to 0 and rearranging to solve for $\boldsymbol{\Sigma}$:
-\begin{align*}
-	\boldsymbol{\Sigma} = \frac{1}{N} \sum_{i=1}^{N} \bigg( y_{i}(\textbf{x}_{i} - \boldsymbol{\mu}_{1})(\textbf{x}_{i} - \boldsymbol{\mu}_{1})^{T} + (1-y_{i})(\textbf{x}_{i} - \boldsymbol{\mu}_{2})(\textbf{x}_{i} - \boldsymbol{\mu}_{2})^{T} \bigg)
-\end{align*}
-which has the intuitive interpretation that the maximum likelihood solution for the shared covariance matrix is the weighted average of the two individual covariance matrices.
+    Let's now perform the maximization for $\boldsymbol{\mu}_{1}$. Start by considering the terms from our log likelihood involving $\boldsymbol{\mu}_{1}$:
+    \begin{align*}
+    	\sum_{i=1}^{N} y_{i} \ln \mathcal{N}(\textbf{x}_{i} | \boldsymbol{\mu}_{1}, \boldsymbol{\Sigma}) = -\frac{1}{2} \sum_{i=1}^{N} y_{i} (\textbf{x}_{i} - \boldsymbol{\mu}_{1})^{T}\boldsymbol{\Sigma}^{-1}(\textbf{x}_{i} - \boldsymbol{\mu}_{1}) + c
+    \end{align*}
+    where $c$ are constants not involving the $\boldsymbol{\mu}_{1}$ term. Taking the derivative with respect to $\boldsymbol{\mu}_{1}$, setting equal to 0, and rearranging:
+    \begin{align*}
+    	\boldsymbol{\mu}_{1} = \frac{1}{N_{1}} \sum_{i=1}^{N} y_{i}\textbf{x}_{i}
+    \end{align*}
+    which is simply the average of all the data points $\textbf{x}_{i}$ assigned to class $C_{1}$, a very intuitive result. By the same derivation, the maximum likelihood solution for $\boldsymbol{\mu}_{2}$ is:
+    \begin{align*}
+    	\boldsymbol{\mu}_{2} = \frac{1}{N_{2}} \sum_{i=1}^{N} (1-y_{i})\textbf{x}_{i}
+    \end{align*}
+
+    And finally, we can derive the maximum likelihood solution for the shared covariance matrix $\boldsymbol{\Sigma}$. Start by considering the terms in our log likelihood expression involving $\boldsymbol{\Sigma}$:
+    \begin{align*}
+    	-\frac{1}{2} \sum_{i=1}^{N} y_{i} \ln{|\boldsymbol{\Sigma}|} -\frac{1}{2} \sum_{i=1}^{N} y_{i} (\textbf{x}_{i} - \boldsymbol{\mu}_{1})^{T}\boldsymbol{\Sigma}^{-1}(\textbf{x}_{i} - \boldsymbol{\mu}_{1}) -\frac{1}{2} \sum_{i=1}^{N} (1-y_{i}) \ln{|\boldsymbol{\Sigma}|} -\frac{1}{2} \sum_{i=1}^{N} (1-y_{i}) (\textbf{x}_{i} - \boldsymbol{\mu}_{2})^{T}\boldsymbol{\Sigma}^{-1}(\textbf{x}_{i} - \boldsymbol{\mu}_{2})
+    \end{align*}
+    Taking the derivative with respect to $\boldsymbol{\Sigma}$:
+    \begin{align*}
+    	N\boldsymbol{\Sigma}^{-T} - \frac{1}{2}\sum_{i=1}^{N} y_{i} \boldsymbol{\Sigma}^{-T}(\textbf{x}_{i} - \boldsymbol{\mu}_{1})(\textbf{x}_{i} - \boldsymbol{\mu}_{1})^{T}\boldsymbol{\Sigma}^{-T} - \frac{1}{2}\sum_{i=1}^{N} (1-y_{i}) \boldsymbol{\Sigma}^{-T}(\textbf{x}_{i} - \boldsymbol{\mu}_{2})(\textbf{x}_{i} - \boldsymbol{\mu}_{2})^{T}\boldsymbol{\Sigma}^{-T}
+    \end{align*}
+    Setting equal to 0 and rearranging to solve for $\boldsymbol{\Sigma}$:
+    \begin{align*}
+    	\boldsymbol{\Sigma} = \frac{1}{N} \sum_{i=1}^{N} \bigg( y_{i}(\textbf{x}_{i} - \boldsymbol{\mu}_{1})(\textbf{x}_{i} - \boldsymbol{\mu}_{1})^{T} + (1-y_{i})(\textbf{x}_{i} - \boldsymbol{\mu}_{2})(\textbf{x}_{i} - \boldsymbol{\mu}_{2})^{T} \bigg)
+    \end{align*}
+    which has the intuitive interpretation that the maximum likelihood solution for the shared covariance matrix is the weighted average of the two individual covariance matrices.
+\end{derivation} \newpage
 
 It is relatively straightforward to extend these maximum likelihood derivations from their two-class form to their more general, multi-class form.
 
