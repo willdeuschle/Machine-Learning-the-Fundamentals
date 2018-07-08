@@ -1,1 +1,44 @@
 \chapter{Neural Networks}
+In this chapter, we explore the oft spoken of neural networks. As we will come to see, neural networks are an extraordinarily flexible model option for solving a variety of different problem types. In fact, this flexibility is both what makes them so widely applicable and so difficult to use properly. We will explore the applications, underlying theory, and training schemes behind neural networks.
+
+\section{Motivation}
+As seemingly popular as neural networks have become for recent problem solving, they aren't actually new technology. The first neural networks were described in the early 60s (???), and the only reason they weren't put into practice shortly thereafter was the fact that we didn't yet have access to the large amounts of efficient memory and storage that complex neural network require. Over the last 50 (???) years, and particularly over the last decade with the advent of cloud computing, we now have more and more access to the cheap processing power and storage required to make neural networks a viable option for model building.
+
+\subsection{Applications}
+In the previous two chapters, we explored two broad problem types: classification and regression. It's natural to wonder where neural networks fit into these two broad problem types, and the answer is that they are applicable to both. Neural networks are some of the most flexible models we will explore, and that flexibility extends to the types of problems they can be made to handle. Thus, the tasks that we've explored over the last two chapters, such as predicting heights in the regression case or object category in the classification case, can be done by neural networks.
+
+\subsection{Comparison to Other Methods}
+As discussed in the previous section, neural networks are flexible enough to be used as models for either regression or classification tasks. This means that every time you're faced with a problem that falls into one of these categories, you have a choice to make between the methods we've already covered or using a neural network. Before we've explored the specifics of neural networks, how can we know at a high level when they will be a good choice for a specific problem?
+
+One simple way to think about this is that if we never needed to use neural networks, we probably wouldn't. In other words, if a problem can be solved effectivly by one of the techniques we already described for regression or classification (such as linear regression, discriminant functions, etc.), we would prefer to use those. The reason is that neural networks are often more memory and processor intensive than these other techniques, and they are much more complex to train and debug.
+
+The flip side of this is that hard problems are often too complex, too ill-specified, or too poorly understood to use a simple regression or classification technique. Indeed, even if you eventually think you will need to use a neural network to solve a given problem, it makes sense to try a simple technique first both to get a baseline of performance and because it may just happen to be good enough.
+
+What is so special about neural networks that they can solve problems that the other techniques we've explored may not be able to? And why are they so expensive? Those are the questions we turn to next.
+
+\subsection{Strengths and Weaknesses}
+For problems that fall into the category of regression or classification, we've already discussed the utility of basis functions. Often, a problem that is intractable with our input data as-is will be readily solvable with basis-transformed data. We often select these basis changes using expert knowledge. For example, if we were working with a data set that related to chemical information, and there were certain equations that a chemist told us to be important for the particular problem we were trying to solve, we might include a variety of the transformations that are present in those equations.
+
+However, imagine now that we have a data set with no accompanying expert information. More often than not, complex problem domains don't come with a useful set of suggested transformations. How do we find useful basis functions in these situations? This is exactly the strength of neural networks - they solve for the best basis for a data set!
+
+Neural networks can be used to simultaneously solve for our model parameters as well as the best basis transformations. As we stated above, this makes them exceedingly flexible.
+
+Unfortunately, this flexibility is also the weakness of neural nets. While this flexibility enables us to solve difficult problems, it also opens us up to a host of other problems. Chief among these is the fact that neural networks take a lot of computation to train. This is simply a result of the possible model space being so large - to effectively explore it all takes time and resources. Furthermore, this flexibilty can cause rather severe overfitting if we are not careful.
+
+In summary, the strengths and weaknesses of neural networks stem from the same root cause: model flexibility. It will be our goal then to appropriately harness this property to create useful models.
+
+\subsection{Universal Function Approximation}
+The flexibility of neural networks is a well-established phenomenon. In fact, neural networks are what are known as \textit{universal function approximators}. This means that with a large enough network, it is possible to approximate any function. The proof of this is beyond the scope of this textbook, but it provides some context for why flexibility is one of the key attributes of neural networks.
+
+\begin{mlcube}{Neural Networks}
+As universal function approximators, neural networks can operate over discrete or continuous inputs. That being said, it's far more efficient and common for them to accept \textbf{continuous} inputs. We primarily use neural networks to solve regression or classification problems, which involve training on input data sets to produce predictions, making them a \textbf{supervised} technique. Finally, while there exist probabilistic extensions for neural networks, they primarily operate in the \textbf{non-probabilistic} setting.
+\begin{center}
+    \begin{tabular}{c|c|c}
+    \textit{\textbf{Domain}} & \textit{\textbf{Training}} & \textit{\textbf{Probabilistic}} \\
+    \hline
+    Continuous & Supervised & No \\
+    \end{tabular}
+\end{center}
+\end{mlcube}
+
+\section{Feed Forward Networks}
