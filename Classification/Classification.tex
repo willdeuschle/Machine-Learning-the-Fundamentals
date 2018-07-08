@@ -32,9 +32,9 @@ Since we are using these techniques to perform classification, generalized linea
 Generalized linear models for classification come in several different flavors. The most straightforward method carries over very easily from linear regression: \textbf{discriminant functions}. As we will see, with discriminant functions we are linearly separating the input space into sections belonging to different target classes. We will explore this method first. One thing to keep in mind is that it's generally easiest to initially learn these techniques in the case where we have only two target classes, but there is typically a generalization that allows us to handle the multi-class case as well. \newline \newline
 As with linear regression, discriminant functions $h(\textbf{x}, \textbf{w})$ seek to find a weighted combination of our input variables to make a prediction about the target class:
 \begin{equation} \label{basic-discriminant-fn}
-	h(\textbf{x}, \textbf{w}) = w_{0}x_{0} + w_{1}x_{1} + ... + w_{D}x_{D}
+	h(\textbf{x}, \textbf{w}) = w^{(0)}x^{(0)} + w^{(1)}x^{(1)} + ... + w^{(D)}x^{(D)}
 \end{equation}
-where we are using the bias trick of appending $x_{0} = 1$ to all of our data points.
+where we are using the bias trick of appending $x^{(0)} = 1$ to all of our data points.
 
 \subsection{Basic Setup: Binary Linear Classification}
 The simplest use case for a discriminant function is when we only have two classes that we are trying to decide between. Let's denote these two classes \textbf{1} and \textbf{-1}. Our discriminant function in Equation \ref{basic-discriminant-fn} will then predict class \textbf{1} if $h(\textbf{x}, \textbf{w}) \geq 0$ and class \textbf{-1} if $h(\textbf{x}, \textbf{w}) < 0$:
