@@ -227,5 +227,44 @@ Remember that all of these calculations were done for a single data point that g
 To solidify understanding of the backpropagation algorithm, it will be useful to try a concrete example.
 
 \begin{example}{Backpropagation Example}{backprop-example}
-	TODO...
+	Imagine the case of a simple two layer neural network (meaning we have two layers of connections and three layers of nodes). We'll use the standard quadratic loss function on our output layer, which will have no activation function (you could also call this a linear activation function to be precise):
+	\begin{align*}
+		E = \frac{1}{2} \sum_{m=1}^{M} (\hat{y}_{m} - y_{m})^{2}
+	\end{align*}
+	Where $M$ is the number of units in the output layer. To the hidden units, we'll apply a nonlinear sigmoidal activation function given by:
+	\begin{align*}
+		\sigma(z) = \frac{1}{1 + \exp{(-z)}}
+	\end{align*}
+	whose derivative is given by:
+	\begin{align*}
+		\frac{\partial \sigma(z)}{\partial z} = \sigma(z)(1 - \sigma(z))
+	\end{align*}
+	For our input data point $\textbf{x}$, we forward propagate through our network to get the activation in the hidden layer:
+	\begin{align*}
+		a_{j} = \sum_{d=0}^{D} w_{jd}^{(1)} x_{i}
+	\end{align*}
+	We then transform this value using our sigmoidal nonlinearity:
+	\begin{align*}
+		z_{j} = \sigma{(a_{j})}
+	\end{align*}
+	We then propagate these transformed activations forward once more to get our output activations:
+	\begin{align*}
+		\hat{y}_{m} = \sum_{j=0}^{J} w_{mj}^{(2)} z_{j}
+	\end{align*}
+	Now that we've propagated forward, we can begin to propagate our errors backwards! We start by computing the errors for the output layer as follows:
+	\begin{align*}
+		\delta_{m} = \hat{y}_{m} - y_{m}
+	\end{align*}
+	We then backpropagate these errors back to the hidden units as follows:
+	\begin{align*}
+		\delta_{j} = (\sigma(z_{j})(1 - \sigma(z_{j}))) \sum_{m=1}^{M} w_{mj} \delta_{m}
+	\end{align*}
+	And now that we have our errors for the hidden and output layers, we can compute the derivative of the loss with respect to our weights as follows:
+	\begin{align*}
+		\frac{\partial E}{\partial w_{ji}^{(1)}} = \delta_{j} x_{i}, \quad \frac{\partial E}{\partial w_{mj}^{(2)}} = \delta_{m} z_{j}
+	\end{align*}
+	We then use these derivatives along wtih an optimization technique such as gradient descent to improve our model weights.
 \end{example}
+
+\section{Choosing a Network Structure}
+is this what comes next?
