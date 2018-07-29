@@ -267,4 +267,49 @@ To solidify understanding of the backpropagation algorithm, it will be useful to
 \end{example}
 
 \section{Choosing a Network Structure}
-is this what comes next?
+Now that we know the structure of a neural network and how the training process works, we must step back and consider the question of how we actually arrive at an optimal structure. We'll begin with an idea we've already seen before: cross validation.
+
+\subsection{Cross Validation for Neural Networks}
+We've previously discussed cross validation in the chapter on linear regression (TODO: check this). There, we were using it to compare the performance of different models, hopefully identifying the best model while also preventing overfitting. We can use a similar process to identify a reasonable network structure.
+
+First of all, the input and output parameters of a neural network are generally decided for us: the dimensionality of our input data dictates the number of input units and the dimensionality of the required outputs dictates the number of output units. Depending on whether or not you wish to perform some sort of pre or post-processing of the results produced by your network, this might not actually be the case, but in general when choosing a network structure we don't consider the first or last layer of nodes as being a relevant knob that we can tune.
+
+That leaves us to choose the structure of the hidden layers in our network. To make this problem more tractable, we can simplify it even further: we'll consider the total number of units contained in our hidden layers (meaning we sum the units from each hidden layer). So if we have three hidden layers each with 5 units each, we'll have 15 total units for that network structure.
+
+Unsurprisingly, the more hidden units we have for our model, the more variation we will produce in our results and the closer we will get to overfitting. (TODO: provide an image here of how overfitting will occur based on the number of internal units).
+
+Thus, we can use cross validation in the same way we've done before: train our model with a different numbers of internal units, and even different internal structures for the number of units per layer if you wish to be thorough, and then select the model that performs best on the validation set.
+
+\readernote{There should be other considerations at play beyond performance when choosing a network structure. For example, the more internal units you have in your network, the more storage and compute time you will need to train them. If either training time or response time after training a model is critical, you may need to consider consolidating your network at the expense of some performace.}
+
+\subsection{Regularization}
+You can also apply regularization to the weights in your network to help prevent overfitting. For example, we could introduce a simple quadratic regularizer of the form $\frac{\lambda}{2} \textbf{w}^{T}\textbf{w}$ to our error function that we've seen in the previous two chapters. There are other considerations to be made here, for example we would like our regularizer to be invariant to network scaling which the quadratic regularizer is not, but the basic concept of avoiding extreme weights is the same.
+
+\subsection{Data Transformation}
+You can also augment your data, thus preventing overfitting, by applying transformations to it. This technique is not specific to neural networks, but often the types of unstructured data that you will see neural networks being used for can benefit greatly from it. Data augmentation refers to the practice of increasing the size and diversity of your training data by applying transformations to the initial data set. For example, if we are working with image data, we might choose to rotate or reflect the image, depending on the type of network we were trying to build and whether or not this would preserve the integrity of the image. We might also change something like the brightness or density of the image data. In this way, we can produce more and more varied training points, thus reducing the likelihood of overfitting.
+
+\section{Specialized Forms of Neural Networks}
+Simple neural networks are useful for a general set of tasks, and as universal function approximators, they \textit{could} be useful for any task. However, there are certain data types and use cases for which we've developed more specialized forms of neural networks that perform even better in certain domains. These are what we will look at from a high level now.
+
+\subsection{Convolutional Neural Networks (CNNs)}
+Convolutional neural networks (abbreviated CNNs) are most often used for image data, but the underlying principles of them will apply in other domains as well.
+
+To understand why a CNN is useful, consider this specific problem: you are trying to determine whether or not there is a dog in an image. There are two general difficulties we have to deal with in solving this problem. First, while dogs have a lot of similar features (ears, tails, paws, etc.), we need some means of breaking an image down into smaller portions that we could effectively identify as being ears or tails or paws. Second, what happens if we train on images of dogs that are all in the center of the photo, and then we try to test our network on an image where the dog is in the upper left hand corner? It's going to fail miserably.
+
+CNNs overcome these problems by extracting smaller local features from images by using what's known as a \textit{sliding window}. You can imagine this sliding window moving over every subsection of an image, producing a summary of those subsections that feed into the next layer in our network. We do this over the entire image, and with several different sliding windows. Without going into too many details, this solves the two general problems we had above: our small sliding window can summarize a features of interest (such as a dog ear) and it is also location invariant, meaning that we can identify that dog ear anywhere in an image.
+
+TODO: image of network structure
+
+\subsection{Recurrent Neural Networks (RNNs)}
+As with CNNs, recurrent neural networks (abbreviated RNNs) are used to better solve a specific type of problem. To motivate the structure of an RNN, we will turn again to a specific example.
+
+Imagine we were building a tool with the goal of predicting what word comes next in a newspaper article based on the previous words. Obviously, the words that came before the word that we are currently trying to predict are crucial to predicting the next word. Imagine we propagate the preceding ten words through our network to predict which word we think will come next. It would also be useful if we could send some of the information at each layer backwards through the network to help with the next prediction. In this sense, our network is `stateful' because it's remembering what came before. We don't have this ability with a feed-forward network, which by its very name only propagates information forward through the network. RNNs add backward passing of activations into their network structure to improve predictions on data where there is some temporal dependence on what came previously.
+
+TODO: image of network structure
+
+\subsection{Bayesian Neural Networks (BNNs)}
+Up until now, our training process has been one of maximum likelihood estimation as we discussed in the first chapter, or a maximum posterior approach if we utilize a regularizer that can be interpreted as introducing a prior.
+
+A Bayesian neural network, or BNN, does exactly what you might imagine: it introduces a distribution over the parameters of our model and then requires marginalizing over those distributions in order to make a prediction.
+
+The specifics of how exactly a BNN is constructed are beyond the scope of this textbook, but the idea behind why we would utilize a BNN is the same as the reason we utilize Bayesian techniques in other domains: these include the benefits of model averaging and some interpretability of the likelihood of our chosen model parameters.
