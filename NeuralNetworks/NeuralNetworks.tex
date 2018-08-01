@@ -1,29 +1,29 @@
 \chapter{Neural Networks}
-In this chapter, we explore the oft spoken of neural networks. As we will come to see, neural networks are an extraordinarily flexible model option for solving a variety of different problem types. In fact, this flexibility is both what makes them so widely applicable and so difficult to use properly. We will explore the applications, underlying theory, and training schemes behind neural networks.
+In this chapter, we explore the oft spoken of neural networks. As we will come to see, neural networks are an extraordinarily flexible class of models used to solve a variety of different problem types. In fact, this flexibility is both what makes them so widely applicable and yet so difficult to use properly. We will explore the applications, underlying theory, and training schemes behind neural networks.
 
 \section{Motivation}
-As seemingly popular as neural networks have become for recent problem solving, they aren't actually new technology. The first neural networks were described in the early 60s (???), and the only reason they weren't put into practice shortly thereafter was the fact that we didn't yet have access to the large amounts of efficient memory and storage that complex neural network require. Over the last 50 (???) years, and particularly over the last decade with the advent of cloud computing, we now have more and more access to the cheap processing power and storage required to make neural networks a viable option for model building.
+Despite how seemingly popular neural networks have become recently, they aren't actually a novel technique. The first neural networks were described in the early 1940s, and the only reason they weren't put into practice shortly thereafter was the fact that we didn't yet have access to the large amounts of storage and compute that complex neural network require. Over the last two decades, and particularly with the advent of cloud computing, we now have more and more access to the cheap processing power and memory required to make neural networks a viable option for model building.
 
 \subsection{Applications}
-In the previous two chapters, we explored two broad problem types: classification and regression. It's natural to wonder where neural networks fit into these two broad problem types, and the answer is that they are applicable to both. Neural networks are some of the most flexible models we will explore, and that flexibility extends to the types of problems they can be made to handle. Thus, the tasks that we've explored over the last two chapters, such as predicting heights in the regression case or object category in the classification case, can be done by neural networks.
+In the previous two chapters, we explored two broad problem types: classification and regression, and it's natural to wonder where neural networks fit in. The answer is that they are applicable to both. Neural networks are some of the most flexible models we will explore, and that flexibility extends to the types of problems they can be made to handle. Thus, the tasks that we've explored over the last two chapters, such as predicting heights in the regression case or object category in the classification case, can be performed by neural networks.
 
 \subsection{Comparison to Other Methods}
-As discussed in the previous section, neural networks are flexible enough to be used as models for either regression or classification tasks. This means that every time you're faced with a problem that falls into one of these categories, you have a choice to make between the methods we've already covered or using a neural network. Before we've explored the specifics of neural networks, how can we know at a high level when they will be a good choice for a specific problem?
+Given that neural networks are flexible enough to be used as models for either regression or classification tasks, this means that every time you're faced with a problem that falls into one of these categories, you have a choice to make between the methods we've already covered or using a neural network. Before we've explored the specifics of neural networks, how can we discern at a high level when they will be a good choice for a specific problem?
 
-One simple way to think about this is that if we never needed to use neural networks, we probably wouldn't. In other words, if a problem can be solved effectivly by one of the techniques we already described for regression or classification (such as linear regression, discriminant functions, etc.), we would prefer to use those. The reason is that neural networks are often more memory and processor intensive than these other techniques, and they are much more complex to train and debug.
+One simple way to think about this is that if we never \textit{needed} to use neural networks, we probably wouldn't. In other words, if a problem can be solved effectively by one of the techniques we've already described for regression or classification (such as linear regression, discriminant functions, etc.), we would prefer to use those. The reason is that neural networks are often more memory and processor intensive than these other techniques, and they are much more complex to train and debug.
 
 The flip side of this is that hard problems are often too complex, too ill-specified, or too poorly understood to use a simple regression or classification technique. Indeed, even if you eventually think you will need to use a neural network to solve a given problem, it makes sense to try a simple technique first both to get a baseline of performance and because it may just happen to be good enough.
 
 What is so special about neural networks that they can solve problems that the other techniques we've explored may not be able to? And why are they so expensive? Those are the questions we turn to next.
 
 \subsection{Strengths and Weaknesses}
-For problems that fall into the category of regression or classification, we've already discussed the utility of basis functions. Often, a problem that is intractable with our input data as-is will be readily solvable with basis-transformed data. We often select these basis changes using expert knowledge. For example, if we were working with a data set that related to chemical information, and there were certain equations that a chemist told us to be important for the particular problem we were trying to solve, we might include a variety of the transformations that are present in those equations.
+For problems that fall into the category of regression or classification, we've already discussed the utility of basis functions. Sometimes, a problem that is intractable with our raw input data will be readily solvable with basis-transformed data. We often select these basis changes using expert knowledge. For example, if we were working with a data set that related to chemical information, and there were certain equations that a chemist told us to be important for the particular problem we were trying to solve, we might include a variety of the transformations that are present in those equations.
 
 However, imagine now that we have a data set with no accompanying expert information. More often than not, complex problem domains don't come with a useful set of suggested transformations. How do we find useful basis functions in these situations? This is exactly the strength of neural networks - they solve for the best basis for a data set!
 
-Neural networks can be used to simultaneously solve for our model parameters as well as the best basis transformations. As we stated above, this makes them exceedingly flexible.
+Neural networks can be used to simultaneously solve for our model parameters and the best basis transformations. This makes them exceedingly flexible.
 
-Unfortunately, this flexibility is also the weakness of neural nets. While this flexibility enables us to solve difficult problems, it also opens us up to a host of other problems. Chief among these is the fact that neural networks take a lot of computation to train. This is simply a result of the possible model space being so large - to effectively explore it all takes time and resources. Furthermore, this flexibilty can cause rather severe overfitting if we are not careful.
+Unfortunately, this flexibility is also the weakness of neural nets: while it enables us to solve difficult problems, it also creates a host of other complications. Chief among these complications is the fact that neural networks require a lot of computation to train. This is a result of the effective model space being so large - to explore it all takes time and resources. Furthermore, this flexibilty can cause rather severe overfitting if we are not careful.
 
 In summary, the strengths and weaknesses of neural networks stem from the same root cause: model flexibility. It will be our goal then to appropriately harness this property to create useful models.
 
@@ -31,7 +31,7 @@ In summary, the strengths and weaknesses of neural networks stem from the same r
 The flexibility of neural networks is a well-established phenomenon. In fact, neural networks are what are known as \textit{universal function approximators}. This means that with a large enough network, it is possible to approximate any function. The proof of this is beyond the scope of this textbook, but it provides some context for why flexibility is one of the key attributes of neural networks.
 
 \begin{mlcube}{Neural Networks}
-As universal function approximators, neural networks can operate over discrete or continuous inputs. That being said, it's far more efficient and common for them to accept \textbf{continuous} inputs. We primarily use neural networks to solve regression or classification problems, which involve training on input data sets to produce predictions, making them a \textbf{supervised} technique. Finally, while there exist probabilistic extensions for neural networks, they primarily operate in the \textbf{non-probabilistic} setting.
+As universal function approximators, neural networks can operate over discrete or continuous inputs. That being said, it's far more common for them to accept \textbf{continuous} inputs. We primarily use neural networks to solve regression or classification problems, which involve training on data sets with example inputs and outputs, making this a \textbf{supervised} technique. Finally, while there exist probabilistic extensions for neural networks, they primarily operate in the \textbf{non-probabilistic} setting.
 \begin{center}
     \begin{tabular}{c|c|c}
     \textit{\textbf{Domain}} & \textit{\textbf{Training}} & \textit{\textbf{Probabilistic}} \\
@@ -42,59 +42,62 @@ As universal function approximators, neural networks can operate over discrete o
 \end{mlcube}
 
 \section{Feed Forward Networks}
-The feed forward neural network is the most fundamental setup for a neural network. Most of the logic behind neural networks can be explained using a feed forward network, with additional features features typically added to form more complex networks. We will explore this basic neural network setup first.
+The feed forward neural network is the most fundamental setup for a neural network. Most of the logic behind neural networks can be explained using a feed forward network, with additional features typically added to form more complex networks. We will explore this basic neural network structure first.
 
 \subsection{Adaptive Basis Functions}
-As we mentioned in the introduction, the strength of neural networks is that we can learn an effective basis for our problem domain at the same time as we train the parameters of our model. In fact - learning this basis becomes just another part of our parameter training. Let's make this notion of learning a basis more concrete.
+As we mentioned in the introduction, the strength of neural networks is that we can learn an effective basis for our problem domain at the same time as we train the parameters of our model. In fact, learning this basis becomes just another part of our parameter training. Let's make this notion of learning a basis more concrete.
 
-Thinking back to our chapter on linear regression, we were training a model that made predictions using a functional form that looked like this:
-
+Thinking back to our chapter on linear regression, we were training a model that made predictions using a functional form that looked like:
 \begin{align*}
 	y(\textbf{x}, \textbf{w}) = \textbf{w} \boldsymbol{\phi}^{T} = \sum_{d=1}^{D} w_{d} \boldsymbol{\phi}_{d}
 \end{align*}
-
 where $\boldsymbol{\phi} = \phi(\textbf{x})$, $\phi$ is the basis transformation function, and $D$ is the dimensionality of our data point.
 
-Typically with this setup, we are training our model to optimize the parameters $\textbf{w}$. This doesn't change with neural networks - we still train to learn those parameters. However, the difference in the neural network setting is that the basis transformation function $\phi$ is not longer fixed. Instead, we parameterize this function and learn its parameters at the same time as we learn the model parameters $\textbf{w}$. This leads to the following functional form for neural networks. We first perform $M$ linear combinations of an input data point $\textbf{x}$:
+Typically with this linear regression setup, we are training our model to optimize the parameters $\textbf{w}$. With neural networks this is no different - we still train to learn those parameters. However, the difference in the neural network setting is that the basis transformation function $\phi$ is not longer fixed. Instead, we parameterize this function and learn its parameters at the same time as we learn the model parameters $\textbf{w}$.
+
+\readernote{This may sounds scary and confusing, but it's actually not too hard to grok. Parameterizing our basis function just means that we're also able to turn the knobs that transform our data in order to improve our predictions.}
+
+This leads to a different functional form for neural networks. We first perform $M$ linear combinations of an input data point $\textbf{x}$:
 \begin{equation} \label{basic-nn-form}
 	a_{j} = \sum_{d=1}^{D} w_{jd}^{(1)} x_{i} + w_{j0}^{(1)}
 \end{equation}
-where $j=1..M$ and the notation $(1)$ means that these weights are part of the first `layer' in our network. Notice also that we haven't applied the `bias trick' of appending a $1$ to our data point $\textbf{x}$. We will still apply this trick in general, but we've left it out here to illustrate that the terms $w_{jd}^{(1)}$ are typically referred to as \textit{weights} while the term $w_{j0}^{(1)}$ is known as the \textit{bias}.
+where $j=1..M$ and the notation $w^{(1)}$ means that these weights are part of the first `layer' in our network. Notice also that we haven't applied the `bias trick' of appending a $1$ to our data point $\textbf{x}$. We will still apply this trick in general, but we've left it out here to illustrate that the terms $w_{jd}^{(1)}$ are typically referred to as \textit{weights} while the term $w_{j0}^{(1)}$ is known as the \textit{bias}.
 
 The $M$ different values $a_{j}$ that we compute using this equation are what is known as \textit{activations}. We then transform these activations with a non-linear activation function $h(\cdot)$ to give:
 \begin{equation} \label{basic-nn-z-outputs}
 	z_{j} = h(a_{j})
 \end{equation}
-These values $z_{j}$ are what is known as \textit{hidden units}. The activation function is often the logistic signmoid function discussed in the previous chapter, but may also be something like a tanh function or rectified linear unit (ReLU). These output units $z_{j}$ become the inputs to the next transformation:
+\readernote{TODO: We will explain why this step is necessary later on.}
+These values $z_{j}$ are what is known as \textit{hidden units}. The activation function is often the logistic signmoid function discussed in the previous chapter, but may also be something like a tanh function or rectified linear unit (ReLU). These output units $z_{j}$ become the inputs to the next layer in our network:
 \begin{equation} \label{basic-nn-form-next-layer}
 	a_{j+1} = \sum_{d=1}^{D} w_{(j+1)d}^{(2)} x_{i} + w_{(j+1)0}^{(2)}
 \end{equation}
-Note we can connect many rounds of basis transformation and linear combination, and the number of rounds we choose to include in our networks will be referred to as the number of \textit{layers}. Eventually, we will reach the nodes in the final layer of our network, which after being transformed by their activation function, are typically known as \textit{output activations} denoted $y_{k}$. This final activation function may be the logistic sigmoid function in the binary case or the softmax function in the multiclass scenario.
+Note we can connect many rounds of basis transformation and linear combination, and the number of rounds we choose to include in our networks will be referred to as the number of \textit{layers}. Eventually, we will reach the nodes in the final layer of our network, which after being transformed by their activation function, are typically known as \textit{output activations} denoted $y_{k}$. This final activation function may be the logistic sigmoid function, softmax function, or even just a linear activation (which means not transforming them at all).
 
-It is often easier to understand the workings of a feed forward neural network by examining a diagram. The procedure we described in the proceeding paragraphs can be visualized through this network (note that we've chosen to display a two-layer network):
+It is often easier to understand the workings of a feed forward neural network by examining a diagram. The procedure we described in the previous paragraphs can be visualized through this network (note that we've chosen to display a two-layer network):
 
-** two layer labeled NN here **
+** TODO: two layer labeled NN here **
 
-\readernote{Different resources choose to count the number of layers in a neural net in different manners. We've elected to count each layer of connecting weights, thus the two-layer network in Figure (ref figure here). However, some resources will choose to count each layer of nodes (which in this case is three) and still others count only the number of hidden layers (making this a one hidden layer network).}
+\readernote{Different resources choose to count the number of layers in a neural net in different manners. We've elected to count each layer of non-input nodes, thus the two-layer network in Figure (TODO: ref figure here). However, some resources will choose to count every layer of nodes (three in this case) and still others count only the number of hidden layers (making this a one hidden layer network).}
 
-Combining Figure (ref figure above) and our preceeding functional description, we can describe the operation performed by a three-layer neural network using a single functional transformation:
+Combining Figure (TODO: ref figure above) and our preceeding functional description, we can describe the operation performed by a two-layer neural network using a single functional transformation:
 \begin{equation} \label{full-nn-equation}
 	y_{k}(\textbf{x}, \textbf{w}) = \sigma\bigg(\sum_{m=1}^{M}w_{kj}^{(2)} h\bigg(\sum_{d=1}^{D}w_{jd}^{(1)}x_{d} + w_{j0}^{(1)}\bigg) + w_{k0}^{(2)}\bigg)
 \end{equation}
 where we've elected to make the final activation function the sigmoidal function $\sigma(\cdot)$ as we have a binary output activation layer.
 
-Notice that when written like this, a neural network is simply a non-linear function that transforms and input $\textbf{x}$ into an output $\textbf{y}$ that is controlled by our set of parameters $\textbf{w}$.
+Notice that when written like this, a neural network is simply a non-linear function that transforms an input $\textbf{x}$ into an output $\textbf{y}$ that is controlled by our set of parameters $\textbf{w}$.
 
-Furthermore, it may be clear by now why this simple type of neural networks is referred to as a \textit{feed forward neural network}. If you examine Figure (ref figure here) or Equation \ref{full-nn-equation}, you'll notice that we're simply pushing our input \textbf{x} forward through the network from the first layer to the last layer, hence the name. Assuming we have a fully trained network, we can make predictions on new input data points by propagating our point of interest through the network to generate an output prediction.
+Furthermore, it may be clear by now why this basic variety of neural networks is referred to as a \textit{feed forward neural network}. If you examine Figure (TODO: ref figure here) or Equation \ref{full-nn-equation}, you'll notice that we're simply feeding our input \textbf{x} forward through the network from the first layer to the last layer, hence the name. Assuming we have a fully trained network, we can make predictions on new input data points by propagating them through the network to generate output predictions.
 
-Note that we can also simplify this equation by utilizing the bias trick and introducing adding an $x_{0}$ value to each of our data points such that:
+Note that we can also simplify this equation by utilizing the bias trick and appending an $x_{0}=1$ value to each of our data points such that:
 \begin{equation*}
 	y_{k}(\textbf{x}, \textbf{w}) = \sigma\bigg(\sum_{m=1}^{M}w_{kj}^{(2)} h\bigg(\sum_{d=1}^{D}w_{jd}^{(1)}x_{d}\bigg)\bigg)
 \end{equation*}
 
 Finally, it's worth considering that while a neural network is a series of linear combinations, it is special because of the differentiable non-linearities applied at each of the hidden layers. Without these non-linearities, the successive application of different network weights would be equivalent to a single large linear combination.
 
-Now that we understand the basic structure of a neural network, the important question of how we actually train our networks still remains. This is the topic we turn to next.
+Now that we understand the basic structure of a neural network, the important question of how to train our network remains. This is the topic we turn to next.
 
 Discuss the similarities to the perceptron or the fact that its like a multilayer perceptron???
 
@@ -164,7 +167,7 @@ Backpropagation refers specifically to the portion of neural network training du
 
 We now explore the details of backpropagation in greater depth.
 
-\subsubsection{Computing Derivatives Using Backpropagation}
+\subsection{Computing Derivatives Using Backpropagation}
 Recall that the activation $a_{j}$ for an arbitrary node in a neural network can be described by the equation:
 \begin{equation} \label{activations-reminder}
 	a_{j} = \sum_{m=1}^{M} w_{jm} z_{m}
