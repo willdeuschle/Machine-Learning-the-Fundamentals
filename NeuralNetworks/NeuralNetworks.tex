@@ -104,66 +104,68 @@ Discuss the similarities to the perceptron or the fact that its like a multilaye
 Discuss weight space symmetries here with respect to the structure of a network???
 
 \section{Network Training}
-Now that we understand the setup of a basic feed forward network and how it can be used to make predictions, we turn our attention to the training process.
+Now that we understand the structure of a basic feed forward neural network and how they can be used to make predictions, we turn our attention to the training process.
 
 \subsection{Objective Function}
-To train our network, it's first necessary to establish a logical error function for our parameters \textbf{w} that we will seek to minimize. Remember that neural networks can be used to solve both regression and classification problems, which means that our choice of error function will be very much dependent on the type of problem we are working on as well as the properties we desire from our error function.
+To train our network, it's first necessary to establish a logical objective function for our parameters \textbf{w} that we will seek to minimize. Remember that neural networks can be used to solve both regression and classification problems, which means that our choice of objective will be very much dependent on the type of problem we are working on as well as the properties we desire from that function.
 
-As we've already discussed, for the case of linear regression, a common error function (but certainly not the only possible one) is the least squares loss function:
+As we've already discussed, for the case of linear regression, a common objective function (but certainly not the only possible one) is the least squares loss function:
 \begin{equation} \label{least-squares-loss-function}
 	E(\textbf{w}) = \frac{1}{2} \sum_{n=1}^{N} \bigg(y(\textbf{x}_{n}, \textbf{w}) - \textbf{t}_{n}\bigg)^{2}
 \end{equation}
-For a binary classification problem, which we can model using a sigmoidal nonlinearity in our output activation unit, we'll often use the cross-entropy error function given by:
+For a binary classification problem, which we can model using a sigmoidal nonlinearity in our output activation unit, we'll often use the cross-entropy loss function given by:
 \begin{equation} \label{cross-entropy-loss-function}
 	E(\textbf{w}) = - \sum_{n=1}^{N} \bigg(y_{n}\ln{\hat{y}_{n}} + (1 - y_{n})(\ln{(1 - \hat{y}_{n})}\bigg)
 \end{equation}
-And finally, in the multiclass classification setting produced by a softmax function in our output activation layer, we use the following generalizaton to the cross entropy error function:
+And finally, in the multiclass classification setting produced by a softmax function in our output activation layer, we use the following generalizaton to the cross entropy loss function:
 \begin{equation} \label{multiclass-cross-entropy-loss-function}
 	E(\textbf{w}) = - \sum_{n=1}^{N} \sum_{k=1}^{K} y_{kn} \ln{\bigg(\frac{\text{exp}(a_{k}(\textbf{x}, \textbf{w}))}{\sum_{j=1}^{K}\text{exp}(a_{j}(\textbf{x}, \textbf{w}))}\bigg)}
 \end{equation}
 
+\readernote{Loss function, objective function, and cost function all refer to the same concept: the function we optimize to train our model.}
+
 \subsection{Optimizing Parameters}
-Ultimately, as we've seen in the preceding two chapters, it is our goal to select a value for our model's weight parameters \textbf{w} that minimizes our error function. Remember that we did this previously by taking the derivative of our error function with respect to our weight paramters, setting that expression equal to 0, and solving for \textbf{w}. We were previously able to do that procedure with confidence since we had a convex weight space, which meant the point of minimization for the error function would occur where $\nabla E(\textbf{w}) = 0$.
+Ultimately, as we've seen in the preceding two chapters, it is our goal to select a value for our model's weight parameters \textbf{w} that minimizes our objective function. Remember that we did this previously by taking the derivative of our objective with respect to our weight paramters, setting that expression equal to 0, and solving for \textbf{w}. We were previously able to perform that procedure with confidence since we had a convex weight space, which meant the point of minimization for the objective function would occur where $\nabla E(\textbf{w}) = 0$.
 
-Unfortunately, for neural networks, this procedure will no longer work quite as well. The error function, which is parameterized by the weight space, will now have a nonlinear dependence on the weight parameters as a result of the nonlinearities applied to the data points as they are pushed forward through our network. The result of this is that there will be many points in the parameter space at which the gradient disappears, corresponding to local minima, maxima, or saddle points. This means that we no longer have an analytical solution, and will instead need to resort to a numerical procedure.
+Unfortunately for neural networks, this procedure will no longer work quite as well. The objective function, which is parameterized by the weight space, will now have a nonlinear dependence on the weight parameters as a result of the nonlinearities applied to the data points as they are pushed forward through our network. The result of this is that there will be many locations in the parameter space at which the gradient disappears, corresponding to local minima, maxima, or saddle points. This means that we no longer have an analytical solution, and will instead need to resort to a numerical procedure.
 
-\readernote{The terms \textit{analytical} and \textit{numerical} procedures come up very frequently in machine learning literature. An analytical solution typically utilizes a closed form equation that accepts your model and input data to produces a solution. On the other hand, numerical solutions are those that require some sort of iteration to move toward an ever better solution, eventually stopping once the solution is deemed `good enough'. Analytical solutions are typically more desirable than numerical solutions due to computational efficiency and performance guarantees.}
+\readernote{The terms \textit{analytical} and \textit{numerical} procedures come up very frequently in machine learning literature. An analytical solution typically utilizes a closed form equation that accepts your model and input data and returns a solution in the form of optimized model parameters. On the other hand, numerical solutions are those that require some sort of iteration to move toward an ever better solution, eventually stopping once the solution is deemed `good enough'. Analytical solutions are typically more desirable than numerical solutions due to computational efficiency and performance guarantees, but they often are not possible for complex problems.}
 
 Most numerical techniques utilize some form of gradient based update as follows:
 \begin{equation} \label{generic-numerical-update}
 	\textbf{w}^{(t+1)} = \textbf{w}^{(t)} + \nabla \textbf{w}^{(t)}
 \end{equation}
-where $\textbf{w}^{(t)}$ corresponds to the state of the parameters $\textbf{w}$ at time $t$. The parameter values at time $t=0$ given by $\textbf{w}^{(0)}$ are often initialized randomly, and the updates to the parameters $\nabla\textbf{w}^{(t)}$ are computed differently for different optimization algorithms. \newline
+where $\textbf{w}^{(t)}$ corresponds to the state of the parameters $\textbf{w}$ at time $t$. The parameter values at time $t=0$ given by $\textbf{w}^{(0)}$ are often initialized randomly, and the updates to the parameters $\nabla\textbf{w}^{(t)}$ are computed based on the optimization algorithm being used. \newline
 ?Discuss the fact that there will be many identical minima given weight space symmetries? \newline
-?Offer a visualization of the error function with respect to the parameter space here?
+?Offer a visualization of the objective function with respect to the parameter space here?
 
 \subsection{Gradient Descent}
-We've identified the need to use a numerical optimization technique to compute our weight parameters $\textbf{w}$, and we've specified a generic form of iterative updates to our weight parameters in Equation \ref{generic-numerical-update}. We will now turn to one of the most common procedures for generating the update $\nabla\textbf{w}^{(t)}$, which is known as gradient descent.
+We know we need to use a numerical optimization technique to compute our weight parameters $\textbf{w}$, and we've specified a generic form of iterative updates to our weight parameters in Equation \ref{generic-numerical-update}. We will now turn to one of the most common procedures for generating the update $\nabla\textbf{w}^{(t)}$, which is known as gradient descent.
 
-The high level idea behind gradient descent is as follows: at each update step, we take a small step in the opposite direction of the gradient of our error function with respect to the weight parameters $\textbf{w}^{(t)}$. Notationally, this looks like the following:
+The high level idea behind gradient descent is as follows: to update our parameters, we take a small step in the opposite direction of the gradient of our objective function with respect to the weight parameters $\textbf{w}^{(t)}$. Notationally, this looks like the following:
 \begin{equation} \label{gradient-descent-equation}
 	\textbf{w}^{(t+1)} = \textbf{w}^{(t)} - \eta \nabla E(\textbf{w}^{(t)})
 \end{equation}
 where $\eta > 0$ is known as the \textit{learning rate}.
 
 \readernote{In general, we want a learning rate that is large enough so that we make progress toward reaching a better solution, but not so large that we take a step that puts us in a worse place in the parameter space than we were at the previous step.}
+TODO: show why the above is true!
+TODO: gradient descent definition
 
-Why do we take a step in the opposite direction of the gradient of the error function? You can think of the error function as a hill, and the current state of our parameters $\textbf{w}^{(t)}$ is our position on that hill. The gradient tells us the steepest direction of increase in the error function (i.e. it specifies the direction that will make our model worse). Since we want to minimize the error function, we choose to move away from the direction of the gradient, moving our model down the hill towards an area of lower error.
+Why take a step in the opposite direction of the gradient of the objective function? You can think of the objective function as a hill, and the current state of our parameters $\textbf{w}^{(t)}$ is our position on that hill. The gradient tells us the steepest direction of increase in the objective function (i.e. it specifies the direction that will make our model worse). Since we want to minimize the objective function, we choose to move away from the direction of the gradient, sending our model down the hill towards an area of lower error. We typically cease optimization when our updates become sufficiently small, indicating that we've reached a local minimum. Note that it's a good idea to run gradient descent multiple times to settle on a final value for $\textbf{w}$, ideally initializing $\textbf{w}^{(0)}$ to a different starting value each time, because we are optimizing a function with multiple local minima.
 
-With stochastic gradient descent, we typically cease optimization when our updates become sufficiently small, indicating that we've reached a local minimum. Note that it's likely necessary to run the process of stochastic gradient descent multiple times to settle on a final value for $\textbf{w}$, ideally initializing $\textbf{w}^{(0)}$ to a different starting value each time, because we are optimizing a function with multiple local minima.
-
-Finally, it's important to understand the different means by which we can compute the gradient of our error function at each step. The first way, often called \textit{batch gradient descent}, computes the gradient for our error function at each step using the entire data set. In contrast, the technique known as \textit{stochastic gradient descent} (also known as SGD) utilzies a subset of the data points at each step to compute the gradient, sometimes just one. Stochastic gradient descent is typically a more popular technique for several reasons. First, the computation time is often significantly smaller as you don't need to pass over the entire data set at each iteration. Furthermore, it's less likely that you will get stuck in local minima while running SGD because a point in the parameter space that is a local minima for the entire data set combined is much less likely to be a local minima for each data point individually. Finally, SGD lends itself to being used for training online models (meaning models built on data points that are arriving at regular intervals) as the entirety of the data does not need to be present in order to train.
+There are different means by which we can compute the gradient of our objective function at each step. The first way, often called \textit{batch gradient descent}, computes the gradient for our objective function at each step using the entire data set. In contrast, the technique known as \textit{stochastic gradient descent} (also known as SGD) utilzies a subset of the data points at each step to compute the gradient, sometimes just one. Stochastic gradient descent is typically a more popular technique for several reasons. First, the computation time is often significantly smaller as you don't need to pass over the entire data set at each iteration. Furthermore, it's less likely that you will get stuck in local minima while running SGD because a point in the parameter space that is a local minima for the entire data set combined is much less likely to be a local minima for each data point individually. Finally, SGD lends itself to being used for training online models (meaning models built on data points that are arriving at regular intervals) as the entirety of the data does not need to be present in order to train.
 
 \subsection{Backpropagation}
-While we've explained at a high level how we are going to use gradient descent to find a good setting for our weight parameters $\textbf{w}$, we have not yet discussed how we are actually going to compute the gradient of our error function with respect to our error function. Thinking again about how our feed forward neural network works, by propagating activations through our network to produce a final output, it's not immediately clear how we can compute gradients for the weights that lie in the middle of our network, as we don't actually have expected results for those intermediate values. The solution to this problem is to send error backwards through our network in a process known as \textit{backpropagation}.
+While we've explained at a high level how we use gradient descent to find a good setting for our weight parameters $\textbf{w}$, we have not discussed how we compute the gradient of our objective function with respect to our weights. Thinking again about how our feed forward neural network works, by propagating activations through our network to produce a final output, it's not immediately clear how we can compute gradients for the weights that lie in the middle of our network, as we don't actually have expected results for those intermediate values. The solution to this problem is to send errors backwards through our network in a process known as \textit{backpropagation}.
 
 \begin{definition}{Backpropagation}{backpropagation}
 Backpropagation is the procedure by which we pass errors backwards through a feed forward neural network in order to compute gradients for the weight parameters of the network.
 \end{definition}
 
-Backpropagation refers specifically to the portion of neural network training during which we compute the derivative of the error function with respect to the weight parameters. This is done by propagating errors backwards through the network, hence the name.
+Backpropagation refers specifically to the portion of neural network training during which we compute the derivative of the objective function with respect to the weight parameters. This is done by propagating errors backwards through the network, hence the name.
 
-\readernote{Backpropagation computes derivatives of the error function with respect to the weight parameters, but we still need to actually update the value of the weight parameters after computing their derivatives. This is typically done using gradient descent or some variant of it.}
+\readernote{Note that we still need to update the value of the weight parameters after computing their derivatives. This is typically done using gradient descent or some variant of it.}
 
 We now explore the details of backpropagation in greater depth.
 
@@ -172,15 +174,15 @@ Recall that the activation $a_{j}$ for an arbitrary node in a neural network can
 \begin{equation} \label{activations-reminder}
 	a_{j} = \sum_{m=1}^{M} w_{jm} z_{m}
 \end{equation}
-where there are $M$ nodes $z_{1}, ..., z_{M}$ connected to the node of interest and weighted by $w_{j1}, ..., w_{jM}$. Recall also that this sum is then transformed by an arbitrary activation function $h(\cdot)$ (which is typically nonlinear) to give the activation $z_{j}$:
+where there are $M$ nodes $z_{1}, ..., z_{M}$ connected to the node of interest and weighted by $w_{j1}, ..., w_{jM}$. TODO: reference a figure for that definition. Recall also that this sum is then transformed by an arbitrary activation function $h(\cdot)$ (which is typically nonlinear) to give the activation $z_{j}$:
 \begin{equation} \label{transformed-activations-reminder}
 	z_{j} = h(a_{j})
 \end{equation}
-computing these values as we flow through the network constitutes the forward pass through out network.
+computing these values as we flow through the network constitutes the forward pass through our network.
 
-We now wish to begin the process of computing derivatives of the error function with respect to our weights. For the sake of simplicity, we'll assume that the current setting of our parameters $\textbf{w}$ generates an error of $E$ for a single data point, as though we were performing stochastic gradient descent.
+We now wish to begin the process of computing derivatives of the objective function with respect to our weights. For the sake of simplicity, we'll assume that the current setting of our parameters $\textbf{w}$ generates an error of $E$ for a single data point, as though we were performing stochastic gradient descent.
 
-Let's consider how we could compute the derivative of $E$ with respect to the weight $w_{jm}$:
+Let's consider how we could compute the derivative of $E$ with respect to an individual weight in our network, $w_{jm}$:
 \begin{equation} \label{deriv-E-wrt-wjm}
 	\frac{\partial E}{\partial w_{jm}}
 \end{equation}
@@ -192,7 +194,7 @@ Using Equation \ref{activations-reminder}, we have that:
 \begin{equation*}
 	\frac{\partial a_{j}}{\partial w_{jm}} = z_{m}
 \end{equation*}
-We will also introduce the following notation
+We now introduce the following notation for the sake of simplicity:
 \begin{equation} \label{delta-expression}
 	\delta_{j} = \frac{\partial E}{\partial a_{j}}
 \end{equation}
@@ -200,20 +202,20 @@ where the values of $\delta_{j}$ are referred to as \textit{errors}. Now, we are
 \begin{equation} \label{simplified-chain-rule-deriv-E-wrt-wjm}
 	\frac{\partial E}{\partial w_{jm}} = \delta_{j} z_{m}
 \end{equation}
-The implications of Equation \ref{simplified-chain-rule-deriv-E-wrt-wjm} are significant for understanding backpropagation. This means that the derivative of the error function with respect to an arbitrary weight in the network is equal to the product of the error $\delta$ at the output end of that weight and the value $z$ at the input end of the weight. Thus, to compute all the derivatives of the network, we need only to compute the values of $\delta_{j}$ for each of the nodes in the network. The values of $z_{m}$ should be saved during the forward pass through the network to be multiplied by the values of $\delta_{j}$.
+The implications of Equation \ref{simplified-chain-rule-deriv-E-wrt-wjm} are significant for understanding backpropagation. It indicates that the derivative of the objective function with respect to an arbitrary weight in the network is equal to the product of the error $\delta$ at the output end of that weight and the value $z$ at the input end of the weight. TODO: draw an image of that explanation here. Thus, to compute all the derivatives of the network, we need only to compute the values of $\delta_{j}$ for each of the nodes in the network. The values of $z_{m}$ should be saved during the forward pass through the network to be multiplied by the values of $\delta_{j}$.
 \readernote{We will only have errors $\delta_{j}$ for the hidden and output units of our network. This is logical because there is no notion of applying an error to our input data, which we have no control over.}
 We now need only to consider how we should compute the values of $\delta_{j}$, given by Equation \ref{delta-expression}.
-For the final layer, also called the output layer, the error is simply the difference between what we computed and the actual result:
+For the final layer, also called the output layer, the error is simply the difference between what we computed by propagating the input through the network and the known result:
 \begin{equation*}
-	\delta_{j} = y_{k} - \hat{y}_{k}
+	\delta_{j} = \hat{y}_{k} - y_{k}
 \end{equation*}
 We've seen this term, the difference between the expected and actual results, arise in the gradient of our error expressions for both linear regression and classification in the previous two chapters.
 
-To compute the errors $\delta_{j}$ for the hidden units, we again make use of the chain rule to decompose those errors as follows:
+To compute the errors $\delta_{j}$ for the hidden units, we again make use of the chain rule to decompose the errors $\delta_{j}$ as follows:
 \begin{equation} \label{backprop-for-deltas}
 	\delta_{j} = \frac{\partial E}{\partial a_{j}} = \sum_{m=1}^{M} \frac{\partial E}{\partial a_{m}} \frac{\partial a_{m}}{\partial a_{j}} 
 \end{equation}
-where the summation runs over all of the $M$ nodes to which the node $j$ sends connections. We can rewrite this expression using Equations \ref{delta-expression}, \ref{activations-reminder}, and \ref{transformed-activations-reminder}:
+where the summation runs over all of the $M$ nodes to which the node $j$ sends connections. TODO: provide a figure here. We can rewrite this expression using Equations \ref{delta-expression}, \ref{activations-reminder}, and \ref{transformed-activations-reminder}:
 \begin{equation} \label{backprop-formula}
 	\delta_{j} = h'(a_{j}) \sum_{m=1}^{M} w_{mj} \delta_{m}
 \end{equation}
@@ -221,16 +223,17 @@ which means that the value of $\delta$ for a given node can be computed by passi
 
 Since we know the values of $\delta$ for the final layer of output node, we can recursively apply Equation \ref{backprop-formula} to compute the values of $\delta$ for all the nodes in the network.
 
-Remember that all of these calculations were done for a single data point that generated the error $E$. If we were doing some form of batch gradient descent over multiple data points, we would perform the same calculation for each data point in the batch, and then sum the gradients as follows:
+Remember that all of these calculations were done for a single input data point that generated the error $E$. If we were using stochastic gradient descent, we would perform the same calculation for each data point in our mini-batch, and then sum the gradients as follows:
 
 \begin{equation} \label{batch-errors-backprop}
 	\frac{\partial E}{\partial w_{jm}} = \sum_{n=1}^{N} \frac{\partial E_{n}}{\partial w_{jm}}
 \end{equation}
 
-To solidify understanding of the backpropagation algorithm, it will be useful to try a concrete example.
+To solidify our understanding of the backpropagation algorithm, it can be useful to try a concrete example.
 
 \begin{example}{Backpropagation Example}{backprop-example}
-	Imagine the case of a simple two layer neural network (meaning we have two layers of connections and three layers of nodes). We'll use the standard quadratic loss function on our output layer, which will have no activation function (you could also call this a linear activation function to be precise):
+	TODO: step by step for where we are at each point?
+	Imagine the case of a simple two layer neural network (meaning we have two layers of connections and three layers of nodes). TODO put a figure here. We'll use the standard quadratic loss function on our output layer:
 	\begin{align*}
 		E = \frac{1}{2} \sum_{m=1}^{M} (\hat{y}_{m} - y_{m})^{2}
 	\end{align*}
@@ -242,7 +245,7 @@ To solidify understanding of the backpropagation algorithm, it will be useful to
 	\begin{align*}
 		\frac{\partial \sigma(z)}{\partial z} = \sigma(z)(1 - \sigma(z))
 	\end{align*}
-	For our input data point $\textbf{x}$, we forward propagate through our network to get the activation in the hidden layer:
+	For our input data point $\textbf{x}$, we forward propagate through our network to get the activations of the hidden layer:
 	\begin{align*}
 		a_{j} = \sum_{d=0}^{D} w_{jd}^{(1)} x_{i}
 	\end{align*}
@@ -270,49 +273,51 @@ To solidify understanding of the backpropagation algorithm, it will be useful to
 \end{example}
 
 \section{Choosing a Network Structure}
-Now that we know the structure of a neural network and how the training process works, we must step back and consider the question of how we actually arrive at an optimal structure. We'll begin with an idea we've already seen before: cross validation.
+Now that we know the general form of a neural network and how the training process works, we must step back and consider the question of how we actually arrive at an optimal network structure. We'll begin with an idea we've already seen before: cross validation.
 
 \subsection{Cross Validation for Neural Networks}
-We've previously discussed cross validation in the chapter on linear regression (TODO: check this). There, we were using it to compare the performance of different models, hopefully identifying the best model while also preventing overfitting. We can use a similar process to identify a reasonable network structure.
+We've previously discussed cross validation in the chapter on linear regression (TODO: check this). We used it then to compare the performance of different models, attempting to identify the best model while also avoiding overfitting. We can use a similar process to identify a reasonable network structure.
 
-First of all, the input and output parameters of a neural network are generally decided for us: the dimensionality of our input data dictates the number of input units and the dimensionality of the required outputs dictates the number of output units. Depending on whether or not you wish to perform some sort of pre or post-processing of the results produced by your network, this might not actually be the case, but in general when choosing a network structure we don't consider the first or last layer of nodes as being a relevant knob that we can tune.
+First of all, the input and output parameters of a neural network are generally decided for us: the dimensionality of our input data dictates the number of input units and the dimensionality of the required output dictates the number of output units. TODO: provide a simple example here. Depending on whether you wish to perform some sort of pre or post-processing on the inputs/outputs of your network, this might not actually be the case, but in general when choosing a network structure we don't consider the first or last layer of nodes as being a relevant knob that we can tune.
 
 That leaves us to choose the structure of the hidden layers in our network. To make this problem more tractable, we can simplify it even further: we'll consider the total number of units contained in our hidden layers (meaning we sum the units from each hidden layer). So if we have three hidden layers each with 5 units each, we'll have 15 total units for that network structure.
 
-Unsurprisingly, the more hidden units we have for our model, the more variation we will produce in our results and the closer we will get to overfitting. (TODO: provide an image here of how overfitting will occur based on the number of internal units).
+Unsurprisingly, the more hidden units we have for our model, the more variation we will produce in our results and the closer we will come to overfitting.
 
-Thus, we can use cross validation in the same way we've done before: train our model with a different numbers of internal units, and even different internal structures for the number of units per layer if you wish to be thorough, and then select the model that performs best on the validation set.
+Thus, we can use cross validation in the same way we've done before: train our model with a differing numbers of internal units and then select the model that performs best on the validation set. TODO: provide an image here of different networks
 
-\readernote{There should be other considerations at play beyond performance when choosing a network structure. For example, the more internal units you have in your network, the more storage and compute time you will need to train them. If either training time or response time after training a model is critical, you may need to consider consolidating your network at the expense of some performace.}
+\readernote{There are other considerations at play beyond performance when choosing a network structure. For example, the more internal units you have in your network, the more storage and compute time you will need to train them. If either training time or response time after training a model is critical, you may need to consider consolidating your network at the expense of some performace.}
 
 \subsection{Regularization}
-You can also apply regularization to the weights in your network to help prevent overfitting. For example, we could introduce a simple quadratic regularizer of the form $\frac{\lambda}{2} \textbf{w}^{T}\textbf{w}$ to our error function that we've seen in the previous two chapters. There are other considerations to be made here, for example we would like our regularizer to be invariant to network scaling which the quadratic regularizer is not, but the basic concept of avoiding extreme weights is the same.
+You can also apply regularization to the weights in your network to help prevent overfitting. For example, we could introduce a simple quadratic regularizer of the form $\frac{\lambda}{2} \textbf{w}^{T}\textbf{w}$ to our objective function. There are other considerations to be made here, for example we would like our regularizer to be invariant to network scaling (the quadratic regularizer is not), but the basic concept of avoiding extreme weights is the same.
 
-\subsection{Data Transformation}
-You can also augment your data, thus preventing overfitting, by applying transformations to it. This technique is not specific to neural networks, but often the types of unstructured data that you will see neural networks being used for can benefit greatly from it. Data augmentation refers to the practice of increasing the size and diversity of your training data by applying transformations to the initial data set. For example, if we are working with image data, we might choose to rotate or reflect the image, depending on the type of network we were trying to build and whether or not this would preserve the integrity of the image. We might also change something like the brightness or density of the image data. In this way, we can produce more and more varied training points, thus reducing the likelihood of overfitting.
+\subsection{Data Augmentation}
+We can use transformations to augment our data sets, which helps prevent overfitting. This technique is not specific to neural networks, but often the types of unstructured data for which we use neural networks can benefit greatly from it.
+\begin{definition}{Data Augmentation}{data-augmentation}
+Data augmentation refers to the practice of increasing the size and diversity of your training data by applying transformations to the initial data set.
+\end{definition}
+For example, if we are working with image data, we might choose to rotate or reflect the image, depending on the type of network we are trying to build and whether or not this would preserve the integrity of the image. We might also change something like the brightness or density of the image data. In this way, we can produce more and more varied training points, thus reducing the likelihood of overfitting.
 
 \section{Specialized Forms of Neural Networks}
-Simple neural networks are useful for a general set of tasks, and as universal function approximators, they \textit{could} be useful for any task. However, there are certain data types and use cases for which we've developed more specialized forms of neural networks that perform even better in certain domains. These are what we will look at from a high level now.
+Simple neural networks are useful for a general set of tasks, and as universal function approximators, they \textit{could} be useful for any task. However, there are certain data types and use cases for which we've developed more specialized forms of neural networks that perform even better in their respective domains. We will take a high level view of these different flavors of neural networks.
 
 \subsection{Convolutional Neural Networks (CNNs)}
-Convolutional neural networks (abbreviated CNNs) are most often used for image data, but the underlying principles of them will apply in other domains as well.
+Convolutional neural networks (abbreviated CNNs) are most often used for image data, but their underlying principles apply in other domains as well.
 
-To understand why a CNN is useful, consider this specific problem: you are trying to determine whether or not there is a dog in an image. There are two general difficulties we have to deal with in solving this problem. First, while dogs have a lot of similar features (ears, tails, paws, etc.), we need some means of breaking an image down into smaller portions that we could effectively identify as being ears or tails or paws. Second, what happens if we train on images of dogs that are all in the center of the photo, and then we try to test our network on an image where the dog is in the upper left hand corner? It's going to fail miserably.
+To understand why a CNN is useful, consider this specific problem: you are trying to determine whether or not there is a dog in an image. There are two general difficulties we have to deal with in solving this problem. First, while dogs have a lot of similar features (ears, tails, paws, etc.), we need some means of breaking an image down into smaller pieces that we can identify as being ears or tails or paws. Second, what happens if we train on images of dogs that are all in the center of the photo, and then we try to test our network on an image where the dog is in the upper left hand corner? It's going to fail miserably.
 
-CNNs overcome these problems by extracting smaller local features from images by using what's known as a \textit{sliding window}. You can imagine this sliding window moving over every subsection of an image, producing a summary of those subsections that feed into the next layer in our network. We do this over the entire image, and with several different sliding windows. Without going into too many details, this solves the two general problems we had above: our small sliding window can summarize a features of interest (such as a dog ear) and it is also location invariant, meaning that we can identify that dog ear anywhere in an image.
+CNNs overcome these problems by extracting smaller local features from images via what's known as a \textit{sliding window}. You can imagine this sliding window as a matrix kernel that moves over every subsection of an image, producing a summary of those subsections that feed into the next layer in our network. We do this over the entire image, and with several different sliding windows. Without going into too many details, this solves the two general problems we had above: our small sliding window can summarize a feature of interest (such as a dog ear) and it is also location invariant, meaning that we can identify that dog ear anywhere in an image.
 
 TODO: image of network structure
 
 \subsection{Recurrent Neural Networks (RNNs)}
-As with CNNs, recurrent neural networks (abbreviated RNNs) are used to better solve a specific type of problem. To motivate the structure of an RNN, we will turn again to a specific example.
+As with CNNs, recurrent neural networks (abbreviated RNNs) are used to more efficiently solve a specific problem type. To motivate the structure of an RNN, we will turn again to a specific example.
 
-Imagine we were building a tool with the goal of predicting what word comes next in a newspaper article based on the previous words. Obviously, the words that came before the word that we are currently trying to predict are crucial to predicting the next word. Imagine we propagate the preceding ten words through our network to predict which word we think will come next. It would also be useful if we could send some of the information at each layer backwards through the network to help with the next prediction. In this sense, our network is `stateful' because it's remembering what came before. We don't have this ability with a feed-forward network, which by its very name only propagates information forward through the network. RNNs add backward passing of activations into their network structure to improve predictions on data where there is some temporal dependence on what came previously.
+Imagine we were building a tool with the goal of predicting what word comes next in a newspaper article. Obviously, the words that came before the word that we are currently trying to predict are crucial to predicting the next word. Imagine we propagate the preceding ten words through our network to predict which word we think will come next. It would also be useful if we could send some of the information at each layer backwards through the network to help with the next prediction - since we know the sequence of words matters. In this sense, our network is `stateful' because it's remembering what came before. We don't have this ability with a feed-forward network, which by design only propagates information forward through the network. RNNs add backward passing of activations into their network structure to improve predictions on data where there is some temporal dependence on what came previously.
 
 TODO: image of network structure
 
 \subsection{Bayesian Neural Networks (BNNs)}
-Up until now, our training process has been one of maximum likelihood estimation as we discussed in the first chapter, or a maximum posterior approach if we utilize a regularizer that can be interpreted as introducing a prior.
+Up until now, our training process has been one of maximum likelihood estimation, or a maximum posterior approach if we utilize a regularizer that can be interpreted as introducing a prior.
 
-A Bayesian neural network, or BNN, does exactly what you might imagine: it introduces a distribution over the parameters of our model and then requires marginalizing over those distributions in order to make a prediction.
-
-The specifics of how exactly a BNN is constructed are beyond the scope of this textbook, but the idea behind why we would utilize a BNN is the same as the reason we utilize Bayesian techniques in other domains: these include the benefits of model averaging and some interpretability of the likelihood of our chosen model parameters.
+A Bayesian neural network, or BNN, does exactly what you might imagine: it introduces a distribution over the parameters of our model, which then requires marginalizing over those distributions in order to make a prediction. The specifics of how exactly a BNN is constructed are beyond the scope of this textbook, but the idea behind why we would utilize a BNN is the same as the reason we utilize Bayesian techniques in other domains, particularly the use of prior information to aid model performance.
