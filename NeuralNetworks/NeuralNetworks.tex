@@ -59,7 +59,7 @@ Typically with this linear regression setup, we are training our model to optimi
 
 This leads to a different functional form for neural networks. We first perform $M$ linear combinations of an input data point $\textbf{x}$:
 \begin{equation} \label{basic-nn-form}
-	a_{j} = \sum_{d=1}^{D} w_{jd}^{(1)} x_{i} + w_{j0}^{(1)}
+	a_{j} = \sum_{d=1}^{D} w_{jd}^{(1)} x_{d} + w_{j0}^{(1)}
 \end{equation}
 where $j=1..M$ and the notation $w^{(1)}$ means that these weights are part of the first `layer' in our network. Notice also that we haven't applied the `bias trick' of appending a $1$ to our data point $\textbf{x}$. We will still apply this trick in general, but we've left it out here to illustrate that the terms $w_{jd}^{(1)}$ are typically referred to as \textit{weights} while the term $w_{j0}^{(1)}$ is known as the \textit{bias}.
 
@@ -67,10 +67,10 @@ The $M$ different values $a_{j}$ that we compute using this equation are what is
 \begin{equation} \label{basic-nn-z-outputs}
 	z_{j} = h(a_{j})
 \end{equation}
-\readernote{TODO: We will explain why this step is necessary later on.}
+\readernote{Note that these non-linearities are crucial to the performance of neural networks because they allow for modeling of outcomes that vary non-linearly with their input variables.}
 These values $z_{j}$ are what is known as \textit{hidden units}. The activation function is often the logistic signmoid function discussed in the previous chapter, but may also be something like a tanh function or rectified linear unit (ReLU). These output units $z_{j}$ become the inputs to the next layer in our network:
 \begin{equation} \label{basic-nn-form-next-layer}
-	a_{j+1} = \sum_{d=1}^{D} w_{(j+1)d}^{(2)} x_{i} + w_{(j+1)0}^{(2)}
+	a_{j+1} = \sum_{d=1}^{D} w_{(j+1)d}^{(2)} z_{d} + w_{(j+1)0}^{(2)}
 \end{equation}
 Note we can connect many rounds of basis transformation and linear combination, and the number of rounds we choose to include in our networks will be referred to as the number of \textit{layers}. Eventually, we will reach the nodes in the final layer of our network, which after being transformed by their activation function, are typically known as \textit{output activations} denoted $y_{k}$. This final activation function may be the logistic sigmoid function, softmax function, or even just a linear activation (which means not transforming them at all).
 
@@ -82,7 +82,7 @@ It is often easier to understand the workings of a feed forward neural network b
 
 Combining Figure (TODO: ref figure above) and our preceeding functional description, we can describe the operation performed by a two-layer neural network using a single functional transformation:
 \begin{equation} \label{full-nn-equation}
-	y_{k}(\textbf{x}, \textbf{w}) = \sigma\bigg(\sum_{m=1}^{M}w_{kj}^{(2)} h\bigg(\sum_{d=1}^{D}w_{jd}^{(1)}x_{d} + w_{j0}^{(1)}\bigg) + w_{k0}^{(2)}\bigg)
+	y_{k}(\textbf{x}, \textbf{w}) = \sigma\bigg(\sum_{m=1}^{M}w_{km}^{(2)} h\bigg(\sum_{d=1}^{D}w_{md}^{(1)}x_{d} + w_{m0}^{(1)}\bigg) + w_{k0}^{(2)}\bigg)
 \end{equation}
 where we've elected to make the final activation function the sigmoidal function $\sigma(\cdot)$ as we have a binary output activation layer.
 
@@ -92,16 +92,12 @@ Furthermore, it may be clear by now why this basic variety of neural networks is
 
 Note that we can also simplify this equation by utilizing the bias trick and appending an $x_{0}=1$ value to each of our data points such that:
 \begin{equation*}
-	y_{k}(\textbf{x}, \textbf{w}) = \sigma\bigg(\sum_{m=1}^{M}w_{kj}^{(2)} h\bigg(\sum_{d=1}^{D}w_{jd}^{(1)}x_{d}\bigg)\bigg)
+	y_{k}(\textbf{x}, \textbf{w}) = \sigma\bigg(\sum_{m=1}^{M}w_{km}^{(2)} h\bigg(\sum_{d=1}^{D}w_{md}^{(1)}x_{d}\bigg)\bigg)
 \end{equation*}
 
 Finally, it's worth considering that while a neural network is a series of linear combinations, it is special because of the differentiable non-linearities applied at each of the hidden layers. Without these non-linearities, the successive application of different network weights would be equivalent to a single large linear combination.
 
 Now that we understand the basic structure of a neural network, the important question of how to train our network remains. This is the topic we turn to next.
-
-Discuss the similarities to the perceptron or the fact that its like a multilayer perceptron???
-
-Discuss weight space symmetries here with respect to the structure of a network???
 
 \section{Network Training}
 Now that we understand the structure of a basic feed forward neural network and how they can be used to make predictions, we turn our attention to the training process.
@@ -142,6 +138,10 @@ where $\textbf{w}^{(t)}$ corresponds to the state of the parameters $\textbf{w}$
 \subsection{Gradient Descent}
 We know we need to use a numerical optimization technique to compute our weight parameters $\textbf{w}$, and we've specified a generic form of iterative updates to our weight parameters in Equation \ref{generic-numerical-update}. We will now turn to one of the most common procedures for generating the update $\nabla\textbf{w}^{(t)}$, which is known as gradient descent.
 
+\begin{definition}{Gradient Descent}{gradient-descent}
+Gradient descent is a numerical, iterative optimization technique for finding the minimum of a function. It is often used to fit complex model parameters.
+\end{definition}
+
 The high level idea behind gradient descent is as follows: to update our parameters, we take a small step in the opposite direction of the gradient of our objective function with respect to the weight parameters $\textbf{w}^{(t)}$. Notationally, this looks like the following:
 \begin{equation} \label{gradient-descent-equation}
 	\textbf{w}^{(t+1)} = \textbf{w}^{(t)} - \eta \nabla E(\textbf{w}^{(t)})
@@ -149,8 +149,7 @@ The high level idea behind gradient descent is as follows: to update our paramet
 where $\eta > 0$ is known as the \textit{learning rate}.
 
 \readernote{In general, we want a learning rate that is large enough so that we make progress toward reaching a better solution, but not so large that we take a step that puts us in a worse place in the parameter space than we were at the previous step.}
-TODO: show why the above is true!
-TODO: gradient descent definition
+TODO: show why the above is true with an image on a 2d graph!
 
 Why take a step in the opposite direction of the gradient of the objective function? You can think of the objective function as a hill, and the current state of our parameters $\textbf{w}^{(t)}$ is our position on that hill. The gradient tells us the steepest direction of increase in the objective function (i.e. it specifies the direction that will make our model worse). Since we want to minimize the objective function, we choose to move away from the direction of the gradient, sending our model down the hill towards an area of lower error. We typically cease optimization when our updates become sufficiently small, indicating that we've reached a local minimum. Note that it's a good idea to run gradient descent multiple times to settle on a final value for $\textbf{w}$, ideally initializing $\textbf{w}^{(0)}$ to a different starting value each time, because we are optimizing a function with multiple local minima.
 
@@ -232,7 +231,7 @@ Remember that all of these calculations were done for a single input data point 
 To solidify our understanding of the backpropagation algorithm, it can be useful to try a concrete example.
 
 \begin{example}{Backpropagation Example}{backprop-example}
-	TODO: step by step for where we are at each point?
+	TODO: step by step image for where we are at each point?
 	Imagine the case of a simple two layer neural network (meaning we have two layers of connections and three layers of nodes). TODO put a figure here. We'll use the standard quadratic loss function on our output layer:
 	\begin{align*}
 		E = \frac{1}{2} \sum_{m=1}^{M} (\hat{y}_{m} - y_{m})^{2}
@@ -247,7 +246,7 @@ To solidify our understanding of the backpropagation algorithm, it can be useful
 	\end{align*}
 	For our input data point $\textbf{x}$, we forward propagate through our network to get the activations of the hidden layer:
 	\begin{align*}
-		a_{j} = \sum_{d=0}^{D} w_{jd}^{(1)} x_{i}
+		a_{j} = \sum_{d=0}^{D} w_{jd}^{(1)} x_{d}
 	\end{align*}
 	We then transform this value using our sigmoidal nonlinearity:
 	\begin{align*}
@@ -267,7 +266,7 @@ To solidify our understanding of the backpropagation algorithm, it can be useful
 	\end{align*}
 	And now that we have our errors for the hidden and output layers, we can compute the derivative of the loss with respect to our weights as follows:
 	\begin{align*}
-		\frac{\partial E}{\partial w_{ji}^{(1)}} = \delta_{j} x_{i}, \quad \frac{\partial E}{\partial w_{mj}^{(2)}} = \delta_{m} z_{j}
+		\frac{\partial E}{\partial w_{jd}^{(1)}} = \delta_{j} x_{d}, \quad \frac{\partial E}{\partial w_{mj}^{(2)}} = \delta_{m} z_{j}
 	\end{align*}
 	We then use these derivatives along wtih an optimization technique such as gradient descent to improve our model weights.
 \end{example}
@@ -276,9 +275,9 @@ To solidify our understanding of the backpropagation algorithm, it can be useful
 Now that we know the general form of a neural network and how the training process works, we must step back and consider the question of how we actually arrive at an optimal network structure. We'll begin with an idea we've already seen before: cross validation.
 
 \subsection{Cross Validation for Neural Networks}
-We've previously discussed cross validation in the chapter on linear regression (TODO: check this). We used it then to compare the performance of different models, attempting to identify the best model while also avoiding overfitting. We can use a similar process to identify a reasonable network structure.
+We've previously discussed cross validation in the chapter on linear regression. We used it then to compare the performance of different models, attempting to identify the best model while also avoiding overfitting. We can use a similar process to identify a reasonable network structure.
 
-First of all, the input and output parameters of a neural network are generally decided for us: the dimensionality of our input data dictates the number of input units and the dimensionality of the required output dictates the number of output units. TODO: provide a simple example here. Depending on whether you wish to perform some sort of pre or post-processing on the inputs/outputs of your network, this might not actually be the case, but in general when choosing a network structure we don't consider the first or last layer of nodes as being a relevant knob that we can tune.
+First of all, the input and output parameters of a neural network are generally decided for us: the dimensionality of our input data dictates the number of input units and the dimensionality of the required output dictates the number of output units. For example, if we have an 8-by-8 pixel image and need to predict whether it is a `0' or a `1', our input dimensions are fixed at 64 and our output dimensions are fixed at 2. Depending on whether you wish to perform some sort of pre or post-processing on the inputs/outputs of your network, this might not actually be the case, but in general when choosing a network structure we don't consider the first or last layer of nodes as being a relevant knob that we can tune.
 
 That leaves us to choose the structure of the hidden layers in our network. To make this problem more tractable, we can simplify it even further: we'll consider the total number of units contained in our hidden layers (meaning we sum the units from each hidden layer). So if we have three hidden layers each with 5 units each, we'll have 15 total units for that network structure.
 
@@ -289,7 +288,7 @@ Thus, we can use cross validation in the same way we've done before: train our m
 \readernote{There are other considerations at play beyond performance when choosing a network structure. For example, the more internal units you have in your network, the more storage and compute time you will need to train them. If either training time or response time after training a model is critical, you may need to consider consolidating your network at the expense of some performace.}
 
 \subsection{Regularization}
-You can also apply regularization to the weights in your network to help prevent overfitting. For example, we could introduce a simple quadratic regularizer of the form $\frac{\lambda}{2} \textbf{w}^{T}\textbf{w}$ to our objective function. There are other considerations to be made here, for example we would like our regularizer to be invariant to network scaling (the quadratic regularizer is not), but the basic concept of avoiding extreme weights is the same.
+You can also apply regularization to the weights in your network to help prevent overfitting. For example, we could introduce a simple quadratic regularizer of the form $\frac{\lambda}{2} \textbf{w}^{T}\textbf{w}$ to our objective function. There are other considerations to be made here, for example we would like our regularizer to be invariant to scaling, meaning that multiplying our input data by a constant would produce a proportionally equivalent network after training. The quadratic regularizer is not invariant to scaling, but the basic concept of avoiding extreme weights is the same nonetheless.
 
 \subsection{Data Augmentation}
 We can use transformations to augment our data sets, which helps prevent overfitting. This technique is not specific to neural networks, but often the types of unstructured data for which we use neural networks can benefit greatly from it.
