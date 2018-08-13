@@ -1,1 +1,137 @@
 \chapter{Support Vector Machines}
+In this chapter, we will explore what is known as a support vector machine, or SVM for short. SVMs are broadly useful for problems in classification and regression, and they draw on techniques from what are known as \textit{kernel algorithms}. This simply means they make use of an arbitrary kernel function $k(\cdot)$ to compare data points in our training set to new data points about which we wish to make a prediction. One of the most important aspects of SVMs is that they decompose into convex optimization problems, for which we can find a global optimum with relative ease. We will explore the mathematical underpinnings of SVMs, which can be slightly more challenging than our previous topics, as well as their typical use cases.
+
+\section{Motivation}
+While SVMs can be used for classification or regression, we will reason about them in the classification case for simplicity. 
+
+The grand idea behind SVMs is that we should construct a linear hyperplane in our feature space that maximally separates our classes, which means that the different classes should be as far from that hyperplane as possible. The distance of our data from the hyperplane is known as `margin'.
+
+\begin{definition}{Margin}{definition}
+Margin is the distance of data points from the separating hyperplane of an SVM model. Larger margins lead to more generalizable models.
+\end{definition}
+
+A larger margin tends to mean that our model will generalize better to new data, since greater margin allows more wiggle room to be correct about classifying new incoming data.
+
+TODO: image of a hyperplane in 2d between different classes of points
+
+This idea of margin is quite intuitive for humans. If you were presented with graph (TODO reference graph here) and were asked to separate the two classes, you would likely draw the line that keeps data points as far from it as possible. SVMs and other margin-based methods will attempt to algorithmically recreate this intuition that humans are quite good at.
+
+\subsection{Max Margin Methods}
+SVMs are a specific instance of a broader class of model known as max margin methods. The name describes these methods quite well: they deal with creating a maximum margin between training data and some form of a model, with the idea that this represents the model of maximum generalizability. 
+
+Other max margin methods are outside the scope of this textbook. Note that these alternative methods typically differ from SVMs in some non-trivial manner. For example, SVMs do not produce posterior probability distributions but rather decision rules for handling new data points. If you needed posterior probabilities for your model, there are other max-margin methods better suited to that task.
+
+\begin{mlcube}{Support Vector Machines}
+SVMs typically operate over inputs that exist in a continuous feature space. We need labeled training data to identify the relevant hyperplane in an SVM model. Finally, SVMs operate in a non-probabilistic setting.
+\begin{center}
+    \begin{tabular}{c|c|c}
+    \textit{\textbf{Domain}} & \textit{\textbf{Training}} & \textit{\textbf{Probabilistic}} \\
+    \hline
+    Continuous & Supervised & No \\
+    \end{tabular}
+\end{center}
+\end{mlcube}
+
+\subsection{Applications}
+The theory behind SVMs has been around for quite some time (since 1963), so prior to the rise of neural networks and other more computationally intensive techniques, SVMs were used quite extensively for image recognition, categorization, and other typical machine learning tasks.
+
+In particular, SVMs were and still are widely used for a subset of classification problems known as anomaly detection.
+\readernote{The purpose of anomaly detection is to identify unusual data points. For example, if we are manufacturing widgets, we may wish to inspect and flag any widget that seems atypical with respect to the rest of the widgets we produce.}
+Anomaly detection can be as simple as a binary classification problem where the data set is comprised of anomalous and non-anomalous data points. As we will see, an SVM can be constructed from this data set to identify future anomalous points very efficiently.
+
+\section{Hard Margin Classifier}
+We will learn the theory behind SVMs by starting with a simple two-class classification problem, as we've seen several times in previous chapters. We will constrain the problem even further by declaring that the two classes are linearly separable, which is the basis of the hard margin formulation for SVMs.
+
+\subsection{Why the Hard Margin}
+The hard margin constraint ensures that our data is linearly separable. We will see that this is actually not a requirement for constructing an SVM, but it simplifies the problem initially and makes our derivations significantly easier. After we've established the hard margin formulation, we will extend the technique to work in situations where our data is not linearly separable.
+
+\subsection{Deriving our Optimization Problem}
+Recall that our goal is to define a hyperplane separating our data points that establishes the maximum distance from our training data. To uncover this hyperplane, we start with a simple linear model for a two-class classification problem:
+\begin{equation*}
+y(\textbf{x}) = \textbf{w}^{T}\phi(\textbf{x}) + w_{0}
+\end{equation*}
+where we have $N$ multidimensional data points $x_{1}, ..., x_{N}$, $\phi(\cdot)$ is a standard basis transformation function, and there is a bias term $w_{0}$. Each of our data point has a class $y_{1}, ..., y_{N}$ which is either $1$ or $-1$, and we assign new data points to class $1$ or $-1$ according to the sign of our trained model $y(\textbf{x})$.
+
+By specifying our model this way, we have implicity defined a hyperplane separating our two classes given by:
+\begin{equation} \label{implicit-hyperplane}
+	\textbf{w}^{T}\phi(\textbf{x}) + w_{0} = 0
+\end{equation}
+This is not an intuitive result, but we can increase clarity through a simple derivation.
+
+\begin{derivation}{Hyperplane Derivation}{hyperplane-derivation}
+	Imagine two data points $x_{1}$ and $x_{2}$ on the hyperplane defined by $\textbf{w}^{T}\phi(\textbf{x}) + w_{0} = 0$. When we project their difference onto our model $\textbf{w}$, we find:
+	\begin{align*}
+		\textbf{w}^{T}(\textbf{x}_{1} - \textbf{x}_{2}) = \textbf{w}^{T}\textbf{x}_{1} - \textbf{w}^{T}\textbf{x}_{2} = -w_{0} - (-w_{0}) = 0
+	\end{align*}
+	which means that $\textbf{w}$ is orthogonal to our hyperplane.
+\end{derivation}
+TODO: provide image here of data points, our hyperplane, and the orthogonal \textbf{w}
+
+Remember that we're trying to maximize the margin between our training data and the hyperplane. The fact that $\textbf{w}$ is orthogonal to our hyperplane allows us to determine how far our data points are from the hyperplane.
+
+To determine the distance between a training point $\textbf{x}$ and the hyperplane, which we denote $d$, we need the distance in the direction of $\textbf{w}$ between the point and the hyperplane. We denote $\textbf{x}_{\perp}$ to be the projection of $x$ onto the hyperplane, which allows us to decompose $x$ as the following:
+\begin{equation} \label{decompose-x}
+	\textbf{x} = \textbf{x}_{\perp} + d \frac{\textbf{w}}{|| \textbf{w} ||}
+\end{equation}
+which is simply the sum of the portion of $\textbf{x}$ perpendicular to $\textbf{w}$ and the portion of $\textbf{x}$ that is parallel to $\textbf{w}$. From here we can solve for $d$:
+\begin{derivation}{Distance from Hyperplane Derivation}{distance-from-hyperplane-derivation}
+	We start by left multiplying Equation \ref{decompose-x} with $\textbf{w}^{T}$.
+	\begin{align*}
+		\textbf{w}^{T}\textbf{x} = \textbf{w}^{T}\textbf{x}_{\perp} + d \frac{\textbf{w}^{T}\textbf{w}}{||\textbf{w}||}
+	\end{align*}
+	Simplifying:
+	\begin{align*}
+		\textbf{w}^{T}\textbf{x} =  - w_{0} + d ||\textbf{w}||
+	\end{align*}
+	Rearranging:
+	\begin{align*}
+		d = \frac{\textbf{w}^{T}\textbf{x} + w_{0}}{||\textbf{w}||}
+	\end{align*}
+\end{derivation}
+which means that for each data point $\textbf{x}$, we now have the signed distance of that data point from the hyperplane.
+
+When we classify our data correctly, the distance $d$ will be positive for $y_{n} = 1$, and $d$ will be negative for $y_{n} = -1$. For consistency and training purposes, we can make the margin positive whenever we correctly classify data by multiplying $y_{n}$ and $d$. Then, the margin for an individual data point $\textbf{x}_{n}$ is given by:
+\begin{equation} \label{individual-margin}
+	\frac{y_{n}(\textbf{w}^{T}\textbf{x}_{n} + w_{0})}{||\textbf{w}||}
+\end{equation}
+The margin for an entire data set is given by the margin to the closest point in the set, given by:
+\begin{equation} \label{total-margin}
+	\min_{n} \frac{y_{n}(\textbf{w}^{T}\textbf{x}_{n} + w_{0})}{||\textbf{w}||}
+\end{equation}
+Then, it is our goal to maximize this margin with respect to our model parameters $\textbf{w}$ and $w_{0}$. This is given by:
+\begin{equation} \label{total-maximized-margin}
+	\arg\max_{\textbf{w}, w_{0}} \big\{ \frac{1}{||\textbf{w}||} \min_{n} y_{n}(\textbf{w}^{T}\textbf{x}_{n} + w_{0}) \big\}
+\end{equation}
+Note that this is a hard problem to optimize, but we can make it more tractable by recognizing some important features of Equation \ref{total-maximized-margin}. First, rescaling $\textbf{w} \rightarrow \alpha \textbf{w}$ and $w_{0} \rightarrow \beta w_{0}$ has no impact on the relative distance of any data point $\textbf{x}_{n}$ from the hyperplane. We can use this rescaling liberty to enforce
+\begin{equation} \label{enfore-dist-to-1}
+	y_{n}(\textbf{w}^{T}\textbf{x}_{n} + w_{0}) = 1
+\end{equation}
+for the data point closest to the hyperplane. Thus, all of our data points have a margin that is greater than or equal to 1:
+\begin{equation} \label{new-margin-constraint}
+	\forall n \, y_{n}(\textbf{w}^{T}\textbf{x}_{n} + w_{0}) \geq 1
+\end{equation}
+which is used as a constraint for the optimization problem in Equation \ref{total-maximized-margin}. Thus our optimization problem now looks like:
+\begin{equation} \label{simplified-maximized-margin-optimization}
+	\arg\max_{\textbf{w}, w_{0}} \frac{1}{||\textbf{w}||} \quad \text{s.t.} \quad \forall n \, y_{n}(\textbf{w}^{T}\textbf{x}_{n} + w_{0}) \geq 1
+\end{equation}
+Notice also that we are maximizing $\frac{1}{||\textbf{w}||}$, which is equivalent to minimizing $||\textbf{w}||^{2}$. We will also add a constant term $\frac{1}{2}$ for convenience in optimizing later on, to give us our final optimization problem:
+\begin{equation} \label{final-simplified-maximized-margin-optimization}
+	\arg\min_{\textbf{w}, w_{0}} \frac{1}{2} ||\textbf{w}||^{2} \quad \text{s.t.} \quad \forall n \, y_{n}(\textbf{w}^{T}\textbf{x}_{n} + w_{0}) \geq 1
+\end{equation}
+
+...TODO quadratic programming, lagrangian multipliers, etc. could do now, could do later
+
+
+\subsection{What is a Support Vector}
+\subsection{Hard Margin SVM Example}
+
+\section{Soft Margin Classifier}
+\subsection{Why the Soft Margin?}
+\subsection{Updated Optimization Problem for Soft Margins}
+\subsection{Soft Margin SVM Example}
+
+\section{Conversion to Dual Form}
+\subsection{Lagrange Multipliers}
+\subsection{Deriving the Dual Formulation}
+\subsection{Why is the Dual Formulation Necessary?}
+\subsection{Kernel Composition}
