@@ -151,18 +151,64 @@ These slack variable penalize data points within the margin defined by the hyper
 \begin{equation} \label{soft-margin-optimization-problem}
 	\arg\min_{\textbf{w}, w_{0}} \frac{1}{2} ||\textbf{w}||^{2} + C \sum_{n=1}^{N} \xi_{n} \quad \text{s.t.} \quad \forall n \, y_{n}(\textbf{w}^{T}\textbf{x}_{n} + w_{0}) \geq 1 - \xi_{n}, \quad \xi_{n} \geq 0
 \end{equation}
-TODO: make the argmax thing look better with the variables acutally under the `argmax'
+TODO: make the argmax thing look better with the variables acutally under the `argmax' \newline \newline
 where $C$ is a regularization parameter that determines how heavily we penalize violations of the hard margin constraints. A large value of $C$ penalizes violation of the hard margin constraints, which means our model will follow the data closely have small regularization. A small value of $C$ won't heavily penalize having data points inside the margin region, relaxing the constraint and allowing our model to somewhat disregard more of the data. This boosts regularization.
 
 \readernote{Unlike most regularization parameters we've seen thus far, $C$ increases regularization as it gets smaller.}
 
 \subsection{Soft Margin Support Vectors}
-... TODO NEXT: explain how the support vectors have changed in the soft margin case
+Under the the hard margin formulation, the support vectors were those data points exactly $d=1$ away from the hyperplane, and they were also guaranteed to be the points closest to the hyperplane. Under the soft margin formulation, we no longer have this guarantee since we explicity relaxed it in the name of creating better, more generalizable models.
+
+The support vectors for the soft margin case are those which fall within the margin region (including the boundary) or those that are misclassified. This corresponds directly to the value of the slack variable $\xi_{n}$ defined in Equation \ref{slack-variable-values}: data points for which $\xi_{n} > 0$ are the support vectors. Note that these support vectors are either correctly classified but within/on the margin ($\xi_{n} \in [0,1]$) or incorrectly classified ($\xi_{n} > 1$). We can visualize this in Figure (TODO: ref figure with the tube here).
+
+\readernote{Data points for which $\xi_{n} = 0$ are on the margin and are still considered support vectors.}
+
+TODO: draw the soft margin tube so people can see what the support vectors are
 
 \subsection{Soft Margin SVM Example}
+.. TODO: I think just draw one graph of data points with two classes and then the line that will be separating them but now with data points that have the slack variable also defined?
 
 \section{Conversion to Dual Form}
+Now that we understand the formulation of the optimization problem for SVMs, we need to discuss how we actually go about optimizing to produce a model solution. This will involve producing a \textit{dual form} for our problem. We will solve in the case of the hard margin case for notational simplicity, but our solution will apply to the soft margin formulation as well.
+
+\readernote{A dual form is simply an equivalent manner of representing some expression, in this case the quadratic programming problem we need to optimize.}
+
 \subsection{Lagrange Multipliers}
+Before we get into deriving the dual formation, we need to be aware of a critical piece of math that will enable us to solve our optimization problem: \textit{Langrange multipliers}.
+
+A Lagrange multiplier is used to find optima of a function subject to certain constraints. This is exactly what we need to do with the optimization problem described by Equation \ref{final-simplified-maximized-margin-optimization}.
+
+The underlying theory behind Lagrange multipliers is not overly difficult to understand, but it is beyond the scope of this textbook. Instead, we will offer the method by which you can use them to solve optimization problems, while leaving the underlying theory untouched.
+
+If you have a function $f(\textbf{x})$ which you need to optimize (let's use the example of maximization here, but minimization applies just the same) subject to the constraint that some function $g(\textbf{x}) = 0$, you can take the following steps. First, construct the Lagrangian function $L(\textbf{x}, \lambda)$:
+
+\begin{equation*}
+	L(\textbf{x}, \lambda) = f(\textbf{x}) + \lambda g(\textbf{x})
+\end{equation*}
+
+Then, set the derivative of $L$ with respect to both $\textbf{x}$ and $\lambda$ equal to 0:
+
+\begin{equation*}
+	\nabla L_{\textbf{x}} = 0, \qquad \frac{\partial L}{\partial \lambda} = g(\textbf{x}) = 0
+\end{equation*}
+
+If $\textbf{x}$ is $D$-dimensional, this will give you a system of $D+1$ equations. You can solve these equations for $\textbf{x}$ to find the optimal value of $f(\textbf{x})$ subject to the constraint $g(\textbf{x})$.
+
+The only other gotcha to be aware of is the case where your constraint $g(\textbf{x})$ is an inequality. In this case, construct your Lagrangian function as follows:
+\begin{equation*}
+	L(\textbf{x}, \lambda) = f(\textbf{x}) - \lambda g(\textbf{x})
+\end{equation*}
+which you again optimize with respect to the parameters $\textbf{x}$ and $\lambda$:
+\begin{equation*}
+	\nabla L_{\textbf{x}} = 0, \qquad \frac{\partial L}{\partial \lambda} = g(\textbf{x}) \geq 0
+\end{equation*}
+but now also subject to the constraints:
+\begin{equation*}
+	\qquad \lambda \geq 0, \qquad \lambda g(\textbf{x}) = 0
+\end{equation*}
+
+\readernote{The exact reason for these new constraints when working with inequalities is beyond the scope of this textbook, but it's important to remember that these two additional constraints be met.}
+
 \subsection{Deriving the Dual Formulation}
 \subsection{Why is the Dual Formulation Necessary?}
 \subsection{Kernel Composition}
