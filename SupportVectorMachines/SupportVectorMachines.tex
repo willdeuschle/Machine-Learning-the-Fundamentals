@@ -209,6 +209,69 @@ but now also subject to the constraints:
 
 \readernote{The exact reason for these new constraints when working with inequalities is beyond the scope of this textbook, but it's important to remember that these two additional constraints be met.}
 
+Finally, note that when you are optimizing a function under multiple constraints, you simply introduce a Lagrange multipliers for each constraint.
+
+\begin{example}{Langrange Multiplier Example}{lagrange-multiplier-example}
+	Let's say we had a function $f(\textbf{x})$ we wish to maximize:
+	\begin{align*}
+		f(\textbf{x}) = x_{1}^{2} + 3x_{2}^{2} + 3
+	\end{align*}
+	subject to the constraint $g(\textbf{x})$:
+	\begin{align*}
+		g(\textbf{x}) = 4x_{1} + 4x_{2} - 6 = 0
+	\end{align*}
+	We begin by construction our Lagrangian function $L(\textbf{x}, \lambda)$:
+	\begin{align*}
+		L(\textbf{x}, \lambda) = x_{1}^{2} + 3x_{2}^{2} + 3 + \lambda (4x_{1} + 4x_{2} - 6)
+	\end{align*}
+	We then compute $\nabla L_{\textbf{x}}$ and $\frac{\partial L}{\partial \lambda}$ to get our constraint functions:
+	\begin{align*}
+		2x_{1} + 4\lambda = 0 \\
+		6x_{2} + 4\lambda = 0 \\
+		4x_{1} + 4x_{2} - 6 = 0
+	\end{align*}
+	Solving these equations for $x_{1}$, $x_{2}$, and $\lambda$ leaves us with the following mazimized solution:
+	\begin{align*}
+		(x_{1}^{*}, x_{2}^{*}) = \bigg(\frac{9}{8}, \frac{3}{8}\bigg); \qquad \lambda^{*} = -\frac{9}{16}
+	\end{align*}
+\end{example}
+
 \subsection{Deriving the Dual Formulation}
+Now that we understand Lagrange multipliers and how we can use them for constrained optimization, we can get back to the hard-margin SVM optimization problem:
+\begin{equation} \label{original-optim-fn}
+	\arg\min_{\textbf{w}, w_{0}} \frac{1}{2} ||\textbf{w}||^{2} \quad \text{s.t.} \quad \forall n \, y_{n}(\textbf{w}^{T}\textbf{x}_{n} + w_{0}) \geq 1
+\end{equation}
+To satisfy these $N$ constraints, we introduce $N$ Lagrange multipliers $\lambda_{1}, ..., \lambda_{N} \geq 0$. We then have our Lagrangian function:
+\begin{equation} \label{lagrange-equation}
+	L(\textbf{w}, w_{0}, \boldsymbol{\lambda}) = \frac{1}{2} ||\textbf{w}||^{2} - \sum_{n=1}^{N} \lambda_{n} (y_{n}(\textbf{w}^{T} \textbf{x}_{n} + w_{0}))
+\end{equation}
+Using this Lagrangian function, we allow ourselves to switch from solving Equation \ref{original-optim-fn} to instead solving:
+\begin{equation} \label{new-optim-fn}
+	\arg\min_{\textbf{w}, w_{0}} \max_{\boldsymbol{\lambda} \geq 0} L(\textbf{w}, w_{0}, \boldsymbol{\lambda})
+\end{equation}
+TODO: move over the $\textbf{w}, w_{0}$
+where $\boldsymbol{\lambda} = \lambda_{0}, ..., \lambda_{N-1}$.
+
+\readernote{The `$\arg\min_{\textbf{w}, w_{0}} \max_{\boldsymbol{\lambda} \geq 0}$' in Equation \ref{new-optim-fn} may be initially confusing. We introduce the maximum because the values of $\boldsymbol{\lambda}$ are free and should be set such that $L(\textbf{w}, w_{0}, \boldsymbol{\lambda})$ is as large as possible prior to minimizing with respect to $\textbf{w}, w_{0}$.}
+
+We now wish to convert the objective in Equation \ref{new-optim-fn} to a dual objective. Under the sufficient conditions of strong duality which hold for this problem but whose explanation is beyond the scope of this textbook, we can reformulate the objective as:
+\begin{equation} \label{dual-objective}
+	\max_{\boldsymbol{\lambda} \geq 0} \arg\min_{\textbf{w}, w_{0}} L(\textbf{w}, w_{0}, \boldsymbol{\lambda})
+\end{equation}
+At this point, we can solve for $\textbf{w}, w_{0}$. Taking the gradient/derivative, setting equal to 0, and solving:
+\begin{align*}
+	\nabla L_{\textbf{w}} = \textbf{w} - \sum_{n=1}^{N} \lambda_{n} y_{n} \textbf{x}_{n} = 0
+\end{align*}
+\begin{equation} \label{solve-for-w}
+	\textbf{w}^{*} = \sum_{n=1}^{N} \lambda_{n} y_{n} \textbf{x}_{n}
+\end{equation}
+\begin{align*}
+	\frac{\partial L}{\partial w_{0}} = - \sum_{n=1}^{N} \lambda_{n} y_{n} = 0
+\end{align*}
+\begin{equation} \label{solve-for-w0}
+	\sum_{n=1}^{N} \lambda_{n} y_{n} = 0
+\end{equation}
+Now that we have these optimal values for $\textbf{w}, w_{0}$, we plug them back into our our Lagrangian function: TODO pickup here
+
 \subsection{Why is the Dual Formulation Necessary?}
 \subsection{Kernel Composition}
