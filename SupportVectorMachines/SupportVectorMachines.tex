@@ -47,10 +47,10 @@ The hard margin constraint ensures that our data is linearly separable. We will 
 
 \subsection{Deriving our Optimization Problem}
 Recall that our goal is to define a hyperplane separating our data points that establishes the maximum distance from our training data. To uncover this hyperplane, we start with a simple linear model for a two-class classification problem:
-\begin{equation*}
-y(\textbf{x}) = \textbf{w}^{T}\phi(\textbf{x}) + w_{0}
-\end{equation*}
-where we have $N$ multidimensional data points $x_{1}, ..., x_{N}$, $\phi(\cdot)$ is a standard basis transformation function, and there is a bias term $w_{0}$. Each of our data point has a class $y_{1}, ..., y_{N}$ which is either $1$ or $-1$, and we assign new data points to class $1$ or $-1$ according to the sign of our trained model $y(\textbf{x})$.
+\begin{equation} \label{classification-fn}
+f(\textbf{x}) = \textbf{w}^{T}\phi(\textbf{x}) + w_{0}
+\end{equation}
+where we have $N$ multidimensional data points $x_{1}, ..., x_{N}$, $\phi(\cdot)$ is a standard basis transformation function, and there is a bias term $w_{0}$. Each of our data point has a class $y_{1}, ..., y_{N}$ which is either $1$ or $-1$, and we assign new data points to class $1$ or $-1$ according to the sign of our trained model $f(\textbf{x})$.
 
 By specifying our model this way, we have implicity defined a hyperplane separating our two classes given by:
 \begin{equation} \label{implicit-hyperplane}
@@ -271,7 +271,40 @@ At this point, we can solve for $\textbf{w}, w_{0}$. Taking the gradient/derivat
 \begin{equation} \label{solve-for-w0}
 	\sum_{n=1}^{N} \lambda_{n} y_{n} = 0
 \end{equation}
-Now that we have these optimal values for $\textbf{w}, w_{0}$, we plug them back into our our Lagrangian function: TODO pickup here
+Now that we have these optimal values for $\textbf{w}, w_{0}$, we plug them back into our our Lagrangian function:
+\begin{equation} \label{plugged-in-lagrangian}
+	\begin{aligned}
+		L(\textbf{w}, w_{0}, \boldsymbol{\lambda}) = \frac{1}{2} || \sum_{n=1}^{N} \lambda_{n} y_{n} \textbf{x}_{n} ||^{2} - \sum_{n=1}^{N} \lambda_{n} y_{n} (\sum_{m=1}^{N} \lambda_{m} y_{m} \textbf{x}_{m})^{T} \textbf{x}_{n} - \sum_{n=1}^{N} \lambda_{n} y_{n} w_{0} + \sum_{n=1}^{N} \lambda_{n} \\
+		= \frac{1}{2} \sum_{n=1}^{N} \sum_{m=1}^{N} \lambda_{n} \lambda_{m} y_{n} y_{m} \textbf{x}_{n}^{T} \textbf{x}_{m} - \sum_{n=1}^{N} \sum_{m=1}^{N} \lambda_{n} \lambda_{m} y_{n} y_{m} \textbf{x}_{n}^{T} \textbf{x}_{m} - w_{0} \sum_{n=1}^{N} \lambda_{n} y_{n} + \sum_{n=1}^{N} \lambda_{n} \\
+		= \sum_{n=1}^{N} \lambda_{n} - \frac{1}{2} \sum_{n=1}^{N} \sum_{m=1}^{N} \lambda_{n} \lambda_{m} y_{n} y_{m} \textbf{x}_{n}^{T} \textbf{x}_{m}
+	\end{aligned}
+\end{equation}
+We're left with the result of Equation \ref{plugged-in-lagrangian}, which is another quadratic function that we wish to maximize subject to the constraint $\boldsymbol{\lambda} \geq 0$ and $\sum_{n=1}^{N} \lambda_{n} y_{n} = 0$. We can solve for $\boldsymbol{\lambda}$ using the same Langrangian techniques described above.
+
+Why do we wish to solve for the value of $\boldsymbol{\lambda}$ at all? To see this, we need to make predictions on new data points.
+
+\subsection{Making Predictions}
+Remember the classification function described at the beginning of this chapter by Equation \ref{classification-fn}. When classifying new data points, we look at the sign produced by that function, as we described above. Now that we've solved for \textbf{w}, we can rewrite this function as:
+\begin{equation} \label{new-classification-fn}
+	f(\textbf{x}) = \sum_{n=1}^{N} \lambda_{n} y_{n} \textbf{x}_{n}^{T} \textbf{x} + w_{0}
+\end{equation}
+Remember also that since $\boldsymbol{\lambda}$ are Lagrange multipliers, we are also bound by the constraints:
+\begin{align*}
+	\lambda_{n} \geq 0, \quad \lambda_{n} \{y_{n} f(\textbf{x}_{n}) - 1\} = 0
+\end{align*}
+which means that for every data point summed in the Equation \ref{new-classification-fn}, we either have that $\lambda_{n} = 0$ or $y_{n} f(\textbf{x}_{n}) = 1$. Any data points where $\lambda_{n} = 0$ don't appear in the summation in Equation \ref{new-classification-fn}, and thus don't have any impact on the prediction that is made for this new data point. \newline
+
+The rest of the data points, for which $\lambda_{n} > 0$, are known as \textbf{support vectors}, and because we have that $y_{n} f(\textbf{x}_{n}) = 1$ for these data points, these are the points that lie on the max margin hyperplane in Figure TODO: ref figure here.
+
+This is a major takeaway for the usefulness of SVMs: once we've trained our model, we can discard much of our data for making predictions. We only need to keep the support vectors to make these predictions. This also illustrates why we need to solve for the values of $\boldsymbol{\lambda}$: those values dictate which data points are the support vectors for our model.
+
+Finally, note that the extension of this solution from the hard-margin scenario to the soft-margin scenario is straightforward. In fact, the Lagrangian function ends up being identical with the addition of a few extra constraints.
 
 \subsection{Why is the Dual Formulation Necessary?}
+At this point, you might be wondering what exactly we gained by moving to the dual formulation of this problem.
+
+First, the complexity of the optimization problem we're solving moved from one that is dependent on the number of features $M$ in our particular data domain to one that is linearly dependent on the number of data points $N$ that we have. Thus, our model complexity is now independent of the dimensionality of the feature space.
+
+Second, now that our model complexity is independent of the dimensionality of the data... TODO: explain kernel functions, explain how we make predictions?
+
 \subsection{Kernel Composition}
