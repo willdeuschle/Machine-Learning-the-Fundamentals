@@ -1,25 +1,25 @@
 \chapter{Support Vector Machines}
-In this chapter, we will explore what is known as a support vector machine, or SVM for short. SVMs are broadly useful for problems in classification and regression, and they draw on techniques from what are known as \textit{kernel algorithms}. This simply means they make use of an arbitrary kernel function $k(\cdot)$ to compare data points in our training set to new data points about which we wish to make a prediction. One of the most important aspects of SVMs is that they decompose into convex optimization problems, for which we can find a global optimum with relative ease. We will explore the mathematical underpinnings of SVMs, which can be slightly more challenging than our previous topics, as well as their typical use cases.
+In this chapter, we will explore what is known as a support vector machine, or SVM for short. SVMs are broadly useful for problems in classification and regression, and they draw on techniques from what are known as \textit{kernel algorithms}. This means they make use of an arbitrary kernel function $k(\cdot)$ to compare data points in our training set to new data points about which we wish to make a prediction. One of the most important aspects of SVMs is that they decompose into convex optimization problems, for which we can find a global optimum with relative ease. We will explore the mathematical underpinnings of SVMs, which can be slightly more challenging than our previous topics, as well as their typical use cases.
 
 \section{Motivation}
-While SVMs can be used for classification or regression, we will reason about them in the classification case for simplicity. 
+While SVMs can be used for classification or regression, we will reason about them in the classification case as it is more straightforward. 
 
-The grand idea behind SVMs is that we should construct a linear hyperplane in our feature space that maximally separates our classes, which means that the different classes should be as far from that hyperplane as possible. The distance of our data from the hyperplane is known as `margin'.
+The grand idea behind SVMs is that we should construct a linear hyperplane in our feature space that maximally separates our classes, which means that the different classes should be as far from that hyperplane as possible. The distance of our data from the hyperplane is known as \textit{margin}.
 
 \begin{definition}{Margin}{definition}
 Margin is the distance of data points from the separating hyperplane of an SVM model. Larger margins lead to more generalizable models.
 \end{definition}
 
-A larger margin tends to mean that our model will generalize better to new data, since greater margin allows more wiggle room to be correct about classifying new incoming data.
+A larger margin tends to mean that our model will generalize better, since it provides more wiggle room to correctly classify unseen data.
 
 TODO: image of a hyperplane in 2d between different classes of points
 
-This idea of margin is quite intuitive for humans. If you were presented with graph (TODO reference graph here) and were asked to separate the two classes, you would likely draw the line that keeps data points as far from it as possible. SVMs and other margin-based methods will attempt to algorithmically recreate this intuition that humans are quite good at.
+This idea of margin is quite intuitive for humans. If you were presented with graph (TODO reference graph here) and were asked to separate the two classes, you would likely draw the line that keeps data points as far from it as possible. SVMs and other margin-based methods will attempt to algorithmically recreate this intuition.
 
 \subsection{Max Margin Methods}
-SVMs are a specific instance of a broader class of model known as max margin methods. The name describes these methods quite well: they deal with creating a maximum margin between training data and some form of a model, with the idea that this represents the model of maximum generalizability. 
+SVMs are a specific instance of a broader class of model known as \textit{max margin methods}. Their name describes them well: they deal with creating a maximum margin between training data and a model, with the idea that this leads to model generalizability. 
 
-Other max margin methods are outside the scope of this textbook. Note that these alternative methods typically differ from SVMs in some non-trivial manner. For example, SVMs do not produce posterior probability distributions but rather decision rules for handling new data points. If you needed posterior probabilities for your model, there are other max-margin methods better suited to that task.
+Other max margin methods are outside the scope of this textbook. Note that these alternative methods typically differ from SVMs in some non-trivial manner. For example, SVMs do not produce posterior probability distributions but rather decision rules for handling new data points. If you needed posterior probabilities for your model, there are other max margin methods better suited to that task.
 
 \begin{mlcube}{Support Vector Machines}
 SVMs typically operate over inputs that exist in a continuous feature space. We need labeled training data to identify the relevant hyperplane in an SVM model. Finally, SVMs operate in a non-probabilistic setting.
@@ -33,24 +33,26 @@ SVMs typically operate over inputs that exist in a continuous feature space. We 
 \end{mlcube}
 
 \subsection{Applications}
-The theory behind SVMs has been around for quite some time (since 1963), so prior to the rise of neural networks and other more computationally intensive techniques, SVMs were used quite extensively for image recognition, categorization, and other typical machine learning tasks.
+The theory behind SVMs has been around for quite some time (since 1963), so prior to the rise of neural networks and other more computationally intensive techniques, SVMs were used quite extensively for image recognition, object categorization, and other typical machine learning tasks.
 
 In particular, SVMs were and still are widely used for a subset of classification problems known as anomaly detection.
 \readernote{The purpose of anomaly detection is to identify unusual data points. For example, if we are manufacturing widgets, we may wish to inspect and flag any widget that seems atypical with respect to the rest of the widgets we produce.}
 Anomaly detection can be as simple as a binary classification problem where the data set is comprised of anomalous and non-anomalous data points. As we will see, an SVM can be constructed from this data set to identify future anomalous points very efficiently.
 
 \section{Hard Margin Classifier}
-We will learn the theory behind SVMs by starting with a simple two-class classification problem, as we've seen several times in previous chapters. We will constrain the problem even further by declaring that the two classes are linearly separable, which is the basis of the hard margin formulation for SVMs.
+We will learn the theory behind SVMs by starting with a simple two-class classification problem, as we've seen several times in previous chapters. We will constrain the problem even further by declaring that the two classes are linearly separable, which is the basis of the \textit{hard margin} formulation for SVMs.
+
+\readernote{The expression `hard margin' simply means that the data are linearly separable, so we can find a hyperplane that perfectly separates the data based on class.}
 
 \subsection{Why the Hard Margin}
-The hard margin constraint ensures that our data is linearly separable. We will see that this is actually not a requirement for constructing an SVM, but it simplifies the problem initially and makes our derivations significantly easier. After we've established the hard margin formulation, we will extend the technique to work in situations where our data is not linearly separable.
+The hard margin constraint, which enforces that our data is linearly separable, is not actually a requirement for constructing an SVM, but it simplifies the problem initially and makes our derivations significantly easier. After we've established the hard margin formulation, we will extend the technique to work in situations where our data is not linearly separable.
 
 \subsection{Deriving our Optimization Problem}
-Recall that our goal is to define a hyperplane separating our data points that establishes the maximum distance from our training data. To uncover this hyperplane, we start with a simple linear model for a two-class classification problem:
+Recall that our goal is to define a hyperplane that both separates our data points and keeps maximum distance from them. To uncover this hyperplane, we start with a simple linear model for a two-class classification problem:
 \begin{equation} \label{classification-fn}
 f(\textbf{x}) = \textbf{w}^{T}\phi(\textbf{x}) + w_{0}
 \end{equation}
-where we have $N$ multidimensional data points $x_{1}, ..., x_{N}$, $\phi(\cdot)$ is a standard basis transformation function, and there is a bias term $w_{0}$. Each of our data point has a class $y_{1}, ..., y_{N}$ which is either $1$ or $-1$, and we assign new data points to class $1$ or $-1$ according to the sign of our trained model $f(\textbf{x})$.
+where we have $N$ multidimensional data points $\textbf{x}_{1}, ..., \textbf{x}_{N}$, $\phi(\cdot)$ is a standard basis transformation function, and there is a bias term $w_{0}$. Each of our data point has a class $y_{1}, ..., y_{N}$ which is either $1$ or $-1$, and we assign new data points to class $1$ or $-1$ according to the sign produced by our trained model $f(\textbf{x})$.
 
 By specifying our model this way, we have implicity defined a hyperplane separating our two classes given by:
 \begin{equation} \label{implicit-hyperplane}
@@ -60,16 +62,16 @@ This is not an intuitive result, but we can increase clarity through a simple de
 
 \begin{derivation}{Hyperplane Derivation}{hyperplane-derivation}
 	Imagine two data points $x_{1}$ and $x_{2}$ on the hyperplane defined by $\textbf{w}^{T}\phi(\textbf{x}) + w_{0} = 0$. When we project their difference onto our model $\textbf{w}$, we find:
-	\begin{align*}
+	\begin{equation} \label{hyperplane-eqn}
 		\textbf{w}^{T}(\textbf{x}_{1} - \textbf{x}_{2}) = \textbf{w}^{T}\textbf{x}_{1} - \textbf{w}^{T}\textbf{x}_{2} = -w_{0} - (-w_{0}) = 0
-	\end{align*}
+	\end{equation}
 	which means that $\textbf{w}$ is orthogonal to our hyperplane.
 \end{derivation}
 TODO: provide image here of data points, our hyperplane, and the orthogonal \textbf{w}
 
-Remember that we're trying to maximize the margin between our training data and the hyperplane. The fact that $\textbf{w}$ is orthogonal to our hyperplane allows us to determine how far our data points are from the hyperplane.
+Remember that we're trying to maximize the margin between our training data and the hyperplane. The fact that $\textbf{w}$ is orthogonal to our hyperplane will help with this.
 
-To determine the distance between a training point $\textbf{x}$ and the hyperplane, which we denote $d$, we need the distance in the direction of $\textbf{w}$ between the point and the hyperplane. We denote $\textbf{x}_{\perp}$ to be the projection of $x$ onto the hyperplane, which allows us to decompose $x$ as the following:
+To determine the distance between a data point $\textbf{x}$ and the hyperplane, which we denote $d$, we need the distance in the direction of $\textbf{w}$ between the point and the hyperplane. We denote $\textbf{x}_{\perp}$ to be the projection of $\textbf{x}$ onto the hyperplane, which allows us to decompose $\textbf{x}$ as the following:
 \begin{equation} \label{decompose-x}
 	\textbf{x} = \textbf{x}_{\perp} + d \frac{\textbf{w}}{|| \textbf{w} ||}
 \end{equation}
@@ -79,7 +81,7 @@ which is simply the sum of the portion of $\textbf{x}$ perpendicular to $\textbf
 	\begin{align*}
 		\textbf{w}^{T}\textbf{x} = \textbf{w}^{T}\textbf{x}_{\perp} + d \frac{\textbf{w}^{T}\textbf{w}}{||\textbf{w}||}
 	\end{align*}
-	Simplifying:
+	Simplifying (and note that $\textbf{w}^{T}\textbf{x}_{\perp} = -w_{0}$ from Equation \ref{hyperplane-eqn}) TODO start here:
 	\begin{align*}
 		\textbf{w}^{T}\textbf{x} =  - w_{0} + d ||\textbf{w}||
 	\end{align*}
@@ -288,7 +290,7 @@ Remember the classification function described at the beginning of this chapter 
 \begin{equation} \label{new-classification-fn}
 	f(\textbf{x}) = \sum_{n=1}^{N} \lambda_{n} y_{n} \textbf{x}_{n}^{T} \textbf{x} + w_{0}
 \end{equation}
-Data points for which $f(\textbf{x}) > 0$ are classified as $+1$, while all other data points are classified as $-1$. Remember also that since $\boldsymbol{\lambda}$ are Lagrange multipliers, we are bound by the constraints:
+Data points for which $f(\textbf{x}) > 0$ are classified as $1$, while all other data points are classified as $-1$. Remember also that since $\boldsymbol{\lambda}$ are Lagrange multipliers, we are bound by the constraints:
 \begin{align*}
 	\lambda_{n} \geq 0, \quad \lambda_{n} \{y_{n} f(\textbf{x}_{n}) - 1\} = 0
 \end{align*}
@@ -316,8 +318,8 @@ where $K(\textbf{x}_{n}, \textbf{x}_{m})$ is the kernel function. This is useful
 \subsection{Kernel Composition}
 Now that we've seen the usefulness of the kernel trick for working in higher dimensional spaces without incurring performance or memory overhead, it's reasonable to wonder what sort of kernels we can construct that will meet our needs of not needing to first project into a higher dimensional space.
 
-To be explicit, by `kernel' we mean a function that gives a scalar product for your desired feature space. In other words, when applied to two data points, your kernel should produce a number. Although it is beyond the scope of this textbook, the condition for a kernel $k(\cdot)$ to be valid is that the matrix of elements given by $k(\textbf{x}_{n}, \textbf{x}_{m})$ should be positive semi-definite for all choices of the data set $\{ \textbf{x}_{n} \}$.
+To be explicit, by `kernel' we mean a function that gives a scalar product for your desired feature space. In other words, when applied to two data points, your kernel should produce a number. Although it is beyond the scope of this textbook, the condition for a kernel $k(\cdot)$ to be valid is that the matrix of elements given by $k(\textbf{x}_{n}, \textbf{x}_{m})$ should be positive semidefinite for all choices of the data set $\{ \textbf{x}_{n} \}$.
 
 \readernote{The matrix of elements $k(\textbf{x}_{n}, \textbf{x}_{m})$ is known as the \textit{Gram matrix}, and is denoted by $\textbf{K}$.}
 
-In practice we care that we can construct valid kernels from other simpler valid kernels. To this end, there exist a set of rules that will preserve the validity of kernels through transformations. These include such things as scalar multiplication \big($c \cdot k(\textbf{x}_{n}, \textbf{x}_{m})$\big), exponentiation \big($\exp{\{k(\textbf{x}_{n}, \textbf{x}_{m})\}}$\big), and the addition \big($k_{1}(\textbf{x}_{n}, \textbf{x}_{m}) + k_{2}(\textbf{x}_{n}, \textbf{x}_{m})$\big) and multiplication \big($k_{1}(\textbf{x}_{n}, \textbf{x}_{m}) \cdot k_{2}(\textbf{x}_{n}, \textbf{x}_{m})$\big) of different kernels. It is always possible to test the validity of a given kernel by demonstrating that its Gram matrix $\textbf{K}$ is positive semi-definite.
+In practice we care that we can construct valid kernels from other simpler valid kernels. To this end, there exist a set of rules that will preserve the validity of kernels through transformations. These include such things as scalar multiplication \big($c \cdot k(\textbf{x}_{n}, \textbf{x}_{m})$\big), exponentiation \big($\exp{\{k(\textbf{x}_{n}, \textbf{x}_{m})\}}$\big), and the addition \big($k_{1}(\textbf{x}_{n}, \textbf{x}_{m}) + k_{2}(\textbf{x}_{n}, \textbf{x}_{m})$\big) and multiplication \big($k_{1}(\textbf{x}_{n}, \textbf{x}_{m}) \cdot k_{2}(\textbf{x}_{n}, \textbf{x}_{m})$\big) of different kernels. It is always possible to test the validity of a given kernel by demonstrating that its Gram matrix $\textbf{K}$ is positive semidefinite.
