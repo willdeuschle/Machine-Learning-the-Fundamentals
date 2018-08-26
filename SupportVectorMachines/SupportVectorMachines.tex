@@ -288,7 +288,7 @@ Remember the classification function described at the beginning of this chapter 
 \begin{equation} \label{new-classification-fn}
 	f(\textbf{x}) = \sum_{n=1}^{N} \lambda_{n} y_{n} \textbf{x}_{n}^{T} \textbf{x} + w_{0}
 \end{equation}
-Remember also that since $\boldsymbol{\lambda}$ are Lagrange multipliers, we are also bound by the constraints:
+Data points for which $f(\textbf{x}) > 0$ are classified as $+1$, while all other data points are classified as $-1$. Remember also that since $\boldsymbol{\lambda}$ are Lagrange multipliers, we are bound by the constraints:
 \begin{align*}
 	\lambda_{n} \geq 0, \quad \lambda_{n} \{y_{n} f(\textbf{x}_{n}) - 1\} = 0
 \end{align*}
@@ -305,6 +305,19 @@ At this point, you might be wondering what exactly we gained by moving to the du
 
 First, the complexity of the optimization problem we're solving moved from one that is dependent on the number of features $M$ in our particular data domain to one that is linearly dependent on the number of data points $N$ that we have. Thus, our model complexity is now independent of the dimensionality of the feature space.
 
-Second, now that our model complexity is independent of the dimensionality of the data... TODO: explain kernel functions, explain how we make predictions?
+Second, in the dual formulation, we have the opportunity to take advantage of what's known as the \textit{kernel trick} to map our data $x_{n}$ into higher dimensions without incurring performance costs for the higher dimensionality data. This works as follows: notice that during our training process and at prediction time through Equation \ref{new-classification-fn}, we have the term $\textbf{x}_{n}^{T} \textbf{x}_{m}$. Apply a basis function $\phi$ to these data points such that this term is now:
+\begin{equation} \label{kernel-fn}
+	K(\textbf{x}_{n}, \textbf{x}_{m}) = \phi(\textbf{x}_{n})^{T} \phi(\textbf{x}_{m})
+\end{equation}
+where $K(\textbf{x}_{n}, \textbf{x}_{m})$ is the kernel function. This is useful because we can now skip the step of projecting data points $\textbf{x}$ into the higher basis, instead directly computing the value of the kernel function $\phi(\textbf{x}_{n})^{T} \phi(\textbf{x}_{m})$. We can use this trick as long as $K()$ is a valid kernel, which we turn to next.
+
+\readernote{This trick can even be used to work in an infinite basis. If that is of interest, you should look into Taylor series basis expansion.}
 
 \subsection{Kernel Composition}
+Now that we've seen the usefulness of the kernel trick for working in higher dimensional spaces without incurring performance or memory overhead, it's reasonable to wonder what sort of kernels we can construct that will meet our needs of not needing to first project into a higher dimensional space.
+
+To be explicit, by `kernel' we mean a function that gives a scalar product for your desired feature space. In other words, when applied to two data points, your kernel should produce a number. Although it is beyond the scope of this textbook, the condition for a kernel $k(\cdot)$ to be valid is that the matrix of elements given by $k(\textbf{x}_{n}, \textbf{x}_{m})$ should be positive semi-definite for all choices of the data set $\{ \textbf{x}_{n} \}$.
+
+\readernote{The matrix of elements $k(\textbf{x}_{n}, \textbf{x}_{m})$ is known as the \textit{Gram matrix}, and is denoted by $\textbf{K}$.}
+
+In practice we care that we can construct valid kernels from other simpler valid kernels. To this end, there exist a set of rules that will preserve the validity of kernels through transformations. These include such things as scalar multiplication \big($c \cdot k(\textbf{x}_{n}, \textbf{x}_{m})$\big), exponentiation \big($\exp{\{k(\textbf{x}_{n}, \textbf{x}_{m})\}}$\big), and the addition \big($k_{1}(\textbf{x}_{n}, \textbf{x}_{m}) + k_{2}(\textbf{x}_{n}, \textbf{x}_{m})$\big) and multiplication \big($k_{1}(\textbf{x}_{n}, \textbf{x}_{m}) \cdot k_{2}(\textbf{x}_{n}, \textbf{x}_{m})$\big) of different kernels. It is always possible to test the validity of a given kernel by demonstrating that its Gram matrix $\textbf{K}$ is positive semi-definite.
