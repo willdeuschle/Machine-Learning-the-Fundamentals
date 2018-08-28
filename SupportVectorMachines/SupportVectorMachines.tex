@@ -81,7 +81,7 @@ which is simply the sum of the portion of $\textbf{x}$ perpendicular to $\textbf
 	\begin{align*}
 		\textbf{w}^{T}\textbf{x} = \textbf{w}^{T}\textbf{x}_{\perp} + d \frac{\textbf{w}^{T}\textbf{w}}{||\textbf{w}||}
 	\end{align*}
-	Simplifying (and note that $\textbf{w}^{T}\textbf{x}_{\perp} = -w_{0}$ from Equation \ref{hyperplane-eqn}) TODO start here:
+	Simplifying (note that $\textbf{w}^{T}\textbf{x}_{\perp} = -w_{0}$ from Equation \ref{hyperplane-eqn}):
 	\begin{align*}
 		\textbf{w}^{T}\textbf{x} =  - w_{0} + d ||\textbf{w}||
 	\end{align*}
@@ -92,11 +92,11 @@ which is simply the sum of the portion of $\textbf{x}$ perpendicular to $\textbf
 \end{derivation}
 which means that for each data point $\textbf{x}$, we now have the signed distance of that data point from the hyperplane.
 
-When we classify our data correctly, the distance $d$ will be positive for $y_{n} = 1$, and $d$ will be negative for $y_{n} = -1$. For consistency and training purposes, we can make the margin positive whenever we correctly classify data by multiplying $y_{n}$ and $d$. Then, the margin for an individual data point $\textbf{x}_{n}$ is given by:
+To classify a data point correctly, the distance $d$ should be positive for class $y = 1$, and $d$ should be negative for class $y = -1$. For training purposes, we can make the margin positive whenever we correctly classify data by multiplying $y$ and $d$. Then, the margin for an individual data point $\textbf{x}_{n}$ is given by:
 \begin{equation} \label{individual-margin}
 	\frac{y_{n}(\textbf{w}^{T}\textbf{x}_{n} + w_{0})}{||\textbf{w}||}
 \end{equation}
-The margin for an entire data set is given by the margin to the closest point in the set, given by:
+The margin for an entire data set is given by the margin to the closest point in the data set, given by:
 \begin{equation} \label{total-margin}
 	\min_{n} \frac{y_{n}(\textbf{w}^{T}\textbf{x}_{n} + w_{0})}{||\textbf{w}||}
 \end{equation}
@@ -104,7 +104,7 @@ Then, it is our goal to maximize this margin with respect to our model parameter
 \begin{equation} \label{total-maximized-margin}
 	\arg\max_{\textbf{w}, w_{0}} \big\{ \frac{1}{||\textbf{w}||} \min_{n} y_{n}(\textbf{w}^{T}\textbf{x}_{n} + w_{0}) \big\}
 \end{equation}
-Note that this is a hard problem to optimize, but we can make it more tractable by recognizing some important features of Equation \ref{total-maximized-margin}. First, rescaling $\textbf{w} \rightarrow \alpha \textbf{w}$ and $w_{0} \rightarrow \beta w_{0}$ has no impact on the relative distance of any data point $\textbf{x}_{n}$ from the hyperplane. We can use this rescaling liberty to enforce
+This is a hard problem to optimize, but we can make it more tractable by recognizing some important features of Equation \ref{total-maximized-margin}. First, rescaling $\textbf{w} \rightarrow \alpha \textbf{w}$ and $w_{0} \rightarrow \beta w_{0}$ has no impact on the relative distance of any data point $\textbf{x}_{n}$ from the hyperplane. We can use this rescaling liberty to enforce
 \begin{equation} \label{enfore-dist-to-1}
 	y_{n}(\textbf{w}^{T}\textbf{x}_{n} + w_{0}) = 1
 \end{equation}
@@ -112,36 +112,40 @@ for the data point closest to the hyperplane. Thus, all of our data points have 
 \begin{equation} \label{new-margin-constraint}
 	\forall n \, y_{n}(\textbf{w}^{T}\textbf{x}_{n} + w_{0}) \geq 1
 \end{equation}
-which is used as a constraint for the optimization problem in Equation \ref{total-maximized-margin}. Thus our optimization problem now looks like:
+which is used as a constraint in the optimization problem of Equation \ref{total-maximized-margin}. Thus our optimization problem now looks like:
 \begin{equation} \label{simplified-maximized-margin-optimization}
 	\arg\max_{\textbf{w}, w_{0}} \frac{1}{||\textbf{w}||} \quad \text{s.t.} \quad \forall n \, y_{n}(\textbf{w}^{T}\textbf{x}_{n} + w_{0}) \geq 1
 \end{equation}
-Notice also that we are maximizing $\frac{1}{||\textbf{w}||}$, which is equivalent to minimizing $||\textbf{w}||^{2}$. We will also add a constant term $\frac{1}{2}$ for convenience in optimizing later on, to give us our final optimization problem:
+Notice that maximizing $\frac{1}{||\textbf{w}||}$ is equivalent to minimizing $||\textbf{w}||^{2}$. We will also add a constant term $\frac{1}{2}$ for convenience, leaving our final optimization problem:
 \begin{equation} \label{final-simplified-maximized-margin-optimization}
 	\arg\min_{\textbf{w}, w_{0}} \frac{1}{2} ||\textbf{w}||^{2} \quad \text{s.t.} \quad \forall n \, y_{n}(\textbf{w}^{T}\textbf{x}_{n} + w_{0}) \geq 1
 \end{equation}
-Note that Equation \ref{final-simplified-maximized-margin-optimization} is now a quadratic programming problem - meaning we wish to optimize a quadratic function subject to a set of linear constraints on our parameters. We will discuss shortly how we actually optimize this function.
+Note that Equation \ref{final-simplified-maximized-margin-optimization} is now a quadratic programming problem, which means we wish to optimize a quadratic function subject to a set of linear constraints on our parameters. Arriving at this form was the motivation for the preceding mathematic manipulations. We will discuss shortly how we actually optimize this function.
 
 \subsection{What is a Support Vector}
-TODO: should this go here? move downward more?
-Up until now, we have been discussing Support Vector Machines without actually identifying what a support vector is. We now have enough information from the derivation in the previous section to define them: the support vectors in an SVM are the data points closest to the hyperplane. In the hard margin case we have constrained the closest data points to being a distance of 1 from the hyperplane, so the support vectors are all $d=1$ from the hyperplane.
+Up until now, we have discussed Support Vector Machines without identifying what a support vector is. We now have enough information from the previous section to define them.
+
+\begin{definition}{Support Vector}{support-vector}
+The support vectors in an SVM are the data points closest to the hyperplane.
+\end{definition}
+
+In the hard margin case we have constrained the closest data points to being a distance of 1 from the hyperplane, so the support vectors are all $d=1$ from the hyperplane.
 
 \readernote{After we have optimized an SVM in the hard margin case, we must have at least two support vectors with a distance of 1 from the hyperplane.}
 
 \subsection{Hard Margin SVM Example}
-.. TODO: I think just draw one graph of data points with two classes and then the line that will be separating them?
+... TODO: I think just draw one graph of data points with two classes and then the line that will be separating them?
 
 \section{Soft Margin Classifier}
-Thus far, we've been operating under the assumption that our data is linearly separable in transformed feature space, which allowed us some nice guarantees in the derivations of the previous section. For example, given that our data was linearly separable, we could guarantee that every data point would be on the correct side of the hyperplane, which was part of what allowed us to enforce the constraint that $d=1$ for the points closest to the hyperplane. We now seek to generalize the work of the previous section to situations where our data is not so nice.
+Thus far, we've been operating under the assumption that our data is linearly separable in feature space, which afforded us several convenient guarantees in the derivations of the previous section. For example, given that our data was linearly separable, we could guarantee that every data point would be on the correct side of the hyperplane, which was part of what allowed us to enforce the constraint that $d=1$ for the points closest to the hyperplane. We now seek to generalize the work of the previous section to situations where our data is not so nice.
 
 \subsection{Why the Soft Margin?}
-What if our data is not linearly separable in transformed feature space? For a real, complex problem domain, it's highly unlikely that it would be. However, as of now our SVM formulation would be useless with non-linearly separable data. That is why we need the soft margin SVM.
+What if our data is not linearly separable in transformed feature space? For a real, complex problem domain, it's highly unlikely that it would be. Unfortunately, our current hard margin SVM formulation would be useless with non-linearly separable data. That is why we need the soft margin SVM.
 
-At a high level, the soft margin SVM allows for some of our data points to be closer to or even on the incorrect side of the hyperplane. This is highly necessary if our data set is not linearly separable. It is also quite logical. Examining Figure (TODO: ref figure here), we see that we have a single outlier data point. We can still create a good model by just allowing this single data point to be close to the hyperplane. That is what the soft margin formulation will allow for.
-TODO: put that figure ref'd above right here.
+At a high level, the soft margin SVM allows for some of our data points to be closer to or even on the incorrect side of the hyperplane. This is necessary if our data set is not linearly separable, and it is also quite intuitive. Examining Figure (TODO: ref figure here), we see that we have a single outlier data point. We can still create a good model by just allowing this single data point to be close to the hyperplane. That is what the soft margin formulation will allow for.
 
 \subsection{Updated Optimization Problem for Soft Margins}
-To enable the soft margin formulation, we introduce what are known as \textit{slack variables} denoted $\xi_{n} \geq 0$, which simply relax the constraints we imposed in the hard margin formulation. There is a slack variable $\xi_{n} \geq 0$ for every variable $x_{n}$, and they take the following values:
+To enable the soft margin formulation, we introduce what are known as \textit{slack variables} denoted $\xi_{n} \geq 0$, which simply relax the constraint from Equation \ref{new-margin-constraint} that we imposed in the hard margin formulation. There is a slack variable $\xi_{n} \geq 0$ for every data point $\textbf{x}_{n}$, and they take the following values according to how we classify $\textbf{x}_{n}$:
 \begin{equation} \label{slack-variable-values}
 	\xi_{n} = \begin{cases}
 	 	= 0 & \text{if correctly classified} \\
@@ -149,16 +153,16 @@ To enable the soft margin formulation, we introduce what are known as \textit{sl
 		> 1 & \text{if incorrectly classified} \\
 	\end{cases}
 \end{equation}
-These slack variable penalize data points within the margin defined by the hyperplane, but they don't forbid us from having data points close to the hyperplane if it produces the best model. We now reformulate our optimization problem as:
+These slack variable penalize data points on the wrong side of the margin defined by the hyperplane, but they don't forbid us from allowing data points to be on the wrong side if it produces the best model. We now reformulate our optimization problem as:
 \begin{equation} \label{soft-margin-optimization-problem}
 	\arg\min_{\textbf{w}, w_{0}} \frac{1}{2} ||\textbf{w}||^{2} + C \sum_{n=1}^{N} \xi_{n} \quad \text{s.t.} \quad \forall n \, y_{n}(\textbf{w}^{T}\textbf{x}_{n} + w_{0}) \geq 1 - \xi_{n}, \quad \xi_{n} \geq 0
 \end{equation}
-TODO: make the argmax thing look better with the variables acutally under the `argmax' \newline \newline
-where $C$ is a regularization parameter that determines how heavily we penalize violations of the hard margin constraints. A large value of $C$ penalizes violation of the hard margin constraints, which means our model will follow the data closely have small regularization. A small value of $C$ won't heavily penalize having data points inside the margin region, relaxing the constraint and allowing our model to somewhat disregard more of the data. This boosts regularization.
+where $C$ is a regularization parameter that determines how heavily we penalize violations of the hard margin constraints. A large $C$ penalizes violation of the hard margin constraints more heavily, which means our model will follow the data closely and have little regularization. A small $C$ won't heavily penalize having data points inside the margin region, relaxing the constraint and allowing our model to somewhat disregard more of the data. This means more regularization.
 
 \readernote{Unlike most regularization parameters we've seen thus far, $C$ increases regularization as it gets smaller.}
 
 \subsection{Soft Margin Support Vectors}
+TODO pickup here
 Under the the hard margin formulation, the support vectors were those data points exactly $d=1$ away from the hyperplane, and they were also guaranteed to be the points closest to the hyperplane. Under the soft margin formulation, we no longer have this guarantee since we explicity relaxed it in the name of creating better, more generalizable models.
 
 The support vectors for the soft margin case are those which fall within the margin region (including the boundary) or those that are misclassified. This corresponds directly to the value of the slack variable $\xi_{n}$ defined in Equation \ref{slack-variable-values}: data points for which $\xi_{n} > 0$ are the support vectors. Note that these support vectors are either correctly classified but within/on the margin ($\xi_{n} \in [0,1]$) or incorrectly classified ($\xi_{n} > 1$). We can visualize this in Figure (TODO: ref figure with the tube here).
@@ -239,7 +243,7 @@ Finally, note that when you are optimizing a function under multiple constraints
 \end{example}
 
 \subsection{Deriving the Dual Formulation}
-Now that we understand Lagrange multipliers and how we can use them for constrained optimization, we can get back to the hard-margin SVM optimization problem:
+Now that we understand Lagrange multipliers and how we can use them for constrained optimization, we can get back to the hard margin SVM optimization problem:
 \begin{equation} \label{original-optim-fn}
 	\arg\min_{\textbf{w}, w_{0}} \frac{1}{2} ||\textbf{w}||^{2} \quad \text{s.t.} \quad \forall n \, y_{n}(\textbf{w}^{T}\textbf{x}_{n} + w_{0}) \geq 1
 \end{equation}
@@ -300,7 +304,7 @@ The rest of the data points, for which $\lambda_{n} > 0$, are known as \textbf{s
 
 This is a major takeaway for the usefulness of SVMs: once we've trained our model, we can discard much of our data for making predictions. We only need to keep the support vectors to make these predictions. This also illustrates why we need to solve for the values of $\boldsymbol{\lambda}$: those values dictate which data points are the support vectors for our model.
 
-Finally, note that the extension of this solution from the hard-margin scenario to the soft-margin scenario is straightforward. In fact, the Lagrangian function ends up being identical with the addition of a few extra constraints.
+Finally, note that the extension of this solution from the hard margin scenario to the soft-margin scenario is straightforward. In fact, the Lagrangian function ends up being identical with the addition of a few extra constraints.
 
 \subsection{Why is the Dual Formulation Necessary?}
 At this point, you might be wondering what exactly we gained by moving to the dual formulation of this problem.
