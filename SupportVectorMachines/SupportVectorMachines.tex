@@ -102,7 +102,7 @@ The margin for an entire data set is given by the margin to the closest point in
 \end{equation}
 Then, it is our goal to maximize this margin with respect to our model parameters $\textbf{w}$ and $w_{0}$. This is given by:
 \begin{equation} \label{total-maximized-margin}
-	\arg\max_{\textbf{w}, w_{0}} \big\{ \frac{1}{||\textbf{w}||} \min_{n} y_{n}(\textbf{w}^{T}\textbf{x}_{n} + w_{0}) \big\}
+	\underset{\textbf{w}, w_{0}}{\arg\max} \big\{ \frac{1}{||\textbf{w}||} \min_{n} y_{n}(\textbf{w}^{T}\textbf{x}_{n} + w_{0}) \big\}
 \end{equation}
 This is a hard problem to optimize, but we can make it more tractable by recognizing some important features of Equation \ref{total-maximized-margin}. First, rescaling $\textbf{w} \rightarrow \alpha \textbf{w}$ and $w_{0} \rightarrow \beta w_{0}$ has no impact on the relative distance of any data point $\textbf{x}_{n}$ from the hyperplane. We can use this rescaling liberty to enforce
 \begin{equation} \label{enfore-dist-to-1}
@@ -114,11 +114,11 @@ for the data point closest to the hyperplane. Thus, all of our data points have 
 \end{equation}
 which is used as a constraint in the optimization problem of Equation \ref{total-maximized-margin}. Thus our optimization problem now looks like:
 \begin{equation} \label{simplified-maximized-margin-optimization}
-	\arg\max_{\textbf{w}, w_{0}} \frac{1}{||\textbf{w}||} \quad \text{s.t.} \quad \forall n \, y_{n}(\textbf{w}^{T}\textbf{x}_{n} + w_{0}) \geq 1
+	\underset{\textbf{w}, w_{0}}{\arg\max} \frac{1}{||\textbf{w}||} \quad \text{s.t.} \quad \forall n \, y_{n}(\textbf{w}^{T}\textbf{x}_{n} + w_{0}) \geq 1
 \end{equation}
 Notice that maximizing $\frac{1}{||\textbf{w}||}$ is equivalent to minimizing $||\textbf{w}||^{2}$. We will also add a constant term $\frac{1}{2}$ for convenience, leaving our final optimization problem:
 \begin{equation} \label{final-simplified-maximized-margin-optimization}
-	\arg\min_{\textbf{w}, w_{0}} \frac{1}{2} ||\textbf{w}||^{2} \quad \text{s.t.} \quad \forall n \, y_{n}(\textbf{w}^{T}\textbf{x}_{n} + w_{0}) \geq 1
+	\underset{\textbf{w}, w_{0}}{\arg\min} \frac{1}{2} ||\textbf{w}||^{2} \quad \text{s.t.} \quad \forall n \, y_{n}(\textbf{w}^{T}\textbf{x}_{n} + w_{0}) \geq 1
 \end{equation}
 Note that Equation \ref{final-simplified-maximized-margin-optimization} is now a quadratic programming problem, which means we wish to optimize a quadratic function subject to a set of linear constraints on our parameters. Arriving at this form was the motivation for the preceding mathematic manipulations. We will discuss shortly how we actually optimize this function.
 
@@ -155,7 +155,7 @@ To enable the soft margin formulation, we introduce what are known as \textit{sl
 \end{equation}
 These slack variable penalize data points on the wrong side of the margin defined by the hyperplane, but they don't forbid us from allowing data points to be on the wrong side if it produces the best model. We now reformulate our optimization problem as:
 \begin{equation} \label{soft-margin-optimization-problem}
-	\arg\min_{\textbf{w}, w_{0}} \frac{1}{2} ||\textbf{w}||^{2} + C \sum_{n=1}^{N} \xi_{n} \quad \text{s.t.} \quad \forall n \, y_{n}(\textbf{w}^{T}\textbf{x}_{n} + w_{0}) \geq 1 - \xi_{n}, \quad \xi_{n} \geq 0
+	\underset{\textbf{w}, w_{0}}{\arg\min} \frac{1}{2} ||\textbf{w}||^{2} + C \sum_{n=1}^{N} \xi_{n} \quad \text{s.t.} \quad \forall n \, y_{n}(\textbf{w}^{T}\textbf{x}_{n} + w_{0}) \geq 1 - \xi_{n}, \quad \xi_{n} \geq 0
 \end{equation}
 where $C$ is a regularization parameter that determines how heavily we penalize violations of the hard margin constraints. A large $C$ penalizes violation of the hard margin constraints more heavily, which means our model will follow the data closely and have little regularization. A small $C$ won't heavily penalize having data points inside the margin region, relaxing the constraint and allowing our model to somewhat disregard more of the data. This means more regularization.
 
@@ -240,7 +240,7 @@ Finally, note that when you are optimizing a function under many constraints, yo
 \subsection{Deriving the Dual Formulation}
 Now that we understand Lagrange multipliers and how we can use them for constrained optimization, we can get back to the hard margin SVM optimization problem:
 \begin{equation} \label{original-optim-fn}
-	\arg\min_{\textbf{w}, w_{0}} \frac{1}{2} ||\textbf{w}||^{2} \quad \text{s.t.} \quad \forall n \, y_{n}(\textbf{w}^{T}\textbf{x}_{n} + w_{0}) \geq 1
+	\underset{\textbf{w}, w_{0}}{\arg\min} \frac{1}{2} ||\textbf{w}||^{2} \quad \text{s.t.} \quad \forall n \, y_{n}(\textbf{w}^{T}\textbf{x}_{n} + w_{0}) \geq 1
 \end{equation}
 To satisfy these $N$ constraints, we introduce $N$ Lagrange multipliers $\lambda_{0}, ..., \lambda_{N-1} \geq 0$. We then have our Lagrangian function:
 \begin{equation} \label{lagrange-equation}
@@ -248,14 +248,14 @@ To satisfy these $N$ constraints, we introduce $N$ Lagrange multipliers $\lambda
 \end{equation}
 where $\boldsymbol{\lambda} = \lambda_{0}, ..., \lambda_{N-1}$. Using this Lagrangian function, we allow ourselves to switch from solving Equation \ref{original-optim-fn} to instead solving:
 \begin{equation} \label{new-optim-fn}
-	\arg\min_{\textbf{w}, w_{0}} \max_{\boldsymbol{\lambda} \geq 0} L(\textbf{w}, w_{0}, \boldsymbol{\lambda})
+	\underset{\textbf{w}, w_{0}}{\arg\min} \max_{\boldsymbol{\lambda} \geq 0} L(\textbf{w}, w_{0}, \boldsymbol{\lambda})
 \end{equation}
 
-\readernote{The `$\arg\min_{\textbf{w}, w_{0}} \max_{\boldsymbol{\lambda} \geq 0}$' in Equation \ref{new-optim-fn} may be initially confusing. We introduce the maximum because the values of $\boldsymbol{\lambda}$ are free and should be set such that $L(\textbf{w}, w_{0}, \boldsymbol{\lambda})$ is as large as possible prior to minimizing with respect to $\textbf{w}, w_{0}$.}
+\readernote{The `$\underset{\textbf{w}, w_{0}}{\arg\min} \, \underset{\boldsymbol{\lambda} \geq 0}{\max}$' in Equation \ref{new-optim-fn} may be initially confusing. We introduce the maximum because the values of $\boldsymbol{\lambda}$ are free and should be set such that $L(\textbf{w}, w_{0}, \boldsymbol{\lambda})$ is as large as possible prior to minimizing with respect to $\textbf{w}, w_{0}$.}
 
 We now wish to convert the objective in Equation \ref{new-optim-fn} to a dual objective. Under the sufficient conditions of strong duality which hold for this problem but whose explanation is beyond the scope of this textbook, we can reformulate the objective as:
 \begin{equation} \label{dual-objective}
-	\max_{\boldsymbol{\lambda} \geq 0} \arg\min_{\textbf{w}, w_{0}} L(\textbf{w}, w_{0}, \boldsymbol{\lambda})
+	\max_{\boldsymbol{\lambda} \geq 0} \underset{\textbf{w}, w_{0}}{\arg\min} L(\textbf{w}, w_{0}, \boldsymbol{\lambda})
 \end{equation}
 At this point, we can solve for $\textbf{w}, w_{0}$. Taking the gradient, setting equal to 0, and solving for $\textbf{w}$:
 \begin{align*}
