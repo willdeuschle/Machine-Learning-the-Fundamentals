@@ -12,9 +12,14 @@ Margin is the distance of data points from the separating hyperplane of an SVM m
 
 A larger margin tends to mean that our model will generalize better, since it provides more wiggle room to correctly classify unseen data.
 
-TODO: image of a hyperplane in 2d between different classes of points
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\paperwidth]{../SupportVectorMachines/fig/2d-hyperplane.png}
+    \caption{Hyperplane with margin between different classes.}
+    \label{fig:2d-hyperplane}
+\end{figure}
 
-This idea of margin is quite intuitive for humans. If you were presented with graph (TODO reference graph here) and were asked to separate the two classes, you would likely draw the line that keeps data points as far from it as possible. SVMs and other margin-based methods will attempt to algorithmically recreate this intuition.
+This idea of margin is quite intuitive for humans. If you were presented with Figure \ref{fig:2d-hyperplane} and were asked to separate the two classes, you would likely draw the line that keeps data points as far from it as possible. SVMs and other margin-based methods will attempt to algorithmically recreate this intuition.
 
 \subsection{Max Margin Methods}
 SVMs are a specific instance of a broader class of model known as \textit{max margin methods}. Their name describes them well: they deal with creating a maximum margin between training data and a model, with the idea that this leads to model generalizability. 
@@ -65,9 +70,15 @@ This is not an intuitive result, but we can increase clarity through a simple de
 	\begin{equation} \label{hyperplane-eqn}
 		\textbf{w}^{T}(\textbf{x}_{1} - \textbf{x}_{2}) = \textbf{w}^{T}\textbf{x}_{1} - \textbf{w}^{T}\textbf{x}_{2} = -w_{0} - (-w_{0}) = 0
 	\end{equation}
-	which means that $\textbf{w}$ is orthogonal to our hyperplane.
+	which means that $\textbf{w}$ is orthogonal to our hyperplane. We can visualize this in Figure \ref{fig:orthogonal-w}.
 \end{derivation}
-TODO: provide image here of data points, our hyperplane, and the orthogonal \textbf{w}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\paperwidth]{../SupportVectorMachines/fig/orthogonal-w.png}
+    \caption{Our weight vector \textbf{w} is orthogonal to the separating hyperplane.}
+    \label{fig:orthogonal-w}
+\end{figure}
 
 Remember that we're trying to maximize the margin between our training data and the hyperplane. The fact that $\textbf{w}$ is orthogonal to our hyperplane will help with this.
 
@@ -129,12 +140,17 @@ Up until now, we have discussed Support Vector Machines without identifying what
 The support vectors in an SVM are the data points closest to the hyperplane.
 \end{definition}
 
-In the hard margin case we have constrained the closest data points to being a distance of 1 from the hyperplane, so the support vectors are all $d=1$ from the hyperplane.
+In the hard margin case we have constrained the closest data points to being a distance of 1 from the hyperplane, so the support vectors are all $d=1$ from the hyperplane. Figure \ref{fig:hard-margin-svm} shows a hard margin SVM solution with the corresponding support vectors.
 
 \readernote{After we have optimized an SVM in the hard margin case, we must have at least two support vectors with a distance of 1 from the hyperplane.}
 
-\subsection{Hard Margin SVM Example}
-... TODO: I think just draw one graph of data points with two classes and then the line that will be separating them?
+\begin{figure}
+    \centering
+    \textbf{Hard Margin SVM Example}\par\medskip
+    \includegraphics[width=0.5\paperwidth]{../SupportVectorMachines/fig/hard-margin-svm.png}
+    \caption{Example of the resulting hyperplane for a hard margin SVM. The filled in data points are support vectors.}
+    \label{fig:hard-margin-svm}
+\end{figure}
 
 \section{Soft Margin Classifier}
 Thus far, we've been operating under the assumption that our data is linearly separable in feature space, which afforded us several convenient guarantees in the derivations of the previous section. For example, given that our data was linearly separable, we could guarantee that every data point would be on the correct side of the hyperplane, which was part of what allowed us to enforce the constraint that $d=1$ for the points closest to the hyperplane. We now seek to generalize the work of the previous section to situations where our data is not so nice.
@@ -142,7 +158,14 @@ Thus far, we've been operating under the assumption that our data is linearly se
 \subsection{Why the Soft Margin?}
 What if our data is not linearly separable in transformed feature space? For a real, complex problem domain, it's highly unlikely that it would be. Unfortunately, our current hard margin SVM formulation would be useless with non-linearly separable data. That is why we need the soft margin SVM.
 
-At a high level, the soft margin SVM allows for some of our data points to be closer to or even on the incorrect side of the hyperplane. This is necessary if our data set is not linearly separable, and it is also quite intuitive. Examining Figure (TODO: ref figure here), we see that we have a single outlier data point. We can still create a good model by just allowing this single data point to be close to the hyperplane. That is what the soft margin formulation will allow for.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\paperwidth]{../SupportVectorMachines/fig/outlier-data-pt.png}
+    \caption{An outlier can make the hard margin formulation impractical.}
+    \label{fig:outlier-data-pt}
+\end{figure}
+
+At a high level, the soft margin SVM allows for some of our data points to be closer to or even on the incorrect side of the hyperplane. This is necessary if our data set is not linearly separable, and it is also quite intuitive. Examining Figure \ref{fig:outlier-data-pt}, we see that we have a single outlier data point. We can still create a good model by just allowing this single data point to be close to the hyperplane. That is what the soft margin formulation will allow for.
 
 \subsection{Updated Optimization Problem for Soft Margins}
 To enable the soft margin formulation, we introduce what are known as \textit{slack variables} denoted $\xi_{n} \geq 0$, which simply relax the constraint from Equation \ref{new-margin-constraint} that we imposed in the hard margin formulation. There is a slack variable $\xi_{n} \geq 0$ for every data point $\textbf{x}_{n}$, and they take the following values according to how we classify $\textbf{x}_{n}$:
@@ -164,14 +187,17 @@ where $C$ is a regularization parameter that determines how heavily we penalize 
 \subsection{Soft Margin Support Vectors}
 Under the the hard margin formulation, the support vectors were those data points exactly $d=1$ from the hyperplane, and they were also guaranteed to be the points closest to the hyperplane. Under the soft margin formulation, we no longer have this guarantee since we explicity relaxed it in the name of creating better, more generalizable models.
 
-The support vectors for the soft margin case are determined by the value of the slack variable $\xi_{n}$ defined in Equation \ref{slack-variable-values}: data points for which $\xi_{n} > 0$ are the support vectors. Note that these support vectors are either correctly classified but within/on the margin ($\xi_{n} \in [0,1]$) or incorrectly classified ($\xi_{n} > 1$). We can visualize this in Figure (TODO: ref figure with the tube here).
+The support vectors for the soft margin case are determined by the value of the slack variable $\xi_{n}$ defined in Equation \ref{slack-variable-values}: data points for which $\xi_{n} > 0$ are the support vectors. Note that these support vectors are either correctly classified but within/on the margin ($\xi_{n} \in [0,1]$) or incorrectly classified ($\xi_{n} > 1$). We can visualize this in Figure \ref{fig:soft-margin-svm}.
 
 \readernote{Data points for which $\xi_{n} = 0$ are on the margin and are still considered support vectors.}
 
-TODO: draw the soft margin tube so people can see what the support vectors are
-
-\subsection{Soft Margin SVM Example}
-.. TODO: I think just draw one graph of data points with two classes and then the line that will be separating them but now with data points that have the slack variable also defined?
+\begin{figure}
+    \centering
+    \textbf{Soft Margin SVM Example}\par\medskip
+    \includegraphics[width=0.5\paperwidth]{../SupportVectorMachines/fig/soft-margin-svm.png}
+    \caption{Example of the resulting hyperplane for a soft margin SVM. The filled in data points are support vectors.}
+    \label{fig:soft-margin-svm}
+\end{figure}
 
 \section{Conversion to Dual Form}
 Now that we have the formulation of the optimization problem for SVMs, we need to discuss how we actually go about optimizing to produce a model solution. This will involve converting to a \textit{dual form} of our problem. We will do this in the hard margin case for notational simplicity, but our solution will apply to the soft margin formulation as well.
@@ -298,7 +324,7 @@ Data points for which $f(\textbf{x}) > 0$ are classified as $1$, while all other
 \end{align*}
 which means that for every data point summed in the Equation \ref{new-classification-fn}, we either have that $\lambda_{n} = 0$ or $y_{n} f(\textbf{x}_{n}) = 1$. Any data points where $\lambda_{n} = 0$ don't appear in the summation and thus don't have any impact on the prediction.
 
-The rest of the data points, for which $\lambda_{n} > 0$, are known as \textbf{support vectors}, and because we have that $y_{n} f(\textbf{x}_{n}) = 1$, these are the data points that lie on the margin of the hyperplane in Figure TODO: ref figure here.
+The rest of the data points, for which $\lambda_{n} > 0$, are known as \textbf{support vectors}, and because we have that $y_{n} f(\textbf{x}_{n}) = 1$, these are the data points that lie on the margin of the hyperplane in Figure \ref{fig:soft-margin-svm}.
 
 This is a major takeaway for the usefulness of SVMs: once we've trained our model, we can discard most of our data. We only need to keep the support vectors to make predictions. This also illustrates why we need to solve for the values of $\boldsymbol{\lambda}$: those values dictate which data points are the support vectors for our model.
 
