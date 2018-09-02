@@ -284,41 +284,44 @@ We're left with the result of Equation \ref{plugged-in-lagrangian}, which is ano
 Why do we wish to solve for the values of $\boldsymbol{\lambda}$ at all? To see this, we need to understand how to make predictions on new data points.
 
 \subsection{Making Predictions}
-TODO: pickup here
-Remember the classification function described at the beginning of this chapter by Equation \ref{classification-fn}. When classifying new data points, we look at the sign produced by that function, as we described above. Now that we've solved for \textbf{w}, we can rewrite this function as:
+Recall the classification function described by Equation \ref{classification-fn} at the beginning of this chapter:
+\begin{equation*}
+f(\textbf{x}) = \textbf{w}^{T}\phi(\textbf{x}) + w_{0}
+\end{equation*}
+We classifying new data points by looking at the sign produced by this function. Now that we've solved for \textbf{w}, we can rewrite this function as:
 \begin{equation} \label{new-classification-fn}
-	f(\textbf{x}) = \sum_{n=1}^{N} \lambda_{n} y_{n} \textbf{x}_{n}^{T} \textbf{x} + w_{0}
+	f(\textbf{x}) = \sum_{n=1}^{N} \lambda_{n} y_{n} \phi(\textbf{x}_{n})^{T} \phi(\textbf{x}_{n}) + w_{0}
 \end{equation}
 Data points for which $f(\textbf{x}) > 0$ are classified as $1$, while all other data points are classified as $-1$. Remember also that since $\boldsymbol{\lambda}$ are Lagrange multipliers, we are bound by the constraints:
 \begin{align*}
 	\lambda_{n} \geq 0, \quad \lambda_{n} \{y_{n} f(\textbf{x}_{n}) - 1\} = 0
 \end{align*}
-which means that for every data point summed in the Equation \ref{new-classification-fn}, we either have that $\lambda_{n} = 0$ or $y_{n} f(\textbf{x}_{n}) = 1$. Any data points where $\lambda_{n} = 0$ don't appear in the summation in Equation \ref{new-classification-fn}, and thus don't have any impact on the prediction that is made for this new data point. \newline
+which means that for every data point summed in the Equation \ref{new-classification-fn}, we either have that $\lambda_{n} = 0$ or $y_{n} f(\textbf{x}_{n}) = 1$. Any data points where $\lambda_{n} = 0$ don't appear in the summation and thus don't have any impact on the prediction.
 
-The rest of the data points, for which $\lambda_{n} > 0$, are known as \textbf{support vectors}, and because we have that $y_{n} f(\textbf{x}_{n}) = 1$ for these data points, these are the points that lie on the max margin hyperplane in Figure TODO: ref figure here.
+The rest of the data points, for which $\lambda_{n} > 0$, are known as \textbf{support vectors}, and because we have that $y_{n} f(\textbf{x}_{n}) = 1$, these are the data points that lie on the margin of the hyperplane in Figure TODO: ref figure here.
 
-This is a major takeaway for the usefulness of SVMs: once we've trained our model, we can discard much of our data for making predictions. We only need to keep the support vectors to make these predictions. This also illustrates why we need to solve for the values of $\boldsymbol{\lambda}$: those values dictate which data points are the support vectors for our model.
+This is a major takeaway for the usefulness of SVMs: once we've trained our model, we can discard most of our data. We only need to keep the support vectors to make predictions. This also illustrates why we need to solve for the values of $\boldsymbol{\lambda}$: those values dictate which data points are the support vectors for our model.
 
-Finally, note that the extension of this solution from the hard margin scenario to the soft-margin scenario is straightforward. In fact, the Lagrangian function ends up being identical with the addition of a few extra constraints.
+Finally, note that the extension of this solution from the hard margin to the soft margin case is straightforward. In fact, the Lagrangian function ends up being identical and we only have a few extra constraints.
 
 \subsection{Why is the Dual Formulation Necessary?}
 At this point, you might be wondering what exactly we gained by moving to the dual formulation of this problem.
 
-First, the complexity of the optimization problem we're solving moved from one that is dependent on the number of features $M$ in our particular data domain to one that is linearly dependent on the number of data points $N$ that we have. Thus, our model complexity is now independent of the dimensionality of the feature space.
+First, the complexity of the optimization problem we're solving changed from one that is dependent on the number of features $M$ in our particular data domain to one that is linearly dependent on the number of data points $N$. Thus, our model complexity is now independent of the dimensionality of the feature space.
 
-Second, in the dual formulation, we have the opportunity to take advantage of what's known as the \textit{kernel trick} to map our data $x_{n}$ into higher dimensions without incurring performance costs for the higher dimensionality data. This works as follows: notice that during our training process and at prediction time through Equation \ref{new-classification-fn}, we have the term $\textbf{x}_{n}^{T} \textbf{x}_{m}$. Apply a basis function $\phi$ to these data points such that this term is now:
+Second, in the dual formulation, we have the opportunity to take advantage of what's known as the \textit{kernel trick} to map our data $\textbf{x}_{n}$ into higher dimensions without incurring performance costs. This works as follows: notice that during our training process and at prediction time through Equation \ref{new-classification-fn}, we have the term $\phi(\textbf{x}_{n})^{T} \phi(\textbf{x}_{m})$. We rewrite this as follows:
 \begin{equation} \label{kernel-fn}
-	K(\textbf{x}_{n}, \textbf{x}_{m}) = \phi(\textbf{x}_{n})^{T} \phi(\textbf{x}_{m})
+	k(\textbf{x}_{n}, \textbf{x}_{m}) = \phi(\textbf{x}_{n})^{T} \phi(\textbf{x}_{m})
 \end{equation}
-where $K(\textbf{x}_{n}, \textbf{x}_{m})$ is the kernel function. This is useful because we can now skip the step of projecting data points $\textbf{x}$ into the higher basis, instead directly computing the value of the kernel function $\phi(\textbf{x}_{n})^{T} \phi(\textbf{x}_{m})$. We can use this trick as long as $K()$ is a valid kernel, which we turn to next.
+where $k(\textbf{x}_{n}, \textbf{x}_{m})$ is known as the kernel function. Under certain conditions, we can skip the step of projecting data points $\textbf{x}_{n}$ into the larger basis defined by the transformation $\phi$, instead directly computing the value of the kernel function. We can use this trick as long as $k()$ is a valid kernel, which we turn to next.
 
 \readernote{This trick can even be used to work in an infinite basis. If that is of interest, you should look into Taylor series basis expansion.}
 
 \subsection{Kernel Composition}
-Now that we've seen the usefulness of the kernel trick for working in higher dimensional spaces without incurring performance or memory overhead, it's reasonable to wonder what sort of kernels we can construct that will meet our needs of not needing to first project into a higher dimensional space.
+Now that we've seen the usefulness of the kernel trick for working in higher dimensional spaces without incurring performance costs or memory overhead, it's reasonable to wonder what sort of valid kernels we can construct.
 
-To be explicit, by `kernel' we mean a function that gives a scalar product for your desired feature space. In other words, when applied to two data points, your kernel should produce a number. Although it is beyond the scope of this textbook, the condition for a kernel $k(\cdot)$ to be valid is that the matrix of elements given by $k(\textbf{x}_{n}, \textbf{x}_{m})$ should be positive semidefinite for all choices of the data set $\{ \textbf{x}_{n} \}$.
+To be explicit, by `kernel' we mean a function that produces a scalar product from two vectors in your desired feature space. In other words, when applied to two data points, your kernel should produce a number. Although it is beyond the scope of this textbook, the condition for a kernel $k(\cdot)$ to be valid is that the matrix of elements given by $k(\textbf{x}_{n}, \textbf{x}_{m})$ should be positive semidefinite for all choices of the data set $\{ \textbf{x}_{n} \}$.
 
 \readernote{The matrix of elements $k(\textbf{x}_{n}, \textbf{x}_{m})$ is known as the \textit{Gram matrix}, and is denoted by $\textbf{K}$.}
 
-In practice we care that we can construct valid kernels from other simpler valid kernels. To this end, there exist a set of rules that will preserve the validity of kernels through transformations. These include such things as scalar multiplication \big($c \cdot k(\textbf{x}_{n}, \textbf{x}_{m})$\big), exponentiation \big($\exp{\{k(\textbf{x}_{n}, \textbf{x}_{m})\}}$\big), and the addition \big($k_{1}(\textbf{x}_{n}, \textbf{x}_{m}) + k_{2}(\textbf{x}_{n}, \textbf{x}_{m})$\big) and multiplication \big($k_{1}(\textbf{x}_{n}, \textbf{x}_{m}) \cdot k_{2}(\textbf{x}_{n}, \textbf{x}_{m})$\big) of different kernels. It is always possible to test the validity of a given kernel by demonstrating that its Gram matrix $\textbf{K}$ is positive semidefinite.
+In practice we care that we can compose valid kernels from smaller valid kernels. To this end, there exists a set of rules that will preserve the validity of kernels through transformations. These include such things as scalar multiplication \big($c \cdot k(\textbf{x}_{n}, \textbf{x}_{m})$\big), exponentiation \big($\exp{\{k(\textbf{x}_{n}, \textbf{x}_{m})\}}$\big), and addition \big($k_{1}(\textbf{x}_{n}, \textbf{x}_{m}) + k_{2}(\textbf{x}_{n}, \textbf{x}_{m})$\big) and multiplication \big($k_{1}(\textbf{x}_{n}, \textbf{x}_{m}) \cdot k_{2}(\textbf{x}_{n}, \textbf{x}_{m})$\big) of different kernels. It is always possible to test the validity of a given kernel by demonstrating that its Gram matrix $\textbf{K}$ is positive semidefinite.
