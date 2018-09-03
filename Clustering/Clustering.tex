@@ -1,1 +1,39 @@
 \chapter{Clustering}
+In this chapter, we will explore a technique known as clustering. This represents our first foray into unsupervised machine learning techniques. Unlike the previous four chapters, where we explored techniques that assumed a dataset of inputs and targets, with the goal of eventually making predictions over unseen data, we now don't have an explicit target in mind. These techniques are instead motivated by the goal of uncovering structure in our data. Identifying clusters of similar data points is a useful and ubiquitous unsupervised technique.
+
+\section{Motivation}
+The goals of an unsupervised technique like clustering can be very broad. We don't have a specific task in mind; rather, we are trying to uncover more information about a potentially opaque data set. There are a variety of clustering algorithms that we have at our disposal. That being said, one thing that will remain relatively constant between these different methods is that we need to decide on some measure of \textit{distance} between data points.
+
+The concept of distance is simply the idea that two data points should have some measure of how `different' they are from each other. Then, we can use these measurements to determine which data points are relatively the most similar, and thus should be clustered together. One common example of distance that will look familiar is known as L2 distance, which for two data points $\textbf{x}$ and $\textbf{x}'$ is given by:
+\begin{equation} \label{l2-distance}
+	|| \textbf{x} - \textbf{x'} ||_{L2} = \sqrt{\sum_{d=1}^{D} (\textbf{x}_{d} - \textbf{x'}_{d})^{2}}
+\end{equation}
+where $D$ is the dimensionality of our data. Notice the similarity of this expression to L2 regularization.
+
+This is just one example of distance for data points that live in a $D$-dimensional Euclidean space. There are other measurements of distance we could have chosen, and for some types of data (such as discrete features), we would need to select a different distance metric. Furthermore, the metrics we choose to use will have an impact on the final results of our clustering.
+
+\begin{mlcube}{Clustering}
+Clustering algorithms can operate over inputs in both a continuous and discrete feature space, are fully unsupervised, and for the techniques we will explore in this chapter, are non-probabilistic.
+\begin{center}
+    \begin{tabular}{c|c|c}
+    \textit{\textbf{Domain}} & \textit{\textbf{Training}} & \textit{\textbf{Probabilistic}} \\
+    \hline
+    Continuous/Discrete & Unsupervised & No \\
+    \end{tabular}
+\end{center}
+\end{mlcube}
+
+\subsection{Applications}
+There are many reasons why we might want to be able to separate our data based on similarity. For organizational purposes, it's convenient to have different classes of data. It might make it easier for a human being to sift through a large trove of data if it's first separated based on similarity. It might also be an important preprocessing step for other data science techniques; for example, we may be able to create additional features for a supervised learning techniques by clustering our input data. It might be useful to separate our data so that we can get some idea of what features make the different data points distinct from one another. It might even give us some idea of how many distinct types of data we have in our data set. Here are a few specific examples of use cases for clustering:
+
+\begin{enumerate}
+    \item Determining the number of distinct phenotypes in a population.
+    \item Organizing images into buckets according to the types of scenes present.
+    \item Grouping financial data to be used as a feature for anticipating extreme market events.
+    \item Identifying the attributes that most heavily distinguish different DNA sequences.
+\end{enumerate}
+
+As we mentioned above, there are different methods available for performing clustering. In this chapter, will explore two of the most common techniques: K-Means Clustering and Hierarchical Agglomerative Clustering. Additionally, we will touch on the different flavors available within each of these larger techniques.
+
+\section{K-Means Clustering}
+\section{Hierarchical Agglomerative Clustering}
