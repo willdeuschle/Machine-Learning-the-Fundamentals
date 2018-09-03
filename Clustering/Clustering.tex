@@ -36,4 +36,33 @@ There are many reasons why we might want to be able to separate our data based o
 As we mentioned above, there are different methods available for performing clustering. In this chapter, will explore two of the most common techniques: K-Means Clustering and Hierarchical Agglomerative Clustering. Additionally, we will touch on the different flavors available within each of these larger techniques.
 
 \section{K-Means Clustering}
+The high level procedure behind K-Means Clustering (known informally as k-means) is as follows:
+
+\begin{enumerate}
+    \item Randomly initialize cluster centers in our feature space.
+    \item Using a distance metric of your choosing, assign each data point to the closest cluster.
+    \item Update the cluster centers by averaging the data points assigned to each cluster.
+    \item Repeat steps 1. and 2. until convergence.
+\end{enumerate}
+
+In the case where we are using the L2 distance metric, this is known as \textit{Lloyd's algorithm}, which we derive in the next section.
+
+\subsection{Lloyd's Algorithm Derivation}
+derive Lloyd's algorithm here, discuss local optimum idea (it will converge), that it's NP hard to actually find global optimmum, complexity of Lloyd's, mention that it's a good idea to be standardizing our data
+
+Lloyd's algorithm, named after Stuart P. Lloyd who first suggested the algorithm in 1957, optimizes our cluster assignments via a technique known as coordinate descent, which we will learn more about in later chapters. It begins by defining a loss function for our current assignment of data points to clusters:
+\begin{equation} \label{clustering-loss-fn}
+	\mathcal{L}(\boldsymbol{\mu}, \textbf{X}, \textbf{R}) = \sum_{n=1}^{N} \sum_{c=1}^{C} \textbf{R}_{nc} \sqrt{\sum_{d=1}^{D} (\textbf{X}_{nd} - \boldsymbol{\mu}_{cd})^{2}}
+\end{equation}
+where $\textbf{X}$ is our $N$x$D$ data set ($N$ is the number of data points and $D$ is the dimensionality of our data), $\boldsymbol{\mu}$ is the $C$x$D$ matrix of cluster centers ($C$ is the number of clusters we chose), and $\textbf{R}$ is our $N$x$C$ matrix of \textit{responsibility vectors}. These are one-hot encoded vectors (one per data point), where the 1 is in the position of the cluster to which we assigned the $n$th data point. TODO: definition for responsibility vectors? TODO: change the notation for this loss function?
+
+\subsection{Example of Lloyd's}
+Do a random initialization and walk through an example of how it works
+\subsection{Number of Clusters}
+How do we actually choose the number of clusters, using the knee approach vs the loss
+\subsection{Initialization and K-Means++}
+good ways to initialize our data points to uncover a good result, performing K-means multiple times to settle on a final result, using K-Means++ initialization tactic
+\subsection{K-Medoids Alternative}
+explain how sometimes our center points can't actually be averaged, in which case we need to use something like k-medoids
+
 \section{Hierarchical Agglomerative Clustering}
