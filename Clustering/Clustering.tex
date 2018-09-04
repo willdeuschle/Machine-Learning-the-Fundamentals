@@ -39,7 +39,7 @@ As we mentioned above, there are different methods available for performing clus
 The high level procedure behind K-Means Clustering (known informally as k-means) is as follows:
 
 \begin{enumerate}
-    \item Randomly initialize cluster centers in our feature space.
+    \item Initialize cluster centers by randomly selecting points in our data set.
     \item Using a distance metric of your choosing, assign each data point to the closest cluster.
     \item Update the cluster centers by averaging the data points assigned to each cluster.
     \item Repeat steps 1. and 2. until convergence.
@@ -47,22 +47,101 @@ The high level procedure behind K-Means Clustering (known informally as k-means)
 
 In the case where we are using the L2 distance metric, this is known as \textit{Lloyd's algorithm}, which we derive in the next section.
 
-\subsection{Lloyd's Algorithm Derivation}
+\subsection{Lloyd's Algorithm}
 derive Lloyd's algorithm here, discuss local optimum idea (it will converge), that it's NP hard to actually find global optimmum, complexity of Lloyd's, mention that it's a good idea to be standardizing our data
 
-Lloyd's algorithm, named after Stuart P. Lloyd who first suggested the algorithm in 1957, optimizes our cluster assignments via a technique known as coordinate descent, which we will learn more about in later chapters. It begins by defining a loss function for our current assignment of data points to clusters:
-\begin{equation} \label{clustering-loss-fn}
-	\mathcal{L}(\boldsymbol{\mu}, \textbf{X}, \textbf{R}) = \sum_{n=1}^{N} \sum_{c=1}^{C} \textbf{R}_{nc} \sqrt{\sum_{d=1}^{D} (\textbf{X}_{nd} - \boldsymbol{\mu}_{cd})^{2}}
-\end{equation}
-where $\textbf{X}$ is our $N$x$D$ data set ($N$ is the number of data points and $D$ is the dimensionality of our data), $\boldsymbol{\mu}$ is the $C$x$D$ matrix of cluster centers ($C$ is the number of clusters we chose), and $\textbf{R}$ is our $N$x$C$ matrix of \textit{responsibility vectors}. These are one-hot encoded vectors (one per data point), where the 1 is in the position of the cluster to which we assigned the $n$th data point. TODO: definition for responsibility vectors? TODO: change the notation for this loss function?
+Lloyd's algorithm, named after Stuart P. Lloyd who first suggested the algorithm in 1957, optimizes our cluster assignments via a technique known as coordinate descent, which we will learn more about in later chapters.
+
+\begin{derivation}{Lloyd's Algorithm Derivation}{lloyds-algorithm-derivation}
+	We begin by defining a loss function for our current assignment of data points to clusters:
+	\begin{equation} \label{clustering-loss-fn}
+		\mathcal{L}(\boldsymbol{\mu}, \textbf{X}, \textbf{R}) = \sum_{n=1}^{N} \sum_{c=1}^{C} r_{nc} (\textbf{x}_{n} - \boldsymbol{\mu}_{c})^{2}
+	\end{equation}
+	where $\textbf{X}$ is our $N$x$D$ data set ($N$ is the number of data points and $D$ is the dimensionality of our data), $\boldsymbol{\mu}$ is the $C$x$D$ matrix of cluster centers ($C$ is the number of clusters we chose), and $\textbf{R}$ is our $N$x$C$ matrix of \textit{responsibility vectors}. These are one-hot encoded vectors (one per data point), where the 1 is in the position of the cluster to which we assigned the $n$th data point. TODO: definition for responsibility vectors? TODO: change the notation for this loss function? \newline
+
+	We then adjust our responsibility vectors to minimize each data point's distance from its cluster center. Formally, this means:
+	\begin{equation} \label{responsibility-vector-update}
+		r_{nc} = \begin{cases}
+		 	= 1 & \text{if $c = \underset{c'}{\arg\min} ||\textbf{x}_{n} - \boldsymbol{\mu}_{c'}||$} \\
+			= 0 & \text{otherwise} \\
+		\end{cases}
+	\end{equation}
+	After updating our responsibility vectors, we now wish to minimize our loss by updating our cluster centers $\boldsymbol{\mu}_{c}$. This can be computed by taking the derivative of our loss with respect to $\boldsymbol{\mu}_{c}$, setting equal to 0, and solving for our new cluster centers $\boldsymbol{\mu}_{c}$:
+	\begin{equation} \label{update-cluster-centers}
+		\begin{aligned}
+			\frac{\partial \mathcal{L}}{\partial \boldsymbol{\mu}_{c}} = -2 \sum_{n=1}^{N} r_{nc} (\textbf{x}_{n} - \boldsymbol{\mu}_{c}) \\
+			\boldsymbol{\mu}_{c} = \frac{\sum_{n=1}^{N} r_{nc} \textbf{x}_{n}}{\sum_{n=1}^{N} r_{nc}}
+		\end{aligned}
+	\end{equation}
+	which is intuitively the average of all the data points $\textbf{x}_{n}$ assigned to the cluster center $\boldsymbol{\mu}_{c}$. \newline
+
+	We then update our responsibility vectors based on the new cluster centers, reupdate the cluster centers, and this cycle continues until we have converged to a stable set of cluster centers and responsibility vectors.
+\end{derivation}
+
+Note that while Lloyd's algorithm is guaranteed to converge, it is only guaranteed to converge to a locally optimum solution. Finding the globally optimum set of assignments and cluster centers is an NP-hard problem. Thus, one common strategy is to execute Lloyd's algorithm several times with different random initializations of our cluster centers, selecting the final assignment that minimizes loss. Furthermore, to avoid nonsensical solutions due to scale mismatch between features, it makes sense to standardize our data in a preprocessing step (subtracting the mean and dividing by the standard deviation across each feature).
+
+TODO: mention time complexity of Lloyd's?
 
 \subsection{Example of Lloyd's}
-Do a random initialization and walk through an example of how it works
+TODO: Do a random initialization and walk through an example of how it works
+
+\begin{example}{Lloyd's Algorithm Example}{lloyds-algorithm-example}
+	Let's say we start with a data set of size $N=6$. Each data point is two-dimensional, with each feature taking on a value between -3 and 3. Here is a table and graph of our data points, labelled A through F:
+
+	TODO: table graph here.
+
+	Let's say we wish to have 2 cluster centers. We then randomly initialize those cluster centers by selecting two data points. Let's say we select B and F. We identify our cluster centers with a red and green `X':
+
+	TODO: graph here with the cluster centers now in it
+
+	We now begin Lloyd's algorithm by assigning each data point to its closest cluster center:
+
+	TODO: graph and table
+
+	We then update our cluster centers by averaging the data point assigned to each:
+
+	TODO: graph and table.
+
+	We proceed like this, updating our cluster centers and assignments, until convergence. At convergence, we've achieved these cluster centers and assignments:
+
+	TODO: final graph and table of assignments.
+
+	Note that for this random initialization of cluster centers, we deterministically identified the locally optimal set of assignments and cluster centers. For a different initialization, we may have finished with a different result. However, for a given specific initialization, running Lloyd's algorithm will always identify the same set of assignments and cluster centers.
+\end{example}
+
 \subsection{Number of Clusters}
-How do we actually choose the number of clusters, using the knee approach vs the loss
+You may have wondered about a crucial detail we've left out until now: how do we choose the proper number of clusters for our data set? There doesn't actually exist a `correct' number of clusters. The fewer clusters we have, the larger our loss will be, and as we add more clusters, our loss will get strictly smaller. That being said, there is certainly a tradeoff to be made here.
+
+Having a single cluster is obviously useless - we will group our entire data set into the same cluster. Having $N$ clusters is equally useless - each data point gets its own cluster.
+
+One popular approach to identifying a good number of clusters is to perform K-Means with a varying number of clusters, and then to plot the number of clusters against the loss. Typically, that graph will look like Figure TODO: ref figure here.
+
+TODO: put graph here.
+
+Notice that at $x=...$ clusters, there appears to be a slight bend in the decrease of our loss. This is sometimes known as the \textbf{knee}, and it is common to choose the number of clusters to be where the knee occurs.
+
+Intuitively, the idea here is that up to a certain point, adding another cluster significantly decreases the loss by more properly grouping our data points. However, eventually the benefit of adding another cluster stops being quite so significant. At this point, we have identified a natural number of groups for our data set.
+
 \subsection{Initialization and K-Means++}
 good ways to initialize our data points to uncover a good result, performing K-means multiple times to settle on a final result, using K-Means++ initialization tactic
+
+Up until now, we have assumed that we should just randomly initialize our cluster centers and then execute Lloyd's algorithm until we converge. We also suggested that since Lloyd's algorithm only produces a local minimum, it makes sense to perform several random initializations before settling on the most optimal assignment we've identified.
+
+While this is a viable way to perform K-Means, there are other ways of initializing our original cluster centers that can help us find more optimal results without needing so many random re-initializations. One of those techniques is known as \textbf{K-Means++}.
+
+The idea behind K-Means++ is that our cluster centers will typically be spread out when we've converged. As a result, it might not make sense to entirely randomly initialize those cluster centers. For example, Figure TODO: ref figure here would be a poor initialization.
+
+TODO put figure of bad initialization here.
+
+But it would be just as likely to start with that random initialization as to start with the initialization in Figure TODO: ref figure here.
+
+TODO put figure of good initialization here.
+
+We can use the hint that we want our centers somewhat spread out to find a better random initialization. This is where the initialization algorithm presented by K-Means++ comes in.
+
+For K-Means++, we choose the first cluster center by randomly selecting a point in our data set, same as before. However, for all subsequent cluster center initializations, we select points in our data set with probability proportional to the squared distance from their nearest cluster center. The effect of this is that we end up with a set of initializations that are relatively far from one another, as in Figure TODO: ref figure here.
+
 \subsection{K-Medoids Alternative}
-explain how sometimes our center points can't actually be averaged, in which case we need to use something like k-medoids
+Going back to the cluster center update step presented in the Lloyd's algorithm derivation, we see that we are averaging the data points assigned to each cluster to compute the new cluster centers. Note that in some cases, this averaging step doesn't actually make sense (for example, if we have categorical variables as part of our feature set). In these cases, we can use an alternative algorithm known as \textbf{K-Medoids}. The idea behind K-Medoids is simple: instead of averaging the data points assigned to that cluster, update the new cluster center to be a data point assigned to that cluster (ideally the one that is most like all the others).
 
 \section{Hierarchical Agglomerative Clustering}
