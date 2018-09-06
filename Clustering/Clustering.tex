@@ -145,3 +145,70 @@ For K-Means++, we choose the first cluster center by randomly selecting a point 
 Going back to the cluster center update step presented in the Lloyd's algorithm derivation, we see that we are averaging the data points assigned to each cluster to compute the new cluster centers. Note that in some cases, this averaging step doesn't actually make sense (for example, if we have categorical variables as part of our feature set). In these cases, we can use an alternative algorithm known as \textbf{K-Medoids}. The idea behind K-Medoids is simple: instead of averaging the data points assigned to that cluster, update the new cluster center to be a data point assigned to that cluster (ideally the one that is most like all the others).
 
 \section{Hierarchical Agglomerative Clustering}
+The motivating idea behind K-Means was that we could use a distance measurement to assign data points to a fixed number of clusters, and from there we just needed a methodology to iteratively improve our assignments and cluster locations. Moving on to Hierarchical Agglomerative Clustering, commonly referred to as HAC (pronounced "hack"), the big idea is now that we can construct a tree over our data set that describes the relationship between our data points. These trees are known as \textit{dendrograms}, and look like what's found in Figure TODO ref figure here
+
+TODO put dendrogram figure here.
+
+Notice that the individual data points are the leaves of our tree, and the trunk is the cluster of data that contains the entirety of our data set. The high level idea behind how we construct this tree is as follows:
+
+\begin{enumerate}
+    \item We start with $N$ clusters, one for each data point.
+    \item Merge the two `closest' clusters together to reduce the number of clusters by 1. Keep track of the distance between those two clusters.
+    \item Repeat step 2. until we're left with only a single cluster.
+\end{enumerate}
+
+In the following sections we'll go into greater detail on how to construct the tree (including what is meant by `closest' clusters), establish what the tree gives us in terms of clustering information, and discuss how HAC differs from K-Means.
+
+\subsection{HAC Algorithm}
+As described above, HAC proceeds by iteratively merging clusters until we're only left with a single cluster. At the start, each data point is in it's own cluster. We keep track of the distance between the two clusters that we merge at each step, which is what allows us to construct the dendrogram in Figure TODO: ref figure here. To make this process a little more clear, let's perform HAC one step at a time, constructing the dendrogram as we go.
+
+TODO: HAC example here with four data points, probably just use the min linkage criterion.
+
+Notice how the distance between two merged clusters manifests itself as the height of the dendrogram when they were merged (which is why we tracked those distances as we constructed the tree). Notice also that we now have many layers of clustering: if we're only only interested in clusters whose elements are at least $k$ units away from each other, we can `cut' the dendrogram at that height and examine all the clusters that exist below there.
+
+Finally, there was an important piece of this example, that we chose to gloss over, but that is very important to the different clusterings we might find using HAC. For this example, we designated the distance between two clusters to be the minimum distance between any two data points across the clusters. This is what is known as the \textbf{Min-Linkage Criterion}. However, there were certainly other ways we could have computed the distance between clusters. We now turn to these different methods and the properties of clusters they produce next.
+
+\subsection{Linkage Criterion}
+Here are a few of the most common linkage criteria. TODO: describe the different types of clusterings that each of these choices tends to produce
+
+\subsubsection{Min-Linkage Criteria}
+We've already seen the Min-Linkage Criterion in action from the previous example. Formally, the criterion says that the distance $d_{C, C'}$ between each cluster pair $C$ and $C'$ is given by
+\begin{equation} \label{min-linkage-crit}
+	d_{C, C'} = \underset{k, k'}{\min} || \textbf{x}_{k} - \textbf{x}_{k'} ||
+\end{equation}
+where $\textbf{x}_{k}$ are data points in cluster $C$ and $\textbf{x}_{k'}$ are data points in cluster $C'$. After computing these pairwise distances, we choose to merge the two clusters that are closest together.
+
+\subsubsection{Max-Linkage Criterion}
+We could also imagine defining the distance $d_{C, C'}$ between two clusters as being the distance between the two points that are farthest apart in each of them. This is known as the Max-Linkage Criterion. The distance between two clusters is then given by:
+\begin{equation} \label{max-linkage-crit}
+	d_{C, C'} = \underset{k, k'}{\max} || \textbf{x}_{k} - \textbf{x}_{k'} ||
+\end{equation}
+Like with the Min-Linkage Criterion, after computing these pairwise distances, we choose to merge the two clusters that are closest together.
+
+\readernote{Be careful not to confuse the linkage criterion with which clusters we choose to merge. We \textbf{always} merge the clusters that have the smallest distance between them. What differs is how we compute that distance, which is given by the linkage criterion.}
+
+\subsubsection{Average-Linkage Criterion}
+The Average-Linkage Criterion averages the pairwise distance between each point in each cluster. Formally, this is given by:
+\begin{equation} \label{avg-linkage-crit}
+	d_{C, C'} = \frac{1}{K K'} \sum_{k=1}^{K} \sum_{k'=1}^{K'} || \textbf{x}_{k} - \textbf{x}_{k'} ||
+\end{equation}
+
+\subsubsection{Centroid-Linkage Criterion}
+The Centroid-Linkage Criterion uses the distance between the centroid of each cluster (which is the average of the data points in each cluster). Formally, this is given by:
+\begin{equation} \label{cent-linkage-crit}
+	d_{C, C'} = || \frac{1}{K} \sum_{k=1}^{K} \textbf{x}_{k} - \frac{1}{K'} \sum_{k'=1}^{K'} \textbf{x}_{k'} ||
+\end{equation}
+
+\subsubsection{Different Linkage Criteria Produce Different Clusterings}
+It's important to note that the linkage criterion you choose to use will influence your final clustering results. TODO pickup here
+
+\subsection{How HAC Differs from K-Means}
+- for a given linkage criterion and data set, it's deterministic
+- we don't need to choose the number of clusters up front
+- we get different levels of clustering depending on the distance we wish to allow points to have within clusters
+- we get a nice graphical visualization of our clustering results
+
+
+
+
+
