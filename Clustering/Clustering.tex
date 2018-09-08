@@ -200,15 +200,21 @@ The Centroid-Linkage Criterion uses the distance between the centroid of each cl
 \end{equation}
 
 \subsubsection{Different Linkage Criteria Produce Different Clusterings}
-It's important to note that the linkage criterion you choose to use will influence your final clustering results. TODO pickup here
+It's important to note that the linkage criterion you choose to use will influence your final clustering results. For example, the min-linkage criteria tends to produce `stringy' clusters, while the max-linkage criteria tends to produce more compact clusters. You can see the difference between the results of these two linkage criteria in Figure (todo figure here).
+
+TODO: do the two different looking clusters for the different linkage criteria here
+
+It's useful to be aware of these different types of results when selecting your linkage criterion for a given problem.
+
+\readernote{You can convince yourself of the different flavors of results for the different linkage criteria. For example, when using the min-linkage criteria, we get these `stringy' results because we're most inclined to extend existing clusters by grabbing whichever data points are closest.}
 
 \subsection{How HAC Differs from K-Means}
-- for a given linkage criterion and data set, it's deterministic
-- we don't need to choose the number of clusters up front
-- we get different levels of clustering depending on the distance we wish to allow points to have within clusters
-- we get a nice graphical visualization of our clustering results
+Now that we have two different methods for clustering, each with their own respective knobs for modifying the clustering properties, we consider the differences between the two methods.
 
+First of all, as we mentioned above, there is a fundamental difference in determinism between HAC and K-Means. In general, K-Means is probabilistic and needs to be run multiple times to ensure you recover a good result. On the other hand, once you've selected a linkage criterion for HAC, the clusters you uncover are deterministic. You only need to run HAC a single time.
 
+Another difference between HAC and K-Means lives in the assumptions we need to make to run each of them. For K-Means, we need to specify the number of clusters up front before running our algorithm, potentially using a method like the knee-method to decide on the number of clusters. On the other hand, you don't need to know this up front to run HAC. This makes HAC quite simple up front. However, the downside for HAC is that when you wish to present your final clustering results, you need to decide on the max distance between elements in each cluster (so that you can cut the dendrogram).
 
+That final point about HAC, that you need to make a decision about where to cut the dendrogram, also means that after running HAC you have several different clustering options. Furthermore, the dendrogram in and of itself can be a useful tool for visualizing your data. We don't get the same interactivity from K-Means clustering.
 
-
+\readernote{We often use dendrograms to visualize evolutionary lineage.}
