@@ -76,10 +76,7 @@ Lloyd's algorithm, named after Stuart P. Lloyd who first suggested the algorithm
 	We then update our responsibility vectors based on the new cluster centers, update the cluster centers again, and continue this cycle until we have converged on a stable set of cluster centers and responsibility vectors.
 \end{derivation}
 
-TODO: pickup proofreading here \newline
-Note that while Lloyd's algorithm is guaranteed to converge, it is only guaranteed to converge to a locally optimum solution. Finding the globally optimum set of assignments and cluster centers is an NP-hard problem. Thus, one common strategy is to execute Lloyd's algorithm several times with different random initializations of our cluster centers, selecting the final assignment that minimizes loss. Furthermore, to avoid nonsensical solutions due to scale mismatch between features, it makes sense to standardize our data in a preprocessing step (subtracting the mean and dividing by the standard deviation across each feature).
-
-TODO: mention time complexity of Lloyd's?
+Note that while Lloyd's algorithm is guaranteed to converge, it is only guaranteed to converge to a locally optimal solution. Finding the globally optimal set of assignments and cluster centers is an NP-hard problem. As a result, a common strategy is to execute Lloyd's algorithm several times with different random initializations of cluster centers, selecting the assignment that minimizes loss across the different trials. Furthermore, to avoid nonsensical solutions due to scale mismatch between features, it makes sense to standardize our data in a preprocessing step. This is as easy as subtracting the mean and dividing by the standard deviation across each feature.
 
 \subsection{Example of Lloyd's}
 TODO: Do a random initialization and walk through an example of how it works
@@ -97,7 +94,7 @@ TODO: Do a random initialization and walk through an example of how it works
 
 	TODO: graph and table
 
-	We then update our cluster centers by averaging the data point assigned to each:
+	We then update our cluster centers by averaging the data points assigned to each:
 
 	TODO: graph and table.
 
@@ -105,11 +102,11 @@ TODO: Do a random initialization and walk through an example of how it works
 
 	TODO: final graph and table of assignments.
 
-	Note that for this random initialization of cluster centers, we deterministically identified the locally optimal set of assignments and cluster centers. For a different initialization, we may have finished with a different result. However, for a given specific initialization, running Lloyd's algorithm will always identify the same set of assignments and cluster centers.
+	Note that for this random initialization of cluster centers, we deterministically identified the locally optimal set of assignments and cluster centers. For a specific initialization, running Lloyd's algorithm will always identify the same set of assignments and cluster centers. However, different initializations will produce different results
 \end{example}
 
 \subsection{Number of Clusters}
-You may have wondered about a crucial detail we've left out until now: how do we choose the proper number of clusters for our data set? There doesn't actually exist a `correct' number of clusters. The fewer clusters we have, the larger our loss will be, and as we add more clusters, our loss will get strictly smaller. That being said, there is certainly a tradeoff to be made here.
+You may have wondered about a crucial, omitted detail: how do we choose the proper number of clusters for our data set? There doesn't actually exist a `correct' number of clusters. The fewer clusters we have, the larger our loss will be, and as we add more clusters, our loss will get strictly smaller. That being said, there is certainly a tradeoff to be made here.
 
 Having a single cluster is obviously useless - we will group our entire data set into the same cluster. Having $N$ clusters is equally useless - each data point gets its own cluster.
 
@@ -117,21 +114,20 @@ One popular approach to identifying a good number of clusters is to perform K-Me
 
 TODO: put graph here.
 
-Notice that at $x=...$ clusters, there appears to be a slight bend in the decrease of our loss. This is sometimes known as the \textbf{knee}, and it is common to choose the number of clusters to be where the knee occurs.
+Notice that at $x=...$ clusters, there appears to be a slight bend in the decrease of our loss. This is often called the \textbf{knee}, and it is common to choose the number of clusters to be where the knee occurs.
 
 Intuitively, the idea here is that up to a certain point, adding another cluster significantly decreases the loss by more properly grouping our data points. However, eventually the benefit of adding another cluster stops being quite so significant. At this point, we have identified a natural number of groups for our data set.
 
 \subsection{Initialization and K-Means++}
-good ways to initialize our data points to uncover a good result, performing K-means multiple times to settle on a final result, using K-Means++ initialization tactic
+Up until now, we have assumed that we should randomly initialize our cluster centers and execute Lloyd's algorithm until convergence. We also suggested that since Lloyd's algorithm only produces a local minimum, it makes sense to perform several random initializations before settling on the most optimal assignment we've identified.
 
-Up until now, we have assumed that we should just randomly initialize our cluster centers and then execute Lloyd's algorithm until we converge. We also suggested that since Lloyd's algorithm only produces a local minimum, it makes sense to perform several random initializations before settling on the most optimal assignment we've identified.
+While this is a viable way to perform K-Means, there are other ways of initializing our original cluster centers that can help us find more optimal results without needing so many random initializations. One of those techniques is known as \textbf{K-Means++}.
 
-While this is a viable way to perform K-Means, there are other ways of initializing our original cluster centers that can help us find more optimal results without needing so many random re-initializations. One of those techniques is known as \textbf{K-Means++}.
-
-The idea behind K-Means++ is that our cluster centers will typically be spread out when we've converged. As a result, it might not make sense to entirely randomly initialize those cluster centers. For example, Figure TODO: ref figure here would be a poor initialization.
+The idea behind K-Means++ is that our cluster centers will typically be spread out when we've reached convergence. As a result, it might not make sense to initialize those cluster centers in an entirely random manner. For example, Figure TODO: ref figure here would be a poor initialization.
 
 TODO put figure of bad initialization here.
 
+TODO pickup here
 But it would be just as likely to start with that random initialization as to start with the initialization in Figure TODO: ref figure here.
 
 TODO put figure of good initialization here.
