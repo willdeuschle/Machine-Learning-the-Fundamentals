@@ -79,10 +79,10 @@ Lloyd's algorithm, named after Stuart P. Lloyd who first suggested the algorithm
 Note that while Lloyd's algorithm is guaranteed to converge, it is only guaranteed to converge to a locally optimal solution. Finding the globally optimal set of assignments and cluster centers is an NP-hard problem. As a result, a common strategy is to execute Lloyd's algorithm several times with different random initializations of cluster centers, selecting the assignment that minimizes loss across the different trials. Furthermore, to avoid nonsensical solutions due to scale mismatch between features, it makes sense to standardize our data in a preprocessing step. This is as easy as subtracting the mean and dividing by the standard deviation across each feature.
 
 \subsection{Example of Lloyd's}
-TODO: Do a random initialization and walk through an example of how it works
+For some more clarity on exactly how Lloyd's algorithm works, let's walk through an example.
 
 \begin{example}{Lloyd's Algorithm Example}{lloyds-algorithm-example}
-	Let's say we start with a data set of size $N=6$. Each data point is two-dimensional, with each feature taking on a value between -3 and 3. We also have a `Red' and `Green' cluster. Here is a table and graph of our data points, labelled A through F: \newline
+	We start with a data set of size $N=6$. Each data point is two-dimensional, with each feature taking on a value between -3 and 3. We also have a `Red' and `Green' cluster. Here is a table and graph of our data points, labelled A through F: \newline
 
 	\begin{align*}
 		\includegraphics[width=0.5\paperwidth]{../Clustering/fig/start-points.png}
@@ -180,9 +180,14 @@ You may have wondered about a crucial, omitted detail: how do we choose the prop
 
 Having a single cluster is obviously useless - we will group our entire data set into the same cluster. Having $N$ clusters is equally useless - each data point gets its own cluster.
 
-One popular approach to identifying a good number of clusters is to perform K-Means with a varying number of clusters, and then to plot the number of clusters against the loss. Typically, that graph will look like Figure TODO: ref figure here.
+One popular approach to identifying a good number of clusters is to perform K-Means with a varying number of clusters, and then to plot the number of clusters against the loss. Typically, that graph will look like Figure \ref{fig:knee}.
 
-TODO: put graph here.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\paperwidth]{../Clustering/fig/knee.png}
+    \caption{Finding the Knee.}
+    \label{fig:knee}
+\end{figure}
 
 Notice that at $x=...$ clusters, there appears to be a slight bend in the decrease of our loss. This is often called the \textbf{knee}, and it is common to choose the number of clusters to be where the knee occurs.
 
@@ -193,17 +198,27 @@ Up until now, we have assumed that we should randomly initialize our cluster cen
 
 While this is a viable way to perform K-Means, there are other ways of initializing our original cluster centers that can help us find more optimal results without needing so many random initializations. One of those techniques is known as \textbf{K-Means++}.
 
-The idea behind K-Means++ is that our cluster centers will typically be spread out when we've reached convergence. As a result, it might not make sense to initialize those cluster centers in an entirely random manner. For example, Figure TODO: ref figure here would be a poor initialization.
+The idea behind K-Means++ is that our cluster centers will typically be spread out when we've reached convergence. As a result, it might not make sense to initialize those cluster centers in an entirely random manner. For example, Figure \ref{fig:bad-init} would be a poor initialization.
 
-TODO put figure of bad initialization here.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\paperwidth]{../Clustering/fig/bad-initialization.png}
+    \caption{Bad Cluster Initialization.}
+    \label{fig:bad-init}
+\end{figure}
 
-We would much rather start with a random initialization that looks like Figure TODO: ref figure here.
+We would much rather start with a random initialization that looks like Figure \ref{fig:good-init}.
 
-TODO put figure of good initialization here.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\paperwidth]{../Clustering/fig/good-initialization.png}
+    \caption{Good Cluster Initialization.}
+    \label{fig:good-init}
+\end{figure}
 
 We can use the hint that we want our cluster centers somewhat spread out to find a better random initialization. This is where the initialization algorithm presented by K-Means++ comes in.
 
-For K-Means++, we choose the first cluster center by randomly selecting a point in our data set, same as before. However, for all subsequent cluster center initializations, we select points in our data set with probability proportional to the squared distance from their nearest cluster center. The effect of this is that we end up with a set of initializations that are relatively far from one another, as in Figure TODO: ref figure here.
+For K-Means++, we choose the first cluster center by randomly selecting a point in our data set, same as before. However, for all subsequent cluster center initializations, we select points in our data set with probability proportional to the squared distance from their nearest cluster center. The effect of this is that we end up with a set of initializations that are relatively far from one another, as in Figure \ref{fig:good-init}.
 
 \subsection{K-Medoids Alternative}
 Recall that in the cluster center update step (Equation \ref{update-cluster-centers}) presented in the derivation of Lloyd's algorithm, we average the data points assigned to each cluster to compute the new cluster centers. Note that in some cases, this averaging step doesn't actually make sense (for example, if we have categorical variables as part of our feature set). In these cases, we can use an alternative algorithm known as \textbf{K-Medoids}. The idea behind K-Medoids is simple: instead of averaging the data points assigned to that cluster, update the new cluster center to be the data point assigned to that cluster which is most like the others.
@@ -211,9 +226,14 @@ Recall that in the cluster center update step (Equation \ref{update-cluster-cent
 \section{Hierarchical Agglomerative Clustering}
 The motivating idea behind K-Means was that we could use a distance measurement to assign data points to a fixed number of clusters, iteratively improving our assignments and cluster locations until convergence.
 
-Moving on to Hierarchical Agglomerative Clustering (also known as \textbf{HAC} - pronounced `hack'), the motivating idea is to construct a tree over our data set that describes relationships between our data. These trees are known as \textit{dendrograms}, with an example found in Figure TODO ref figure here.
+Moving on to Hierarchical Agglomerative Clustering (also known as \textbf{HAC} - pronounced `hack'), the motivating idea is to construct a tree over our data set that describes relationships between our data. These trees are known as \textit{dendrograms}, with an example found in Figure \ref{fig:dendrogram-example}.
 
-TODO put dendrogram figure here.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\paperwidth]{../Clustering/fig/dendrogram-example.png}
+    \caption{Dendrogram Example.}
+    \label{fig:dendrogram-example}
+\end{figure}
 
 Notice that the individual data points are the leaves of our tree, and the trunk is the cluster that contains the entirety of our data set. At a high level, we construct this tree as follows:
 
@@ -226,9 +246,41 @@ Notice that the individual data points are the leaves of our tree, and the trunk
 In the remainder of the chapter, we'll describe this procedure in greater detail (including what is meant by `closest' clusters), establish the clustering information produced by the tree, and discuss how HAC differs from K-Means.
 
 \subsection{HAC Algorithm}
-As described above, HAC proceeds by iteratively merging clusters until we're only left with a single cluster. At the start, each data point is in it's own cluster. We record the distance between the two clusters that we merge at each step, which is what allows us to construct the dendrogram in Figure TODO: ref figure here. To make this process a little more clear, let's perform HAC one step at a time, constructing the dendrogram as we go.
+As described above, HAC proceeds by iteratively merging clusters until we're only left with a single cluster. At the start, each data point is in it's own cluster. We record the distance between the two clusters that we merge at each step, which is what allows us to construct the dendrogram in Figure \ref{fig:dendrogram-example}. To make this process a little more clear, let's perform HAC one step at a time, constructing the dendrogram as we go.
 
-TODO: HAC example here with four data points, probably just use the min linkage criterion.
+\begin{example}{HAC Algorithm Example}{hac-algo-example}
+Let's say we have a data set of five points A, B, C, D, E that we wish to perform HAC on. These points will simply be scalar data that we can represent on a number line. We start with 5 clusters and no connections at all:
+
+\begin{align*}
+	\includegraphics[width=0.5\paperwidth]{../Clustering/fig/number-line.png}
+\end{align*}
+
+We find the closest two clusters to merge first. A and B are nearest (it's actually tied with C and D, but we can arbitrarily break these ties), so we start by merging them. Notice that we also annotate the distance between them in the tree, which in this case is 1:
+
+\begin{align*}
+	\includegraphics[width=0.5\paperwidth]{../Clustering/fig/a-b-merged.png}
+\end{align*}
+
+We now have four clusters: (A, B), C, D, and E. We again find the closest two clusters, which in this case is C and D:
+
+\begin{align*}
+	\includegraphics[width=0.5\paperwidth]{../Clustering/fig/c-d-merged.png}
+\end{align*}
+
+We now have three remaining clusters: (A, B), (C, D), and E. We proceed as before, identifying the two closest clusters to be (A, B) and (C, D). Merging them:
+
+\begin{align*}
+	\includegraphics[width=0.5\paperwidth]{../Clustering/fig/a-b-c-d-merged.png}
+\end{align*}
+
+Finally we are left with two clusters: (A, B, C, D) and E. The remaining two clusters are obviously the closest together, so we merge them:
+
+\begin{align*}
+	\includegraphics[width=0.5\paperwidth]{../Clustering/fig/a-b-c-d-e-merged.png}
+\end{align*}
+
+At this point there is only a single cluster. We have constructed our tree and are finished with HAC.
+\end{example}
 
 Notice how the distance between two merged clusters manifests itself through the height of the dendrogram where they merge (which is why we tracked those distances as we constructed the tree). Notice also that we now have many layers of clustering: if we're only only interested in clusters whose elements are at least $k$ units away from each other, we can `cut' the dendrogram at that height and examine all the clusters that exist below that cut point.
 
@@ -266,9 +318,14 @@ The Centroid-Linkage Criterion uses the distance between the centroid of each cl
 \end{equation}
 
 \subsubsection{Different Linkage Criteria Produce Different Clusterings}
-It's important to note that the linkage criterion you choose to use will influence your final clustering results. For example, the min-linkage criterion tends to produce `stringy' clusters, while the max-linkage criterion tends to produce more compact clusters. You can see the difference between the results of these two linkage criteria in Figure (todo figure here).
+It's important to note that the linkage criterion you choose to use will influence your final clustering results. For example, the min-linkage criterion tends to produce `stringy' clusters, while the max-linkage criterion tends to produce more compact clusters. You can see the difference between the results of these two linkage criteria in Figure \ref{fig:diff-linkage-criteria}.
 
-TODO: do the two different looking clusters for the different linkage criteria here
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\paperwidth]{../Clustering/fig/diff-linkage-criteria.png}
+    \caption{Different Linkage Criteria.}
+    \label{fig:diff-linkage-criteria}
+\end{figure}
 
 It's useful to be aware of these different types of results when selecting your linkage criterion.
 
