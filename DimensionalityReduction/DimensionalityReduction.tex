@@ -6,7 +6,7 @@ TODO: talk about whether or not this is a supervised technique? talk about varia
 \section{Motivation}
 Real-world data is often very high dimensional. It's also common that our data sets contain features we are unfamiliar with, either because we are not a domain expert or because the dimensionality is too large for us to comb through the input features by hand.
 
-In these situations, it can be very difficult to manipulate or utilize our data effectively. We don't have a sense for which features are `important' and which ones are just noise. Fitting a model to the data may be computationally prohibitive, and even if we were to fit some sort of model to our data, it may be difficult to interpret why we obtain specific results. It's hard to visualize. All of these are good reasons that we may wish to reduce the dimensionality of a data set.
+In these situations, it can be very difficult to manipulate or utilize our data effectively. We don't have a sense for which features are `important' and which ones are just noise. Fitting a model to the data may be computationally prohibitive, and even if we were to fit some sort of model to our data, it may be difficult to interpret why we obtain specific results. It's also hard to gain intuition about our data through visualization since we struggle to think in terms of more than three dimensions. All of these are good reasons that we may wish to reduce the dimensionality of a data set.
 
 \begin{mlcube}{Dimensionality Reduction}
 Dimensionality reduction operates primarily on continuous feature spaces, is fully unsupervised, and is non-probabilistic for the techniques we explore in this chapter.
@@ -31,16 +31,22 @@ As described above, we need a tool like dimensionality reduction in situations w
     \item Identifying which costly measurements are worth collecting when experimenting with new chemicals.
 \end{enumerate}
 
-With these use cases in mind, we now turn to the mathematical and statistical work that underpins the dimensionality reduction technique known as Priniciple Component Analysis.
+With a few of these use cases in mind, we now turn to the mathematical and statistical work that underpins the dimensionality reduction technique known as Priniciple Component Analysis.
 
 \section{Principle Component Analysis}
-The main idea behind Principle Component Analysis (PCA) is that we can linearly project our data set onto a subspace without losing too much information. This can also be thought of as identifying and preserving the features along which there is the most variance since these features differentiate data points the most. As a simple example, imagine we had a data set comprised of the heights and weights of individual bears. As an extreme case, imagine all the bears were exactly the same height but had a wide range of weights. To differentiate our data points, we obviously only need to keep the weights of the bears. The variance of the heights is 0, and the variance of the weights would be some non-zero number. Intuitively, the most interesting features from our data sets are those that vary the most.
+The main idea behind Principle Component Analysis (PCA) is that we can linearly project our data set onto a subspace without losing too much information. For a simple example, four-dimensional data might primarily live in a subspace that is actually a two-dimensional plane.
 
-Alternatively, we can imagine PCA as minimizing the error we incur when we move from the low-dimensional representation back to the original representation. This is known as \textit{reconstruction loss}. We can visualize the meaning of this using our bear example. Imagine this is the graph of our original data set:
+One way to think about this is to identify and preserve the features along which there is the most variance. For example, imagine we had a data set comprised of the heights and weights of individual bears. As an extreme case, let's suppose all the bears were exactly the same height but had a wide range of weights.
 
-TODO put bear graph here
+todo, put that graph of the bears here
 
-We can project this data set down to a single dimension by recording only the weights:
+To differentiate our data points, we obviously only need to keep the weights of the bears. The variance of the heights is 0, and the variance of the weights is some non-zero number. Intuitively, the most interesting features from our data sets are those that vary the most.
+
+\readernote{In this simple example, the direction of maximal variance occurs exactly along the $x_1$ axis, but in general it will occur on an axis described by a combination of our input features.}
+
+The second way to think about PCA is that we are minimizing the error we incur when we move from the lower-dimensional representation back to the original representation. This is known as \textit{reconstruction loss}. We can consider the meaning of this using our bear example.
+
+Let's say we project the data set from Figure TODO ref figure here down to a single dimension by recording only the weights:
 
 TODO put line graph of weights here
 
@@ -48,29 +54,29 @@ Then, to reconstruct our original graph, we need only to keep track of a slope a
 
 TODO image of going from one to the other
 
-It will be our goal to determine a low-dimensional representation of our data that allows us to return to our high-dimensional data while losing as little information as possible.
-
-This is obviously a highly contrived example, but it's meant to demonstrate the equivalence between the ideas of preserving maximal variance and minimizing the loss incurred when moving from the low-dimensional to high-dimensional representation. What's more, in this example of the bears, we found that the direction of maximum variance occurred along the features themselves. In general this is not true. For example, we could have a data set that looked like the following:
-
-TODO: data set that is just an upward sloping line
-
-in which case the direction of maximal variance will be given by the vector $[1, 1]$. This means that we will be searching for variance that occurs between combinations of our data's features.
-
-We now turn to identifying these directions of maximal variance, and how it relates to performing PCA.
+It will be our goal to determine a low-dimensional representation of our data that allows us to return to our high-dimensional data while losing as little information as possible. The motivation for this is preserving everything salient about the data points while discarding as much unnecessary noise as possible. We now turn to how this can be achieved.
 
 TODO: set the final road map of introductory motivation, moving to the derivation via reconstruction loss that shows we need evecs of cov, discussing the high-level cov interp, now that we're there how do we use linalg to our advantage, then finally what are we actually going to do with PCA, and finally the example. then execute.
 
 \subsection{Reconstruction Loss}
-actually going to explain the derivation here, then jump up to the higher level
+We identified a key idea behind dimensionality reduction in the previous section: we want to find subspaces of our data that preserve as much information as possible. Concretely, this means we want to convert our original data point $\textbf{x}_n$ in $p$ dimensions into a data point $\textbf{x}'_{n}$ in $q$ dimensions for $q < p$. 
 
-Note also that we can safely assume the covariance matrix is positive semi-definite... todo explain that this isn't entirely necessary to understand
+\readernote{We're going to assume that our data set has been centered such that each feature in $\textbf{x}_{n}$ has mean 0. This will not affect our results (we can convert back to the uncentered data by adding back the mean of each feature), but will make our derivations substantially easier to work with.}
 
-Note that once we choose the subspace to project onto, we can choose any spanning basis to represent that subspace
+One metric for evaluating how `good' a subspace in $q$ dimensions is at representing our original data in $p$ dimensions is through \textit{reconstruction loss}. It is given by the expression:
+\begin{equation} \label{reconstruction-loss}
+	||\textbf{x}_{n} - (\textbf{W}\textbf{x}_{n})\textbf{W}||^{2}
+\end{equation}
+where $\textbf{x}_{n}$ is $p$ dimensional and $\textbf{W}$ is our $q \times p$ dimensional projection matrix. Let's dig into exactly what this expression means.
 
-\subsection{Identifying Directions of Maximal Variance in our Data}
-Now we've done the hard work, and can discuss the high level intuitive explanation of using the covariance matrix
+First, let's consider the term $(\textbf{W}\textbf{x}_{n})$.
 
-We've claimed that reducing the dimensionality of our data requires identifying the directions of maximal variance in our data. This can (and almost always will) manifest itself as a combination of our input features, as we demonstrated in Figure TODO ref figure here. Thus, we're actually concerned with the covariance of our data set. Recall that we can write the covariance of an $m$-dimensional data set $\textbf{X}$ as:
+
+... do the rest of the derivation here, lead us to the idea of having the covariance matrix, mention thing about cov matrix being safely pos semi-def, mention that once we've identified our subspace, any spanning basis will do. finish with the idea that identifying the directions of maximum variance in our data is indeed what we care about, which we've just proved through reconstruction loss
+
+maybe will want to use some of this:
+
+Recall that we can write the covariance of an $m$-dimensional data set $\textbf{X}$ as:
 
 \begin{align*}
 	\textbf{S} = cov(\textbf{X}) = \sum_{n=1}^{N} \textbf{x}_{i} \textbf{x}_{i}^{T} = \textbf{X}\textbf{X}^{T}
@@ -80,12 +86,13 @@ We've claimed that reducing the dimensionality of our data requires identifying 
 
 Perhaps intuitively, the direction of maximum variance in a matrix is given by the eigenvector with the largest eigenvalue. After that, the second largest eigenvalue corresponds to the direction of maximal variance orthogonal to the original eigenvector, and so on. This makes sense given that eigenvectors correspond to the subspaces along which matrices stretch inputs on which they operate.
 
-We can now leverage tools from linear algebra to efficiently identify the eigenvectors of a matrix.
+\subsection{Identifying Directions of Maximal Variance in our Data}
+We now know from the previous section that PCA is performed by identifying the directions of maximum variance in our data set, which are going to be conveniently given by the eigenvectors of our covariance matrix. We can now leverage tools from linear algebra to efficiently identify the eigenvectors of a matrix.
 
-TODO: put derivation here that shows that the eigenvectors correspond to the directions of maximum variance. (next section)
+... now say how we're going to actually exploit this to get those directions and that subspace: SVD
 
 \subsection{How do We Actually Use PCA}
-Now that we have both the derivation, and the high level understanding of its interpretation in the form of the covariance matrix and SVD, what are we going to do from here?
+Now that we have both the derivation, and the high level understanding of its interpretation in the form of the covariance matrix and SVD, what are we going to do from here? Talk about how we actually decide how many dimensions we wish to reduce to, the fact that once we have our subspace, any spanning set of vectors will do, discuss different options for going down to different numbers of dimensions
 
 \subsection{PCA Example}
 Run through an example of PCA
