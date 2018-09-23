@@ -63,16 +63,42 @@ We identified a key idea behind dimensionality reduction in the previous section
 
 \readernote{We're going to assume that our data set has been centered such that each feature in $\textbf{x}_{n}$ has mean 0. This will not affect our results (we can convert back to the uncentered data by adding back the mean of each feature), but will make our derivations substantially easier to work with.}
 
-One metric for evaluating how `good' a subspace in $q$ dimensions is at representing our original data in $p$ dimensions is through \textit{reconstruction loss}. It is given by the expression:
+Let's consider a simple case first: $q=1$. This means that we're projecting our $p$ dimensional data down onto just a single dimension, or in geometric terms, we're projecting our data points $\textbf{x}_{n}$ onto a line through the origin. We can define this line as the unit vector $\textbf{w} \in \mathbb{R}^{p \times 1}$, and the projection is given by the dot product $\textbf{x} \cdot \textbf{w}$.
+
+\readernote{The unit vector $\textbf{w}$ onto which we project our data is known as a \textit{principle component}, from which PCA gets its name.}
+
+This projection produces a scalar, and that scalar defines how far our projection $\textbf{x} \cdot \textbf{w}$ is from the origin. We can convert this scalar to $p$ dimensional space by multiplying it with the unit vector $\textbf{w}$. This means that $(\textbf{x} \cdot \textbf{w})\textbf{w}$ is the result of projecting our data point $\textbf{x}$ down into one-dimension and then converting it to its coordinate location in $p$ dimensions. We refer to these as our \textit{projection vectors}, and we can observe what this looks like geometrically in Figure TODO ref figure here.
+
+TODO: offer figure of what is happening here
+
+The projection vectors we recover from the expression $(\textbf{x} \cdot \textbf{w})\textbf{w}$ will be in $p$ dimensions, but they will obviously not be identical to the original $p$ dimensional vectors (Figure TODO ref figure here demonstrates why that is the case). This difference between the original and projection vectors can be thought of as error, since it is information lost from our original data. For a given data point $\textbf{x}_{n}$ and unit vector $\textbf{w}$, we can measure this error through the expression:
 \begin{equation} \label{reconstruction-loss}
-	||\textbf{x}_{n} - (\textbf{W}\textbf{x}_{n})\textbf{W}||^{2}
+	||\textbf{x}_{n} - (\textbf{x} \cdot \textbf{w})\textbf{w}||^{2}
 \end{equation}
-where $\textbf{x}_{n}$ is $p$ dimensional and $\textbf{W}$ is our $q \times p$ dimensional projection matrix. Let's dig into exactly what this expression means.
+which is known as \textbf{reconstruction loss} because it measures the error incurred when reconstructing our original data from its projection. TODO: make this a definition?
 
-First, let's consider the term $(\textbf{W}\textbf{x}_{n})$.
+Reconstruction loss is then a metric for evaluating how `good' a subspace in $q$ dimensions is at representing our original data in $p$ dimensions. The better it is, the less information we lose, and the lower the reconstruction loss becomes.
 
+\subsection{Minimizing Reconstruction Loss}
+We now know that our goal is to find a good subspace to project onto, and we also know that finding this good subspace is equivalent to minimizing the reconstruction loss it incurs. Therefore, we now turn to minimizing the reconstruction loss.
+
+First, we can simplify the reconstruction loss for a single data point $\textbf{x}_n$ as follows:
+\begin{align*}
+	||\textbf{x}_{n} - (\textbf{x} \cdot \textbf{w})\textbf{w}||^{2} &= (\textbf{x}_{n} - (\textbf{x} \cdot \textbf{w})\textbf{w})(\textbf{x}_{n} - (\textbf{x} \cdot \textbf{w})\textbf{w}) \\
+	&= ||\textbf{x}_{n}||^{2} - 2(\textbf{x} \cdot \textbf{w})^{2} + (\textbf{x} \cdot \textbf{w})^{2}||\textbf{w}||^{2} \\
+	&= ||\textbf{x}_{n}||^{2} - (\textbf{x} \cdot \textbf{w})^{2} \\
+\end{align*}
+where $||\textbf{w}||^{2} = 0$ as they are unit vectors.
+
+TODO: pickup here, show what it is we are minimizing now with respect to w
+
+
+TODO: explain that more than one dimension will make sense:
+In general, we can project not just onto a line but onto any $q$ dimensional subspace for $q < p$. In this case, our projection operator $\textbf{w}$ will instead be a $p \times q$ dimensional projection matrix that we will denote $\textbf{W}$, and our projection vectors will be given by $(\textbf{W}^{T}\textbf{x})\textbf{W}$.
 
 ... do the rest of the derivation here, lead us to the idea of having the covariance matrix, mention thing about cov matrix being safely pos semi-def, mention that once we've identified our subspace, any spanning basis will do. finish with the idea that identifying the directions of maximum variance in our data is indeed what we care about, which we've just proved through reconstruction loss
+
+probably want to break this up into a few more subsections as well
 
 maybe will want to use some of this:
 
