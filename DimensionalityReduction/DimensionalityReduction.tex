@@ -59,36 +59,79 @@ It will be our goal to determine a low-dimensional representation of our data th
 TODO: set the final road map of introductory motivation, moving to the derivation via reconstruction loss that shows we need evecs of cov, discussing the high-level cov interp, now that we're there how do we use linalg to our advantage, then finally what are we actually going to do with PCA, and finally the example. then execute.
 
 \subsection{Reconstruction Loss}
-We identified a key idea behind dimensionality reduction in the previous section: we want to find subspaces of our data that preserve as much information as possible. Concretely, this means we want to convert our original data point $\textbf{x}_n$ in $p$ dimensions into a data point $\textbf{x}'_{n}$ in $q$ dimensions for $q < p$. 
+We identified a key idea behind dimensionality reduction in the previous section: we want to find subspaces of our data that preserve as much information as possible. Concretely, this means we want to convert our original data point $\textbf{x}_n$ in $D$ dimensions into a data point $\textbf{x}'_{n}$ in $D'$ dimensions for $D' < D$. 
 
 \readernote{We're going to assume that our data set has been centered such that each feature in $\textbf{x}_{n}$ has mean 0. This will not affect our results (we can convert back to the uncentered data by adding back the mean of each feature), but will make our derivations substantially easier to work with.}
 
-Let's consider a simple case first: $q=1$. This means that we're projecting our $p$ dimensional data down onto just a single dimension, or in geometric terms, we're projecting our data points $\textbf{x}_{n}$ onto a line through the origin. We can define this line as the unit vector $\textbf{w} \in \mathbb{R}^{p \times 1}$, and the projection is given by the dot product $\textbf{x} \cdot \textbf{w}$.
+Let's consider a simple case first: $D'=1$. This means that we're projecting our $D$ dimensional data down onto just a single dimension, or in geometric terms, we're projecting our data points $\textbf{x}_{n}$ onto a line through the origin. We can define this line as the unit vector $\textbf{w} \in \mathbb{R}^{D \times 1}$, and the projection is given by the dot product $\textbf{x} \cdot \textbf{w}$.
 
 \readernote{The unit vector $\textbf{w}$ onto which we project our data is known as a \textit{principle component}, from which PCA gets its name.}
 
-This projection produces a scalar, and that scalar defines how far our projection $\textbf{x} \cdot \textbf{w}$ is from the origin. We can convert this scalar to $p$ dimensional space by multiplying it with the unit vector $\textbf{w}$. This means that $(\textbf{x} \cdot \textbf{w})\textbf{w}$ is the result of projecting our data point $\textbf{x}$ down into one-dimension and then converting it to its coordinate location in $p$ dimensions. We refer to these as our \textit{projection vectors}, and we can observe what this looks like geometrically in Figure TODO ref figure here.
+This projection produces a scalar, and that scalar defines how far our projection $\textbf{x} \cdot \textbf{w}$ is from the origin. We can convert this scalar to $D$ dimensional space by multiplying it with the unit vector $\textbf{w}$. This means that $(\textbf{x} \cdot \textbf{w})\textbf{w}$ is the result of projecting our data point $\textbf{x}$ down into one-dimension and then converting it to its coordinate location in $D$ dimensions. We refer to these as our \textit{projection vectors}, and we can observe what this looks like geometrically in Figure TODO ref figure here.
 
 TODO: offer figure of what is happening here
 
-The projection vectors we recover from the expression $(\textbf{x} \cdot \textbf{w})\textbf{w}$ will be in $p$ dimensions, but they will obviously not be identical to the original $p$ dimensional vectors (Figure TODO ref figure here demonstrates why that is the case). This difference between the original and projection vectors can be thought of as error, since it is information lost from our original data. For a given data point $\textbf{x}_{n}$ and unit vector $\textbf{w}$, we can measure this error through the expression:
+The projection vectors we recover from the expression $(\textbf{x} \cdot \textbf{w})\textbf{w}$ will be in $D$ dimensions, but they will obviously not be identical to the original $D$ dimensional vectors (Figure TODO ref figure here demonstrates why that is the case). This difference between the original and projection vectors can be thought of as error, since it is information lost from our original data. For a given data point $\textbf{x}_{n}$ and unit vector $\textbf{w}$, we can measure this error through the expression:
 \begin{equation} \label{reconstruction-loss}
 	||\textbf{x}_{n} - (\textbf{x} \cdot \textbf{w})\textbf{w}||^{2}
 \end{equation}
 which is known as \textbf{reconstruction loss} because it measures the error incurred when reconstructing our original data from its projection. TODO: make this a definition?
 
-Reconstruction loss is then a metric for evaluating how `good' a subspace in $q$ dimensions is at representing our original data in $p$ dimensions. The better it is, the less information we lose, and the lower the reconstruction loss becomes.
+Reconstruction loss is then a metric for evaluating how `good' a subspace in $D'$ dimensions is at representing our original data in $D$ dimensions. The better it is, the less information we lose, and the lower the reconstruction loss becomes.
 
 \subsection{Minimizing Reconstruction Loss}
 We now know that our goal is to find a good subspace to project onto, and we also know that finding this good subspace is equivalent to minimizing the reconstruction loss it incurs. Therefore, we now turn to minimizing the reconstruction loss.
 
 First, we can simplify the reconstruction loss for a single data point $\textbf{x}_n$ as follows:
 \begin{align*}
-	||\textbf{x}_{n} - (\textbf{x} \cdot \textbf{w})\textbf{w}||^{2} &= (\textbf{x}_{n} - (\textbf{x} \cdot \textbf{w})\textbf{w})(\textbf{x}_{n} - (\textbf{x} \cdot \textbf{w})\textbf{w}) \\
-	&= ||\textbf{x}_{n}||^{2} - 2(\textbf{x} \cdot \textbf{w})^{2} + (\textbf{x} \cdot \textbf{w})^{2}||\textbf{w}||^{2} \\
-	&= ||\textbf{x}_{n}||^{2} - (\textbf{x} \cdot \textbf{w})^{2} \\
+	||\textbf{x}_{n} - (\textbf{x}_{n} \cdot \textbf{w})\textbf{w}||^{2} &= (\textbf{x}_{n} - (\textbf{x}_{n} \cdot \textbf{w})\textbf{w})(\textbf{x}_{n} - (\textbf{x}_{n} \cdot \textbf{w})\textbf{w}) \\
+	&= ||\textbf{x}_{n}||^{2} - 2(\textbf{x}_{n} \cdot \textbf{w})^{2} + (\textbf{x}_{n} \cdot \textbf{w})^{2}||\textbf{w}||^{2} \\
+	&= ||\textbf{x}_{n}||^{2} - (\textbf{x}_{n} \cdot \textbf{w})^{2} \\
 \end{align*}
-where $||\textbf{w}||^{2} = 0$ as they are unit vectors.
+where $||\textbf{w}||^{2} = 0$ as it is a unit vector. Note that we can define reconstruction loss over our entire data set as follows:
+\begin{equation} \label{full-reconstruction-loss}
+    RL(\textbf{w}) = \frac{1}{n} \sum_{n=1}^{N} ||\textbf{x}_{n}||^{2} - (\textbf{x}_{n} \cdot \textbf{w})^{2} \\
+\end{equation}
+Recall that our goal is to minimize reconstruction loss over our data set by optimizing the subspace defined by the vector $\textbf{w}$. Let's first rewrite Equation \ref{full-reconstruction-loss} as:
+\begin{align*}
+    RL(\textbf{w}) = \frac{1}{n} \sum_{n=1}^{N} ||\textbf{x}_{n}||^{2} - \frac{1}{n} \sum_{n=1}^{N} (\textbf{x}_{n} \cdot \textbf{w})^{2} \\
+\end{align*}
+where you can now see that our optimization will depend only on maximizing the second term:
+\begin{equation} \label{max-for-recon-loss}
+    \frac{1}{n} \sum_{n=1}^{N} (\textbf{x}_{n} \cdot \textbf{w})^{2}
+\end{equation}
+since it is the only one involving \textbf{w}. Recall that the sample mean of a data set is given by the expression $\frac{1}{n} \sum_{n=1}^{N} \textbf{x}_{n}$. Note that Equation \ref{max-for-recon-loss} is the sample mean of $(\textbf{x} \cdot \textbf{w})^{2}$. Recalling the definition of variance:
+\begin{align*}
+    Var(\textbf{Z}) &= \mathbb{E}(\textbf{Z}^{2}) - (\mathbb{E}(\textbf{Z}))^{2} \\
+    \mathbb{E}(\textbf{Z}^{2}) &= Var(\textbf{Z}) + (\mathbb{E}(\textbf{Z}))^{2} \\
+\end{align*}
+Substituting our terms involving $\textbf{x}_{n} \cdot \textbf{w}$:
+\begin{align*}
+    \frac{1}{n} \sum_{n=1}^{N} (\textbf{x}_{n} \cdot \textbf{w})^{2} &= Var(\textbf{x} \cdot \textbf{w}) + \big( \frac{1}{n} \sum_{n=1}^{N} (\textbf{x}_{n} \cdot \textbf{w}) \big)^{2}
+\end{align*}
+Recall that we centered our data $\textbf{x}_{n}$ to have mean 0 such that the expression above simplifies to:
+\begin{equation} \label{variance-equivalence}
+    \frac{1}{n} \sum_{n=1}^{N} (\textbf{x}_{n} \cdot \textbf{w})^{2} = Var(\textbf{x} \cdot \textbf{w}) \\
+\end{equation}
+where $Var(\textbf{x} \cdot \textbf{w})$ is equivalent to the term we wish to maximize. \textbf{This means that minimizing the reconstruction loss is equivalent to maximizing the variance of $\textbf{x} \cdot \textbf{w}$}.
+
+\readernote{This is an intuitive result. We should like to find a subspace that maintains the differences in our data.}
+
+\subsection{Multiple Principle Components}
+Up until now, we've been considering how we would project onto a single principle component $\textbf{w} \in \mathbb{R}^{D \times 1}$. This will reduce our data down to one dimension, just a scalar. In general, we will wish to preserve more of our data than just a single dimension, which means that we will need to have multiple orthogonal principal components. We can then describe the projection of our data $\textbf{x}_{n}$ onto this subspace as the sum of the projections onto orthogonal vectors:
+\begin{equation} \label{orthogonal-projections}
+    \sum_{d'=1}^{D'} (\textbf{x}_{n} \cdot \textbf{w}_{d'})\textbf{w}_{d'}
+\end{equation}
+
+\subsection{Identifying Directions of Maximal Variance in our Data}
+We now know from the previous section that we find our principle components (and thus the subspace we will project onto) by identifying the directions of maximum variance in our data set. We now do just that.
+
+
+
+... now say how we're going to actually exploit this to get those directions and that subspace: SVD
+
+
+\newpage
 
 TODO: pickup here, show what it is we are minimizing now with respect to w
 
@@ -111,11 +154,6 @@ Recall that we can write the covariance of an $m$-dimensional data set $\textbf{
 \readernote{Notice that we describe the covariance of a data set with the term $\textbf{S}$ instead of the usual covariance term $\Sigma$. This is only convention and has no real significance.}
 
 Perhaps intuitively, the direction of maximum variance in a matrix is given by the eigenvector with the largest eigenvalue. After that, the second largest eigenvalue corresponds to the direction of maximal variance orthogonal to the original eigenvector, and so on. This makes sense given that eigenvectors correspond to the subspaces along which matrices stretch inputs on which they operate.
-
-\subsection{Identifying Directions of Maximal Variance in our Data}
-We now know from the previous section that PCA is performed by identifying the directions of maximum variance in our data set, which are going to be conveniently given by the eigenvectors of our covariance matrix. We can now leverage tools from linear algebra to efficiently identify the eigenvectors of a matrix.
-
-... now say how we're going to actually exploit this to get those directions and that subspace: SVD
 
 \subsection{How do We Actually Use PCA}
 Now that we have both the derivation, and the high level understanding of its interpretation in the form of the covariance matrix and SVD, what are we going to do from here? Talk about how we actually decide how many dimensions we wish to reduce to, the fact that once we have our subspace, any spanning set of vectors will do, discuss different options for going down to different numbers of dimensions
