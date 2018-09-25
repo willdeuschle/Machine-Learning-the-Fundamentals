@@ -80,7 +80,7 @@ which is known as \textbf{reconstruction loss} because it measures the error inc
 Reconstruction loss is then a metric for evaluating how `good' a subspace in $D'$ dimensions is at representing our original data in $D$ dimensions. The better it is, the less information we lose, and the lower the reconstruction loss becomes.
 
 \subsection{Minimizing Reconstruction Loss}
-We now know that our goal is to find a good subspace to project onto, and we also know that finding this good subspace is equivalent to minimizing the reconstruction loss it incurs. Therefore, we now turn to minimizing the reconstruction loss.
+We now know that our goal is to find a good subspace to project onto, and we also know that finding this good subspace is equivalent to minimizing the reconstruction loss it incurs. Therefore, we now turn to this optimization problem.
 
 First, we can simplify the reconstruction loss for a single data point $\textbf{x}_n$ as follows:
 \begin{align*}
@@ -107,31 +107,36 @@ since it is the only one involving \textbf{w}. Recall that the sample mean of a 
 \end{align*}
 Substituting our terms involving $\textbf{x}_{n} \cdot \textbf{w}$:
 \begin{align*}
-    \frac{1}{n} \sum_{n=1}^{N} (\textbf{x}_{n} \cdot \textbf{w})^{2} &= Var(\textbf{x} \cdot \textbf{w}) + \big( \frac{1}{n} \sum_{n=1}^{N} (\textbf{x}_{n} \cdot \textbf{w}) \big)^{2}
+    \frac{1}{n} \sum_{n=1}^{N} (\textbf{x}_{n} \cdot \textbf{w})^{2} &= Var\big[\{\textbf{x}_{n} \cdot \textbf{w}\}_{n=1}^{N}\big] + \big( \mathbb{E} \big[\{\textbf{x}_{n} \cdot \textbf{w}\}_{n=1}^{N}\big] \big)^{2}
 \end{align*}
 Recall that we centered our data $\textbf{x}_{n}$ to have mean 0 such that the expression above simplifies to:
 \begin{equation} \label{variance-equivalence}
-    \frac{1}{n} \sum_{n=1}^{N} (\textbf{x}_{n} \cdot \textbf{w})^{2} = Var(\textbf{x} \cdot \textbf{w}) \\
+    \frac{1}{n} \sum_{n=1}^{N} (\textbf{x}_{n} \cdot \textbf{w})^{2} = Var\big[\{\textbf{x}_{n} \cdot \textbf{w}\}_{n=1}^{N}\big] \\
 \end{equation}
-where $Var(\textbf{x} \cdot \textbf{w})$ is equivalent to the term we wish to maximize. \textbf{This means that minimizing the reconstruction loss is equivalent to maximizing the variance of $\textbf{x} \cdot \textbf{w}$}.
+where $Var\big[\{\textbf{x}_{n} \cdot \textbf{w}\}_{n=1}^{N}\big]$ is equivalent to the term we wish to maximize. \textbf{This means that minimizing the reconstruction loss is equivalent to maximizing the variance of our projections $\{\textbf{x}_{n} \cdot \textbf{w}\}_{n=1}^{N}$}.
 
-\readernote{This is an intuitive result. We should like to find a subspace that maintains the differences in our data.}
+\readernote{This is an intuitive result. We should like to find a subspace that maintains the spread in our data.}
 
 \subsection{Multiple Principle Components}
-Up until now, we've been considering how we would project onto a single principle component $\textbf{w} \in \mathbb{R}^{D \times 1}$. This will reduce our data down to one dimension, just a scalar. In general, we will wish to preserve more of our data than just a single dimension, which means that we will need to have multiple orthogonal principal components. We can then describe the projection of our data $\textbf{x}_{n}$ onto this subspace as the sum of the projections onto orthogonal vectors:
+Up until now, we've been considering how we would project onto a single principle component $\textbf{w} \in \mathbb{R}^{D \times 1}$. This will reduce our data down to one dimension, just a scalar. In general, we will wish to preserve more of our data than just a single dimension, which means that we will need to have multiple orthogonal principal components. We can then describe the projection of our data $\textbf{x}_{n}$ onto this subspace as the sum of the projections onto $D'$ orthogonal vectors:
 \begin{equation} \label{orthogonal-projections}
     \sum_{d'=1}^{D'} (\textbf{x}_{n} \cdot \textbf{w}_{d'})\textbf{w}_{d'}
 \end{equation}
 
 \subsection{Identifying Directions of Maximal Variance in our Data}
-We now know from the previous section that we find our principle components (and thus the subspace we will project onto) by identifying the directions of maximum variance in our data set. We now do just that.
-
-
-
-... now say how we're going to actually exploit this to get those directions and that subspace: SVD
-
+We now know from the previous section that we find our principle components (and thus the subspace we will project onto) by identifying the directions of maximum variance in our projected data set. We know from Equation \ref{variance-equivalence} that the variance is equivalent to:
+\begin{equation*}
+    \sigma^{2}_{\textbf{w}} \equiv Var\big[\{\textbf{x}_{n} \cdot \textbf{w}\}_{n=1}^{N}\big] = \frac{1}{n} \sum_{n=1}^{N} (\textbf{x}_{n} \cdot \textbf{w})^{2}
+\end{equation*}
+Rewriting this in terms of matrix notation we have that:
+\begin{equation*}
+    \sigma^{2}_{\textbf{w}} = \frac{1}{n} (\textbf{X} \textbf{w})^{T} (\textbf{X} \textbf{w})
+\end{equation*}
+We can further simplify this: TODO further simplify this
 
 \newpage
+
+... now say how we're going to actually exploit this to get those directions and that subspace: SVD
 
 TODO: pickup here, show what it is we are minimizing now with respect to w
 
