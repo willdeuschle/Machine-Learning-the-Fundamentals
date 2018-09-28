@@ -132,13 +132,42 @@ Rewriting this in terms of matrix notation we have that:
 \begin{equation*}
     \sigma^{2}_{\textbf{w}} = \frac{1}{n} (\textbf{X} \textbf{w})^{T} (\textbf{X} \textbf{w})
 \end{equation*}
-We can further simplify this: TODO further simplify this
+We can further simplify this:
+\begin{align*}
+    \sigma^{2}_{\textbf{w}} &= \frac{1}{n} \textbf{w}^{T}\textbf{X}^{T} \textbf{X} \textbf{w} \\
+    \sigma^{2}_{\textbf{w}} &= \frac{1}{n} \textbf{w}^{T}\textbf{X}^{T} \textbf{X} \textbf{w} \\
+    \sigma^{2}_{\textbf{w}} &= \textbf{w}^{T} \frac{\textbf{X}^{T}\textbf{X}}{n} \textbf{w} \\
+    \sigma^{2}_{\textbf{w}} &= \textbf{w}^{T} \textbf{S} \textbf{w} \\
+\end{align*}
+where $\textbf{S} = \frac{\textbf{X}^{T}\textbf{X}}{n}$ is the empirical covariance matrix of our data set.
+
+\readernote{Notice that by convention we describe the empirical covariance of a data set with the term $\textbf{S}$ instead of the usual covariance term $\Sigma$.}
+
+Recall that it is our goal to maximize the term $\sigma^{2}_{\textbf{w}} = Var\big[\{\textbf{x}_{n} \cdot \textbf{w}\}_{n=1}^{N}\big]$ with respect to $\textbf{w}$. Furthermore, $\textbf{w}$ is a unit vector, so we must optimize subject to the constraint $\textbf{w}^{T}\textbf{w} = 1$. Recalling the discussion of Lagrange multipliers from Chapter 6 on Support Vector Machines, we incorporate this constraint by reformulating our optimization problem as the Lagrangian equation:
+\begin{align*}
+    \mathcal{L}(\textbf{w}, \lambda) &= \textbf{w}^{T} \textbf{S} \textbf{w} - \lambda(\textbf{w}^{T}\textbf{w} - 1) \\
+\end{align*}
+As usual, we proceed by taking the derivative with respect to each parameter:
+\begin{align*}
+    \frac{d\mathcal{L}(\textbf{w}, \lambda)}{d\textbf{w}} &= 2\textbf{S} \textbf{w} - 2\lambda\textbf{w} \\
+    \frac{d\mathcal{L}(\textbf{w}, \lambda)}{d\lambda} &= \textbf{w}^{T}\textbf{w} - 1 \\
+\end{align*}
+We can now set these equal to 0 and solve for the optimal values:
+\begin{align*}
+    \textbf{S} \textbf{w} &= \lambda\textbf{w} \\
+    \textbf{w}^{T}\textbf{w} &= 1 \\
+\end{align*}
+This result is very significant! As we knew already, we needed $\textbf{w}$ to be a unit vector. However, we also see that $\textbf{w}$ is an eigenvector of the empirical covariance matrix $\textbf{w}$. Futhermore, the eigenvector that will maximize our quantity of interest $\sigma^{2}_{\textbf{w}} = \textbf{w}^{T} \textbf{S} \textbf{w}$ will be the eigenvector with the largest eigenvalue $\lambda$. Fortunately, linear algebra gives us many tools for finding eigenvectors, and as a result we have the tools to find our principal components.
+
+To recap, we've learned that the optimal principal components (meaning the vectors describing our projection subspace) are the eigenvectors of the empirical covariance matrix of our data set. The vector preserving the most variance in our data (and thus minimizing the reconstruction loss) is given by the eigenvector with the largest eigenvalue, followed by the eigenvector with the next largest eigenvalue, and so on. Furthermore, while it is somewhat outside the scope of this textbook, we are guaranteed to have $D$ distinct, orthogonal eigenvectors with eigenvalues $\geq 0$. This is a result of linear algebra that hinges on the fact that our empirical covariance matrix $\textbf{S}$ is symmetric and positive semi-definite.
+
+TODO NEXT PICKUP HERE:
+
+discuss the idea that all these eigenvectors span the entire D-dim space, they are orthogonal and thus the projections are completely uncorrelated and can be added to each other, how do we actually get these eigenvectors (SVD), how do we choose the number of eigenvectors we would like to actually keep.
 
 \newpage
 
 ... now say how we're going to actually exploit this to get those directions and that subspace: SVD
-
-TODO: pickup here, show what it is we are minimizing now with respect to w
 
 
 TODO: explain that more than one dimension will make sense:
