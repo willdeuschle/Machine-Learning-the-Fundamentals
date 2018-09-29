@@ -143,7 +143,7 @@ where $\textbf{S} = \frac{\textbf{X}^{T}\textbf{X}}{n}$ is the empirical covaria
 
 \readernote{Notice that by convention we describe the empirical covariance of a data set with the term $\textbf{S}$ instead of the usual covariance term $\Sigma$.}
 
-Recall that it is our goal to maximize the term $\sigma^{2}_{\textbf{w}} = Var\big[\{\textbf{x}_{n} \cdot \textbf{w}\}_{n=1}^{N}\big]$ with respect to $\textbf{w}$. Furthermore, $\textbf{w}$ is a unit vector, so we must optimize subject to the constraint $\textbf{w}^{T}\textbf{w} = 1$. Recalling the discussion of Lagrange multipliers from Chapter 6 on Support Vector Machines, we incorporate this constraint by reformulating our optimization problem as the Lagrangian equation:
+Our goal is to maximize the term $\sigma^{2}_{\textbf{w}} = Var\big[\{\textbf{x}_{n} \cdot \textbf{w}\}_{n=1}^{N}\big]$ with respect to $\textbf{w}$. Furthermore, $\textbf{w}$ is a unit vector, so we must optimize subject to the constraint $\textbf{w}^{T}\textbf{w} = 1$. Recalling the discussion of Lagrange multipliers from Chapter 6 on Support Vector Machines, we incorporate this constraint by reformulating our optimization problem as the Lagrangian equation:
 \begin{align*}
     \mathcal{L}(\textbf{w}, \lambda) &= \textbf{w}^{T} \textbf{S} \textbf{w} - \lambda(\textbf{w}^{T}\textbf{w} - 1) \\
 \end{align*}
@@ -157,40 +157,32 @@ We can now set these equal to 0 and solve for the optimal values:
     \textbf{S} \textbf{w} &= \lambda\textbf{w} \\
     \textbf{w}^{T}\textbf{w} &= 1 \\
 \end{align*}
-This result is very significant! As we knew already, we needed $\textbf{w}$ to be a unit vector. However, we also see that $\textbf{w}$ is an eigenvector of the empirical covariance matrix $\textbf{w}$. Futhermore, the eigenvector that will maximize our quantity of interest $\sigma^{2}_{\textbf{w}} = \textbf{w}^{T} \textbf{S} \textbf{w}$ will be the eigenvector with the largest eigenvalue $\lambda$. Fortunately, linear algebra gives us many tools for finding eigenvectors, and as a result we have the tools to find our principal components.
+This result is very significant! As we knew already, we needed $\textbf{w}$ to be a unit vector. However, we also see that $\textbf{w}$ is an eigenvector of the empirical covariance matrix $\textbf{w}$. Futhermore, the eigenvector that will maximize our quantity of interest $\sigma^{2}_{\textbf{w}} = \textbf{w}^{T} \textbf{S} \textbf{w}$ will be the eigenvector with the largest eigenvalue $\lambda$. Fortunately, linear algebra gives us many tools for finding eigenvectors, and as a result we can efficiently identify our principal components.
 
 To recap, we've learned that the optimal principal components (meaning the vectors describing our projection subspace) are the eigenvectors of the empirical covariance matrix of our data set. The vector preserving the most variance in our data (and thus minimizing the reconstruction loss) is given by the eigenvector with the largest eigenvalue, followed by the eigenvector with the next largest eigenvalue, and so on. Furthermore, while it is somewhat outside the scope of this textbook, we are guaranteed to have $D$ distinct, orthogonal eigenvectors with eigenvalues $\geq 0$. This is a result of linear algebra that hinges on the fact that our empirical covariance matrix $\textbf{S}$ is symmetric and positive semi-definite.
 
-TODO NEXT PICKUP HERE:
+\subsection{Choosing the Optimal Number of Principal Components}
+We now know that we can find the principal components that will compose our projection subspace by identifying the eigenvectors of the empirical covariance matrix $\textbf{S}$. Note that the exact procedure for finding these eigenvectors is a topic better suited for a book on linear algebra, but if you are interested, you can look into a topic known as Singular Value Decomposition (SVD). For our purposes, we will assume that we have a black box to which we can pass $\textbf{S}$ and get back a list of the $D$ principal components.
 
-discuss the idea that all these eigenvectors span the entire D-dim space, they are orthogonal and thus the projections are completely uncorrelated and can be added to each other, how do we actually get these eigenvectors (SVD), how do we choose the number of eigenvectors we would like to actually keep.
+Because these principal components are orthogonal, the projections they will produce will be entirely uncorrelated. This means we can sum the projections of our original data onto each component individually to create our lower dimensional data points. Additionally, the orthogonality of these $D$ principal components means that they span the entire $D$ dimensional space of our original data set. That being said, it doesn't make sense that we would use every principal component to define our projection subspace, since that wouldn't lead to a reduction in the dimensionality of our data at all. We now need to how many principal components we will choose to include, and therefore what subspace we will be projecting onto.
 
-\newpage
+How many principal components we choose to include depends on our goals. For example, if we simply wish to visualize our data, then we would like to project onto a 2D or 3D surface (which is possible for humans to visualize). Therefore, we would choose the first 2 or 3 principal components, and project our original data onto the subspace defined by those vectors. This might look something like Figure TODO REF FIGURE HERE:
 
-... now say how we're going to actually exploit this to get those directions and that subspace: SVD
+TODO create figure where we use PCA and visualize our data.
 
+However, it's more complicated to choose the optimal number of principal components when our goal is not to visualize the data. We're now left with the task of trading off how much dimensionality reduction we wish to achieve with how much information we want to preserve from our data. Depending on your use case, you may have a hard cutoff for how much data you can retain, in which case you should choose that number of principal components. However, it's more common that you will simply want to keep around as many principal components as proves to be useful.
 
-TODO: explain that more than one dimension will make sense:
-In general, we can project not just onto a line but onto any $q$ dimensional subspace for $q < p$. In this case, our projection operator $\textbf{w}$ will instead be a $p \times q$ dimensional projection matrix that we will denote $\textbf{W}$, and our projection vectors will be given by $(\textbf{W}^{T}\textbf{x})\textbf{W}$.
+One way to do this is to refer back to the informal `elbow' method described for K-Means clustering. In this case, we can graph our reconstruction loss against the number of principal components we use, as seen in Figure TODO ref figure here. The idea here is to add principal components to your subspace one at a time, calculating the reconstruction loss as you go. The first few principal components will greatly reduce the reconstruction loss, before eventually leveling off. You can identify the `elbow' where the reduction in loss starts to diminish, and choose to use that number of principal components.
 
-... do the rest of the derivation here, lead us to the idea of having the covariance matrix, mention thing about cov matrix being safely pos semi-def, mention that once we've identified our subspace, any spanning basis will do. finish with the idea that identifying the directions of maximum variance in our data is indeed what we care about, which we've just proved through reconstruction loss
+TODO: make figure of reconstruction loss vs. number of principal components
 
-probably want to break this up into a few more subsections as well
+Another way to do this is to consider how much variance you wish to preserve in your data. Each principal component is associated with an eigenvalue $\lambda_{d}$ that indicates what proportion of the variance that principal component is responsible for in your data set. Then the fraction of variance retained from your data set if you choose to keep $D'$ principal components is given by:
+\begin{equation} \label{variance-retention}
+    \text{retained variance} = \frac{\sum_{d'=1}^{D'} \lambda_{d'}}{\sum_{d=1}^{D} \lambda{d}}
+\end{equation}
+For different applications, there may be different levels of acceptable variance retention, which can help you decide how many principal components to keep.
 
-maybe will want to use some of this:
-
-Recall that we can write the covariance of an $m$-dimensional data set $\textbf{X}$ as:
-
-\begin{align*}
-	\textbf{S} = cov(\textbf{X}) = \sum_{n=1}^{N} \textbf{x}_{i} \textbf{x}_{i}^{T} = \textbf{X}\textbf{X}^{T}
-\end{align*}
-
-\readernote{Notice that we describe the covariance of a data set with the term $\textbf{S}$ instead of the usual covariance term $\Sigma$. This is only convention and has no real significance.}
-
-Perhaps intuitively, the direction of maximum variance in a matrix is given by the eigenvector with the largest eigenvalue. After that, the second largest eigenvalue corresponds to the direction of maximal variance orthogonal to the original eigenvector, and so on. This makes sense given that eigenvectors correspond to the subspaces along which matrices stretch inputs on which they operate.
-
-\subsection{How do We Actually Use PCA}
-Now that we have both the derivation, and the high level understanding of its interpretation in the form of the covariance matrix and SVD, what are we going to do from here? Talk about how we actually decide how many dimensions we wish to reduce to, the fact that once we have our subspace, any spanning set of vectors will do, discuss different options for going down to different numbers of dimensions
+Finally, we'd like make a comment about what happens after we've selected our principal components. Upon selecting our principal components, we've defined a subspace onto which we will be projecting our original data. And although this subspace is defined by the basis given by our principal components, these principal components are not a unique description of that subspace. We could choose to use any basis once we've identified our subspace through the principal components. The importance of this idea is simply that although our principal components are unique, using them to define our projection subspace is not a unique choice.
 
 \subsection{PCA Example}
-Run through an example of PCA
+Run through an example of PCA here
