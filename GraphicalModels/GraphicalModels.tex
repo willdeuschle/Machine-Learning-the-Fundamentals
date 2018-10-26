@@ -18,7 +18,7 @@ TODO: linear regression diagram here
 
 Over the course of the chapter, we'll explain what all these symbols indicate about a given problem. We need these graphical models for a couple of reasons. First, and most importantly, a graphical model unambiguously conveys a problem setup. This is very useful both to share models between people (communication) and to keep all the information in a specific model clear in your own head (consolidation). Once we understand the meaning of the symbols in a directed graphical model, it will be far easier to simply examine a model than it will be to read several sentences describing the type of model we're imagining for a specific problem. Another reason we use DGMs is that we can use them to reason about independence properties between different parts of our model. For simple problem setups this may be easy to keep track of in our heads, but as we introduce more complicated models if will be useful to reason about independence properties simply by examining the DGM that describes that model.
 
-Ultimately, directed graphical models are a tool to boost efficiency and clarity. We'll examine the core components of a DGM, as well as some of their properties regarding independence and model complexity. The machinery we develop here will be used heavily in the coming chapters to explain several nuanced models.
+Ultimately, directed graphical models are a tool to boost efficiency and clarity. We'll examine the core components of a DGM, as well as some of their properties regarding independence and model complexity. The machinery we develop here will be used heavily in the coming chapters to explain several important models.
 
 \section{Directed Graphical Models (Bayesian Networks)}
 There are a few fundamental components to all of the models we've examined so far. In fact, we can model just about everything we've discussed to this point using just random variables, deterministic parameters, and means of indicating the relationships between them. Let's consider linear regression as a simple but comprehensive example. We have a random variable $y_n$, the object of predictive interest, which depend on deterministic parameters in the form of data $\textbf{x}_n$ and weights $\textbf{w}$. This results in the DGM given by Figure TODO: ref figure here. There are four primary pieces of notation that the linear regression setup gives rise to, and these four components form the backbone of every DGM we would like to construct.
@@ -37,20 +37,71 @@ Third, we have arrows that indicate the relationship between different random va
 
 TODO: image of arrows.
 
-And finally, we have plate notation that indicates when we have multiple values of a given setup:
+And finally, we have plate notation that indicates when we have multiple values for a portion of the model setup:
 
 TODO plate notation here.
 
-Some things to definitely cover in this section:
+Hopefully the utility of this notation is evident. With these four simple constructs, we can describe complex model setups with a simple diagram. We can have an arbitrary number of component with any sort of dependence structure baked in. It can be a useful reference, and also makes iterating on a given model setup much more straightforward.
 
 \subsection{Joint Probability Distributions}
-- specifying joint probability distributions
-- how DGMs are constructed (distr -> dgm and dgm -> distr)
+We'll now consider how DGMs simplify the task of reasoning about a joint probability distribution over multiple random variables. Note that for any joint probability distribution, regardless of our knowledge about the dependence structure in the model, it's always valid to write a generic joint probability distribution as follows:
+\begin{align*}
+	p(A, B, C)
+\end{align*}
+where in this setup, we are interested in the joint distribution between three random variables $A, B, C$. However, this doesn't tell us anything about the structure of the problem at hand: where there is dependence and how we can simplify our eventual problem setup. For example, if we knew something about the conditional distribution of $A$ given $B$ and $C$, and $B$ and $C$ are independent we would much rather setup our joint probability equation as:
+\begin{align*}
+	p(A, B, C) = p(A | B, C)p(B)p(C)
+\end{align*}
+because we're now describing the distribution in terms of quantities that we know how to express. DGMs assist in this process of identifying the appropriate factorization, as their structure allows us to read off the factorization directly. For example, the joint distribution given by Equation (TODO equation here) appears as follows:
+TODO figure here of how that joint distr would look.
+Notice that we can move between a DGM and the factorized joint distribution by identifying the arrows indicating dependencies. If a random variable has no dependencies (as both $B$ and $C$ do in this example), they can be written on their own as marginal probabiilties. For random variables with arrows coming into them, indicating dependence, we include them in the joint factorization conditioned on the variables that they depend on. In this way we can move back and forth between DGMs and factorized joint distributions with ease.
 
 \subsection{Generative Models}
-- generative models and ancestral sampling
+While DGMs allow us to move quickly between the factorized joint distribution and the corresponding graphical model, they also show us the process by which data comes into existence (sometimes referred to as the data generating story or generative process). What this means is that if presented with a DGM, it is possible for us to identify how the data gets created, and if we have the proper tools, how we could generate new data ourselves.
+
+\begin{definition}{Generative Models}{generative-models}
+    A generative model is a model that describes the process by which data comes into existence. While this is not always entirely necessary if our goal is only to make predictions or perform some other kind of inference, it does have the added benefit of enabling the creation of new data by sampling from the generative model.
+\end{definition}
+
+Let's consider a simple example to see how this works in practice:
+TODO simple one rv to another rv example here
+Consider the flow of information present in Figure TODO ref figure here. First, there is some realization of the random variable $Z$. Then conditioned on that value of $Z$, there is some realization on the random variable $Y$. Obviously, the joint factorization for this DGM is given by $p(Z)p(Y|Z)$, but on a more intuitive level, the data is created by first sampling from $Z$'s distribution, and then based on that value, sampling from the conditional distribution of $Y$.
+
+To make this concrete, we could consider $Z$ to be a random variable that determined a specific breed of dog, and the random variable $Y$ to be the random variable that, conditioned on the breed of dog, determined the snout length of that type of dog. Notice that we have not specified anything about the specific distributional form from which $Z$ and $Y$ come, only the story of how they relate to each other.
+
+This story also shows us that if we had some model for $Z$ and $Y|Z$, we could generate data points ourselves. Our procedure would simply be to sample from $Z$ and then to sample from $Y$ conditioned on that value of $Z$. We could perform this process as many times as we liked.
+
+This technique, sampling from distributions in the order indicated by their DGM, is known as \textbf{ancestral sampling}, and is a major benefit of generative models.
+
+\begin{definition}{Ancestral Sampling}{ancestral-sampling}
+	Ancestral sampling is a technique used to generate data from an arbitrary DGM. It works by sampling from the random variables in topological order, meaning that we first sample from all random variables without any dependence, then from the random variables that depend on those intially sampled random variables, and so on until all the random variables have been sampled. This is demonstrated in Figure TODO reference figure here.
+
+	TODO: put a figure here demonstrating a complex DGM and the order in which we have to sample from it.
+\end{definition}
+
+\subsection{Generative Modeling vs. Discriminative Modeling}
+In the previous section, we described generative modeling. You may have wondered if there was any other type of modeling possible, if not the model that describes how data comes into existence. There is another type of model known as a discriminative model, and we have already seen several examples of them.
+
+A discriminitive model skips the step of describing how data appears and cuts right to the objective of the model. For example, if we wish to predict what value a response variable will take on, instead of modeling how the various data points come into existence by assigning a distribution to each of them, we can consider the input data points to simply be parameters without an underlying distribution, and then our model is merely tasked with predicting the response variable instead of modeling how all the data came about. This is exactly what we did with linear and logistic regression, and it often what we do with SVMs and neural networks as well. Let's look at the DGM describing linear regression again:
+TODO put linear regression DGM here again.
+Notice that the data points $\textbf{x}_n$ are not random variables but merely parameters of the DGM. If we wanted a generative model, we would instead have a DGM that looks like the following:
+TODO put linear regression DGM here where we are also modeling the random variable x.
+The difference between these model setups is significant. The generative model for linear regression would allow us to generate new data points, but it is also significantly more complex to handle because now instead of having just a single response variable to predict, we also have to contend with how we model the generation of the data points $\textbf{x}_n$. This may be difficult on both conceptual or computational levels. This doesn't mean we'll never try to do this, but if our goal is simply to make predictions about the response variable $y_n$, it may be overkill to use a generative model.
+
+In essence, the distinction between generative and discriminative models comes down to whether or not the model tries to describe how the data is realized or if the model simply tries to perform a specific inference task without modeling the entirety of the data generating process. Neither one is better, they are just different techniques that will apply differently depending on your modeling and inferential needs.
 
 \subsection{Understanding Complexity}
+We've already motivated one of the primary uses of DGMs as being the ability to convert a joint distribution into a factorization. At the heart of that task was recognizing and exploiting independence properties in a model over multiple random variables. Another benefit of this process is that it allows us to easily reason about the complexity of a joint factorization over discrete random variables. In other words, it allows us to easily determine how many parameters we will have to learn to describe a given factorization for a given DGM.
+
+Let's consider an example to make this concept clear. Let's say we have four categorical random variables A, B, C, D which take on 2, 4, 8, and 16 values respectively. If we were to assume full independence between each of these random variables, then a joint distribution table over all of these random variables would require $(2^2 * 4^2 * 8^2 * 16^2) - 1$ total parameters.
+
+\readernote{TODO: explain why there is the -1 in that above justification for how many parameters we would need in our joint distribution.}
+
+However, if we knew that some of these random variables were conditionally dependent, then the number of parameters would change. For example, consider the joint distribution given by $p(A, B, C, D) = p(A)p(B|A)p(C|A)p(D|A)$. This would imply that conditioned on $A$, each of $B, C, D$ were conditionally independent. This can also be shown by the following DGM:
+TODO put dgm for this here
+In this case, a table of parameters to describe this joint distribution would only require TODO figure this out seems like we made a mistake
+
+
 - complexity implications for different factorizations of joint distributions
 - sharing parameters as a means of reducing complexity
 - touch on goal of finding areas where there isn't dependence (and thus less complexity, size of probability table argument)
