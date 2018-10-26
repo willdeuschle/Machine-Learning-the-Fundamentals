@@ -1,4 +1,8 @@
 \chapter{Graphical Models}
+The fields of mathematics, statistics, physics, and many others academic fields have distinct notational systems. As a hybrid of a handful of fields, machine learning borrows from many of those existing systems. These notational abstractions are important to enable consistent and efficient communication of ideas, for both teaching and novel knowledge creation purposes. Much of machine learning revolves around modeling problems effectively, and then performing inference over those models to generate useful insights. In this chapter, we will be introducing a notational system known as the directed graphical model (DGM) that will help us reason about a broad class of models.
+
+ as a field that Different fields have different notational abstractions that enable consistent and efficient communication of 
+
 Offer intro here. Some things to definitely cover:
 
 - what is a DGM
@@ -8,9 +12,35 @@ Offer intro here. Some things to definitely cover:
 - not going to cover undirected graphical models
 
 \section{Motivation}
-Flesh out the ideas offered in the intro here, ML cube, look forward to some use cases where DGMs are useful. Touch on bayesian networks and properties of conditional independence.
+Up until this point, we've defined notation on the fly, relied on common statistical concepts, and used diagrams to convey meaning about the setup for the different problems we've been motivating and solving. We've build up enough working knowledge and intuition at this point to switch to a more general abstraction for defining models, DGMs, that will allow us to both consolidate our notation and convey information about arbitrary problem formulations. Here is an example of what a DGM would look like for a linear regression problem setup:
+
+TODO: linear regression diagram here
+
+Over the course of the chapter, we'll explain what all these symbols indicate about a given problem. We need these graphical models for a couple of reasons. First, and most importantly, a graphical model unambiguously conveys a problem setup. This is very useful both to share models between people (communication) and to keep all the information in a specific model clear in your own head (consolidation). Once we understand the meaning of the symbols in a directed graphical model, it will be far easier to simply examine a model than it will be to read several sentences describing the type of model we're imagining for a specific problem. Another reason we use DGMs is that we can use them to reason about independence properties between different parts of our model. For simple problem setups this may be easy to keep track of in our heads, but as we introduce more complicated models if will be useful to reason about independence properties simply by examining the DGM that describes that model.
+
+Ultimately, directed graphical models are a tool to boost efficiency and clarity. We'll examine the core components of a DGM, as well as some of their properties regarding independence and model complexity. The machinery we develop here will be used heavily in the coming chapters to explain several nuanced models.
 
 \section{Directed Graphical Models (Bayesian Networks)}
+There are a few fundamental components to all of the models we've examined so far. In fact, we can model just about everything we've discussed to this point using just random variables, deterministic parameters, and means of indicating the relationships between them. Let's consider linear regression as a simple but comprehensive example. We have a random variable $y_n$, the object of predictive interest, which depend on deterministic parameters in the form of data $\textbf{x}_n$ and weights $\textbf{w}$. This results in the DGM given by Figure TODO: ref figure here. There are four primary pieces of notation that the linear regression setup gives rise to, and these four components form the backbone of every DGM we would like to construct.
+
+First, we have random variables given by an open circle:
+
+TODO image here of random variables here (observed and unobserved).
+
+Note that if the model dictates that we observe a random variable, then we shade it in. Otherwise, it's left open.
+
+Second, we have deterministic parameters given by dots:
+
+TODO image of deterministic parameters here.
+
+Third, we have arrows that indicate the relationship between different random variables and parameters:
+
+TODO: image of arrows.
+
+And finally, we have plate notation that indicates when we have multiple values of a given setup:
+
+TODO plate notation here.
+
 Some things to definitely cover in this section:
 
 \subsection{Joint Probability Distributions}
@@ -32,6 +62,36 @@ Some things to definitely cover in this section:
 Touch on how:
 
 \subsection{Independence and D-Separation}
+We can use the form of a graphical model to determine which variables are independent under specific observation assumptions. We have three base cases for the relationship between variables from which we can reason about the structure in any arbitrarily complex model. The three cases look like the following:
+
+TODO: image of the three different arrow directions for three variables.
+
+Explain the notion of blocking.
+
+Let's consider the structure of independence in each of these examples, and how observations affect those independence assumptions.
+
+Considering the first example: A <--- C ---> B. Provide both the case where we've observed C and the case where we have not observed C.
+
+We can factorize this as follows:
+
+\begin{align*}
+	p(A, B, C) = p(C) p(A | C) p(B | C)
+\end{align*}
+
+We know that for this case, A and B are not independent if we have not observed C. However, once we've observed C, then we have that A and B are conditionally independent. Intuitively, if we observe one of A but not B or C, we have some information about what C might be and therefore also what B might be. Should I offer a concrete example here about rain and grass and stuff?
+
+Moving on to the second example, we have the structure given by: A ---> C --> B. Again provide both the case where we've observed C and the case where we haven't.
+
+This allows us to write the joint distribution as:
+
+\begin{align*}
+	p(A, B, C) = p(A) p(A | A) p(B | C)
+\end{align*}
+
+We have that for this case, A and B are not independent if we have not observed C. However, once we've observed C, then we have that A and B are again conditionally independent. Intuitively, if we observed A but not B or C, we have some information about what A might be and therefore what B might be as well. The reverse also applies.
+
+On the other hand, once we've observed C, which corresponds to the model in TODO figure here
+
 - we can use DGMs to determine independence properties for a given model
 - run through different cases of DGMs and which imply independence, dependence, "explaining away"
 - D-separation definition
