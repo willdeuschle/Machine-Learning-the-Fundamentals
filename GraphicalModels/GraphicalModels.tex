@@ -93,67 +93,89 @@ In essence, the distinction between generative and discriminative models comes d
 \subsection{Understanding Complexity}
 We've already motivated one of the primary uses of DGMs as being the ability to convert a joint distribution into a factorization. At the heart of that task was recognizing and exploiting independence properties in a model over multiple random variables. Another benefit of this process is that it allows us to easily reason about the complexity of a joint factorization over discrete random variables. In other words, it allows us to easily determine how many parameters we will have to learn to describe a given factorization for a given DGM.
 
-Let's consider an example to make this concept clear. Let's say we have four categorical random variables A, B, C, D which take on 2, 4, 8, and 16 values respectively. If we were to assume full independence between each of these random variables, then a joint distribution table over all of these random variables would require $(2^2 * 4^2 * 8^2 * 16^2) - 1$ total parameters.
+Let's consider an example to make this concept clear. Let's say we have four categorical random variables A, B, C, D which take on 2, 4, 8, and 16 values respectively. If we were to assume full dependence between each of these random variables, then a joint distribution table over all of these random variables would require $(2^2 * 4^2 * 8^2 * 16^2) - 1$ total parameters.
 
-\readernote{TODO: explain why there is the -1 in that above justification for how many parameters we would need in our joint distribution.}
+\readernote{Notice that the number of parameters we need is $(2^2 * 4^2 * 8^2 * 16^2) - 1$ and not $(2^2 * 4^2 * 8^2 * 16^2)$. This is simply because if we know the first $(2^2 * 4^2 * 8^2 * 16^2) - 1$ parameters, we can calculate the value of the final one exactly.}
 
-However, if we knew that some of these random variables were conditionally dependent, then the number of parameters would change. For example, consider the joint distribution given by $p(A, B, C, D) = p(A)p(B|A)p(C|A)p(D|A)$. This would imply that conditioned on $A$, each of $B, C, D$ were conditionally independent. This can also be shown by the following DGM:
+However, if we knew that some of these random variables were conditionally independent, then the number of parameters would change. For example, consider the joint distribution given by $p(A, B, C, D) = p(A)p(B|A)p(C|A)p(D|A)$. This would imply that conditioned on $A$, each of $B, C, D$ were conditionally independent. This can also be shown by the following DGM:
 TODO put dgm for this here
-In this case, a table of parameters to describe this joint distribution would only require TODO figure this out seems like we made a mistake
+In this case, a table of parameters to describe this joint distribution would only require $2^2 * ((4^2 - 1) + (8^2 - 1) + (16^2 - 1))$, which is significantly less.
 
-
-- complexity implications for different factorizations of joint distributions
-- sharing parameters as a means of reducing complexity
-- touch on goal of finding areas where there isn't dependence (and thus less complexity, size of probability table argument)
-
-\subsection{Example?}
-- we could do an example of some sort in here
-
-\section{Conditional Independence}
-Touch on how:
+This leads to the natural conclusion that the more conditional independence we can explore in a given model, the easier it becomes from a modeling and computational perspective. This is another major benefit of DGMs: it's possible to visually reason about the independence properties of a given model. We turn to how this works next.
 
 \subsection{Independence and D-Separation}
-We can use the form of a graphical model to determine which variables are independent under specific observation assumptions. We have three base cases for the relationship between variables from which we can reason about the structure in any arbitrarily complex model. The three cases look like the following:
+We can use the form of a graphical model directly to determine which variables are independent under specific observation assumptions. We have three base cases for the relationship between variables from which we can reason about the structure in any arbitrarily complex model. The three cases look like the following:
 
 TODO: image of the three different arrow directions for three variables.
 
-Explain the notion of blocking.
+For each of these cases, there is a notion of information either flowing from one random variable to the other or being `blocked' (implying independence) by an observation. Specifically, case 1 and case 2 have information between nodes A and C `blocked' by observing node B, and case 3 has information between nodes A and C `blocked' by \textit{not} observing node B.
 
-Let's consider the structure of independence in each of these examples, and how observations affect those independence assumptions.
+Let's consider each of these cases more carefully, and gain a better notion of what it means for observations to cause information to be blocked. This will lead naturally to an understanding of independence assumptions between random variables.
 
-Considering the first example: A <--- C ---> B. Provide both the case where we've observed C and the case where we have not observed C.
+Considering the first example: A <--- B ---> C. Provide the case where we haven't observed B first.
+
+TODO: image here of unobserved B
 
 We can factorize this as follows:
 
 \begin{align*}
-	p(A, B, C) = p(C) p(A | C) p(B | C)
+	p(A, B, C) = p(B) p(A | B) p(C | B)
 \end{align*}
 
-We know that for this case, A and B are not independent if we have not observed C. However, once we've observed C, then we have that A and B are conditionally independent. Intuitively, if we observe one of A but not B or C, we have some information about what C might be and therefore also what B might be. Should I offer a concrete example here about rain and grass and stuff?
+We know that for this case, A and C are not independent (note that we have not observed B). Therefore, we say that information flows from A to C. However, once we've observed B, then we have that A and B are conditionally independent.
 
-Moving on to the second example, we have the structure given by: A ---> C --> B. Again provide both the case where we've observed C and the case where we haven't.
+TODO: image here of observed B
+
+We now say that the flow of information from A to C is `blocked' by the observation of B. Thus they are conditionally independent. Intuitively, if we observe A but not B, then we have some information about what B might be and therefore also what C might be. The same applies in the other direction: observing C but not B.
+
+Moving on to the second example, we have the structure given by: A ---> B --> C. Again provide just the unobserved case first.
+
+TODO image here of unobserved B
 
 This allows us to write the joint distribution as:
 
 \begin{align*}
-	p(A, B, C) = p(A) p(A | A) p(B | C)
+	p(A, B, C) = p(A) p(B | A) p(C | B)
 \end{align*}
 
-We have that for this case, A and B are not independent if we have not observed C. However, once we've observed C, then we have that A and B are again conditionally independent. Intuitively, if we observed A but not B or C, we have some information about what A might be and therefore what B might be as well. The reverse also applies.
+We have that for this case, A and C are not independent if we have not observed C. Information is flowing from A to B through C. However, once we've observed B, then we have that A and C are again conditionally independent.
 
-On the other hand, once we've observed C, which corresponds to the model in TODO figure here
+TODO image here of observed B
 
-- we can use DGMs to determine independence properties for a given model
-- run through different cases of DGMs and which imply independence, dependence, "explaining away"
-- D-separation definition
-- do an example in here?
+We again say that the flow of information from A to C is `blocked' by the observation of B. Intuitively, if we observed A but not B, we have some information about what B might be and therefore what C might be as well.  The same applies in the other direction: observing C but not B.
 
-\section{Naive Bayes}
-- naive bayes example (maybe this goes in the previous section? but I think it can come here as an example)
-- this is ultimately a topic that builds off the previous two, and I think it's important enough as a model choice to include it's own section
-- do some sort of example in here?
+Notice that these first two cases behave in the same manner: observing a random variable in between two other random variable `blocks' information from flowing between the two outer random variables. In the third and final case the opposite is true. Not observing data in this case will `block' information, and we will explain this shift through the idea of `explaining away'.
+
+First we have the structure of the final case given by: A ---> B <--- C. Provide the unobserved case first
+
+TODO image of unobserved B.
+
+In this setup, we say that information from A to C is being `blocked' by the unobserved variable B. Thus A and C are currently conditionally independent. However, once we've observed B:
+
+TODO image here of observed B.
+
+Now, information is flowing between A and C through the observed variable B, and thus A and C are now conditionally independent. This phenomenon, where the observation of the random variable in the middle creates conditional dependence is known as \textit{explaining away}. The idea relies on the fact that now that we know the value for B, we have some idea of how much A or C may have contributed to B adopting that value. An example might make this phenomenon more clear.
+
+Let's consider that the random variable A corresponds to whether or not it rained on a certain day, the random variable B corresponds to the lawn being wet, and the random variable C corresponds to the sprinkler being on. Let's say we observe B: the lawn is wet. Let's say we then observe variable A: it has not rained today. Intuitively, we would now assume that variable C would have the value that the sprinkler has been on, because that's the only way for the lawn to be wet. This is exactly the phenomenon of explaining away. Observing B unblocks the flow of information between A and C because we can now use an observation to `explain' how B got its value, and therefore determine what the other unobserved value might have been.
+
+Notice that we've only described three simple cases relating dependence relationships between random variables in a DGM, but with just these three cases, we can determine the dependence structure of any arbitrarily complicated DGM. We just have to consider how information flows from node to node. If information gets `blocked' at any point in our DGM network because of an observation (or lack thereof), then we gain some knowledge about independence within our model.
+
+TODO: an example here, something slightly more complicated?
+
+\readernote{In some other resources, you'll come upon the idea of `D-separation' or `D-connection'. D-separation is simply applying the principles outlined above to determine if two nodes are independent, or D-separated. On the other hand, two-nodes that are D-connected are dependent on one another.}
+
+\section{Example: Naive Bayes}
+Recall from the chapter on classification the Naive Bayes model. As a quick recap, Naive Bayes makes the assumption that for a single observation coming from a specific class (for example, our classes could be different dog breeds), the data associated with that observation are independent (for example, the data could be fur color, snout length, weight, etc.).
+
+We can set up the Naive Bayes problem specification using the DGM vocabulary, as we see in Figure TODO put figure here.
+
+TODO: naive bayes figure here.
+
+Even if we hadn't heard of Naive Bayes before, we would understand this model and the implications of the model, simply by an examination of the DGM that describes it. We can directly read off the factorization described above that is the whole point of Naive Bayes:
+
+todo: put factorization here.
+
+TODO put some statement wrapping up the clarity that DGMs bring us.
 
 \section{Conclusion}
-concluding thoughts of DGMs, where we're going from here
-
-
+Directed graphical models are indispensible for model visualization and effective communication of modeling ideas. Without an understanding of what DGMs represent, it's hard to dig into any level of more complex probabilistic models. In a lot of ways, this chapter is simply preparation for where we head next, which are several topics that will rely heavily on DGMs to help explain their structure, use cases, and interesting many variants. TODO clean this up a little more once we've read the whole chapter
