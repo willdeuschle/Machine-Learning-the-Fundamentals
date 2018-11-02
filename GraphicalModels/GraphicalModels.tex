@@ -12,34 +12,52 @@ Offer intro here. Some things to definitely cover:
 - not going to cover undirected graphical models
 
 \section{Motivation}
-Up until this point, we've defined notation on the fly, relied on common statistical concepts, and used diagrams to convey meaning about the setup for the different problems we've been motivating and solving. We've build up enough working knowledge and intuition at this point to switch to a more general abstraction for defining models, DGMs, that will allow us to both consolidate our notation and convey information about arbitrary problem formulations. Here is an example of what a DGM would look like for a linear regression problem setup:
-
-TODO: linear regression diagram here
-
+Up until this point, we've defined notation on the fly, relied on common statistical concepts, and used diagrams to convey meaning about the setup for the different problems we've been motivating and solving. We've build up enough working knowledge and intuition at this point to switch to a more general abstraction for defining models, DGMs, that will allow us to both consolidate our notation and convey information about arbitrary problem formulations. An example of what a DGM looks like for a linear regression problem setup is given in Figure \ref{fig:lin-reg-dgm}.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\paperwidth]{../GraphicalModels/fig/LinearRegressionDGM.png}
+    \caption{Linear regression model expressed with a DGM.}
+    \label{fig:lin-reg-dgm}
+\end{figure}
 Over the course of the chapter, we'll explain what all these symbols indicate about a given problem. We need these graphical models for a couple of reasons. First, and most importantly, a graphical model unambiguously conveys a problem setup. This is very useful both to share models between people (communication) and to keep all the information in a specific model clear in your own head (consolidation). Once we understand the meaning of the symbols in a directed graphical model, it will be far easier to simply examine a model than it will be to read several sentences describing the type of model we're imagining for a specific problem. Another reason we use DGMs is that we can use them to reason about independence properties between different parts of our model. For simple problem setups this may be easy to keep track of in our heads, but as we introduce more complicated models if will be useful to reason about independence properties simply by examining the DGM that describes that model.
 
 Ultimately, directed graphical models are a tool to boost efficiency and clarity. We'll examine the core components of a DGM, as well as some of their properties regarding independence and model complexity. The machinery we develop here will be used heavily in the coming chapters to explain several important models.
 
 \section{Directed Graphical Models (Bayesian Networks)}
-There are a few fundamental components to all of the models we've examined so far. In fact, we can model just about everything we've discussed to this point using just random variables, deterministic parameters, and means of indicating the relationships between them. Let's consider linear regression as a simple but comprehensive example. We have a random variable $y_n$, the object of predictive interest, which depend on deterministic parameters in the form of data $\textbf{x}_n$ and weights $\textbf{w}$. This results in the DGM given by Figure TODO: ref figure here. There are four primary pieces of notation that the linear regression setup gives rise to, and these four components form the backbone of every DGM we would like to construct.
+There are a few fundamental components to all of the models we've examined so far. In fact, we can model just about everything we've discussed to this point using just random variables, deterministic parameters, and means of indicating the relationships between them. Let's consider linear regression as a simple but comprehensive example. We have a random variable $y_n$, the object of predictive interest, which depend on deterministic parameters in the form of data $\textbf{x}_n$ and weights $\textbf{w}$. This results in the DGM given by Figure \ref{fig:lin-reg-dgm}. There are four primary pieces of notation that the linear regression setup gives rise to, and these four components form the backbone of every DGM we would like to construct.
 
-First, we have random variables given by an open circle:
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\paperwidth]{../GraphicalModels/fig/RandomVar.png}
+    \caption{Random variables are denoted with an open circle, and it is shaded if the variable is observed.}
+    \label{fig:random-var}
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\paperwidth]{../GraphicalModels/fig/DeterministicParam.png}
+    \caption{Deterministic parameters are denoted with a tight, small dot.}
+    \label{fig:deterministic-param}
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.7\paperwidth]{../GraphicalModels/fig/arrows.png}
+    \caption{Arrows indicate dependence relationships.}
+    \label{fig:arrows}
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.7\paperwidth]{../GraphicalModels/fig/plates.png}
+    \caption{Plates indicate repeated sets of variables. Often there will be a number in one of the corners (N in this case) indicating how many times that variable is repeated.}
+    \label{fig:plates}
+\end{figure}
 
-TODO image here of random variables here (observed and unobserved).
+First, we have random variables (observed and unobserved) given by an open circle, shown in Figure \ref{fig:random-var}. Note that if the model dictates that we observe a random variable, then we shade it in. Otherwise, it's left open.
 
-Note that if the model dictates that we observe a random variable, then we shade it in. Otherwise, it's left open.
+Second, we have deterministic parameters represented by a tight, small dot, shown in Figure \ref{fig:deterministic-param}.
 
-Second, we have deterministic parameters given by dots:
+Third, we have arrows that indicate the relationship between different random variables and parameters, shown in Figure \ref{fig:arrows}.
 
-TODO image of deterministic parameters here.
-
-Third, we have arrows that indicate the relationship between different random variables and parameters:
-
-TODO: image of arrows.
-
-And finally, we have plate notation that indicates when we have multiple values for a portion of the model setup:
-
-TODO plate notation here.
+And finally, we have plate notation that indicates when we have repeated sets of variables in our model setup, shown in Figure \ref{fig:plates}.
 
 Hopefully the utility of this notation is evident. With these four simple constructs, we can describe complex model setups with a simple diagram. We can have an arbitrary number of component with any sort of dependence structure baked in. It can be a useful reference, and also makes iterating on a given model setup much more straightforward.
 
@@ -63,9 +81,14 @@ While DGMs allow us to move quickly between the factorized joint distribution an
     A generative model is a model that describes the process by which data comes into existence. While this is not always entirely necessary if our goal is only to make predictions or perform some other kind of inference, it does have the added benefit of enabling the creation of new data by sampling from the generative model.
 \end{definition}
 
-Let's consider a simple example to see how this works in practice:
-TODO simple one rv to another rv example here
-Consider the flow of information present in Figure TODO ref figure here. First, there is some realization of the random variable $Z$. Then conditioned on that value of $Z$, there is some realization on the random variable $Y$. Obviously, the joint factorization for this DGM is given by $p(Z)p(Y|Z)$, but on a more intuitive level, the data is created by first sampling from $Z$'s distribution, and then based on that value, sampling from the conditional distribution of $Y$.
+Let's consider a simple example to see how this works in practice.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\paperwidth]{../GraphicalModels/fig/GenerativeRVExample.png}
+    \caption{Example of a generative model.}
+    \label{fig:generative-rv}
+\end{figure}
+Consider the flow of information present in Figure \ref{fig:generative-rv}. First, there is some realization of the random variable $Z$. Then conditioned on that value of $Z$, there is some realization on the random variable $Y$. Obviously, the joint factorization for this DGM is given by $p(Z)p(Y|Z)$, but on a more intuitive level, the data is created by first sampling from $Z$'s distribution, and then based on that value, sampling from the conditional distribution of $Y$.
 
 To make this concrete, we could consider $Z$ to be a random variable that determined a specific breed of dog, and the random variable $Y$ to be the random variable that, conditioned on the breed of dog, determined the snout length of that type of dog. Notice that we have not specified anything about the specific distributional form from which $Z$ and $Y$ come, only the story of how they relate to each other.
 
@@ -74,10 +97,14 @@ This story also shows us that if we had some model for $Z$ and $Y|Z$, we could g
 This technique, sampling from distributions in the order indicated by their DGM, is known as \textbf{ancestral sampling}, and is a major benefit of generative models.
 
 \begin{definition}{Ancestral Sampling}{ancestral-sampling}
-	Ancestral sampling is a technique used to generate data from an arbitrary DGM. It works by sampling from the random variables in topological order, meaning that we first sample from all random variables without any dependence, then from the random variables that depend on those intially sampled random variables, and so on until all the random variables have been sampled. This is demonstrated in Figure TODO reference figure here.
-
-	TODO: put a figure here demonstrating a complex DGM and the order in which we have to sample from it.
+	Ancestral sampling is a technique used to generate data from an arbitrary DGM. It works by sampling from the random variables in topological order, meaning that we first sample from all random variables without any dependence, then from the random variables that depend on those intially sampled random variables, and so on until all the random variables have been sampled. This is demonstrated in Figure \ref{fig:ancestral-sampling}.
 \end{definition}
+\begin{figure}
+	\centering
+	\includegraphics[width=0.5\paperwidth]{../GraphicalModels/fig/AncestralSampling.png}
+    \caption{Notice we have to sample these in topological order: A, D, B, E, C.}
+	\label{fig:ancestral-sampling}
+\end{figure}
 
 \subsection{Generative Modeling vs. Discriminative Modeling}
 In the previous section, we described generative modeling. You may have wondered if there was any other type of modeling possible, if not the model that describes how data comes into existence. There is another type of model known as a discriminative model, and we have already seen several examples of them.
