@@ -9,11 +9,14 @@ Mixture models are very useful for handling data that involves \textit{latent va
     A latent variable is a piece of data that is not observed, but that influences the observed data. Nonetheless, we often create models that try to capture the behavior of our latent variables.
 \end{definition}
 
-Very often, we are unable to observe all the data present in a given system. For example, if we are measuring the snout length of different animals, but we only get to see the snout measurements, the latent variables would be the type of animal we are measuring. For most real examples of data generation, we will only have access to a portion of the data and the rest will be hidden from us. However, if we can find some way to also model the latent variables, our model will potentially be much more powerful and effective.
+Very often, we are unable to observe all the data present in a given system. For example, if we are measuring the snout length of different animals, but we only get to see the snout measurements, the latent variables would be the type of animal we are measuring. For most real examples of data generation, we will only have access to a portion of the data and the rest will be hidden from us. However, if we can find some way to also model the latent variables, our model will potentially be much more powerful and effective. We present a directed graphical model involving a latent variable in Figure \ref{fig:lvm-dgm}.
 
-Let's consider what the directed graphical model involving a latent variable might look like:
-
-TODO image here of a latent variable model.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.3\paperwidth]{../MixtureModels/fig/latent-variable-dgm.png}
+    \caption{Directed graphical model with a latent variable $\textbf{z}_n$.}
+    \label{fig:lvm-dgm}
+\end{figure}
 
 One common means of modeling a latent variable model, and the topic of this chapter, is known as a \textit{mixture model}.
 
@@ -89,8 +92,6 @@ Notice that because we've now observed $z_{n}$, we don't have to marginalize ove
 The expression p(z, x) is known as the \textit{complete data} because it assumes that we have both our observation $x$ and the classs $z$ that $x$ came from. Our ability to efficiently calculate the complete data log likelihood $\log p(z, x)$ is the crucial piece of the algorithm we will present to optimize our mixture model parameters. This algorithm is known as Expectation-Maximization, or EM.
 
 \section{Expectation-Maximization (EM)}
-\textbf{TODO: explain at a high level why we're using EM, how it works. Make connection to k-means clustering here? maybe just add its own section to discuss this connection}
-
 The motivation for the EM algorithm, as presented in the previous section, is that we do not have a closed form optimization for our model parameters because of a summation inside of a logarithm. This summation was required because we didn't observe a crucial piece of data, the class $z_{n}$, and therefore we had to sum over its values.
 
 EM uses an iterative approach to optimize our model parameters. It proposes a value for $z_{n}$ using an expectation calculation, and then based on that proposed value, it maximizes our complete-data log likelihood with respect to the model parameters $\boldsymbol{\theta}$ and $\textbf{w}$ via a standard MLE procedure.
@@ -100,8 +101,6 @@ Notice that EM is composed of two distinct steps: taking an expectation over our
 We'll walk through the details of each of these steps and then tie them together with the complete algorithm.
 
 \subsection{Expectation Step}
-\textbf{TODO: explain what we're doing in the expectation step, what the probability notation is, why it's tractable, why we then refer to the values as 'q' values, the fact that there is a 'q' value for each data point (versus a global parameter)}
-
 The purpose of the expectation step (sometimes just referred to as the 'E'-step) in the EM algorithm is to set the most likely values for our latent variables $z_n$. In an ideal world, we would know what these classes are, and if we did, we could simply optimize our complete-data log likelihood directly as we've seen above. However, since we don't get to observe these values, one way we can get around this is just to compute the expectation of the latent variables. Let's consider what this looks like using a concrete example.
 
 Let's say our data points $\textbf{x}_n$ can come from one of three classes. Then, we can represent the latent variable $\textbf{z}_n$ associated with each data point using a one-hot encoded vector. For example, if $\textbf{z}_n$ came from class $C_1$, we would denote this:
@@ -141,7 +140,6 @@ Second, notice that we have a value of $\textbf{q}_n$ to compute for every data 
 After performing the E-step, we now have an expectation for our latent variables, given by $\textbf{q}_n$. In the maximization step, which we descrbie next, we use these $\textbf{q}_n$ values to optimize our model parameters.
 
 \subsection{Maximization Step}
-\textbf{TODO: outline the max step, updating our model parameters based on the current q values}
 After the expectation step, we have $\textbf{q}_n$ values associated with each data point $\textbf{x}_n$, which describe our belief that each data point came from each class $C_k$. Now that we have these updated `class assignments', it's possible for us to update our model parameters $\boldsymbol{\theta}$ and $\textbf{w}$.
 
 Recall that it's possible for us to optimize these parameters because the complete-data log likelihood is tractable (as we saw above, we no longer need to sum over the possible classes inside of the logarithm). Although we do not have the actual complete-data (we don't actually know the $\textbf{z}_n$ values), we have an estimation of the complete-data through our $\textbf{q}_n$ values! We use these values of $\textbf{q}_n$ to make the optimization of our model parameters tractable.
@@ -199,8 +197,6 @@ In fact, the main difference between K-Means clustering and the EM algorithm is 
 In summary, K-Means is simply a restricted form of the EM algorithm.
 
 \subsection{Example: Dice Rolling Mixture of Multinomials}
-\textbf{TODO: run through an example implementation for the coin tossing setup}
-
 Consider the following example scenario: we have two biased dice (with 6 faces) and 1 biased coin (with 2 sides). Data is generated as follows: first, the biased coin is flipped. If it lands heads, Dice 1 is rolled. If it lands heads, Dice 2 is rolled. We record the result of the dice roll, but that is our only observation. For example, our observations may look like:
 \begin{align*}
     1, 5, 3, 4, 2, 2, 3, 1, 6
@@ -252,8 +248,6 @@ Note that to maximize the expected complete data log likelihood, it's necessary 
 We now have everything we need to perform EM for this setup. After initializing our parameters $\textbf{w}^{(0)}$, we perform the E step by evaluating \ref{E-for-multinomial}. After calculating our values of $\textbf{q}_n$ in the E step, we update our parameters $\textbf{w} = \{\boldsymbol{\theta}, \boldsymbol{\pi}_1, \boldsymbol{\pi}_2 \}$ in the M step by maximizing \ref{M-for-multinomial} with respect to $\boldsymbol{\theta}, \boldsymbol{\pi}_1, \boldsymbol{\pi}_2$. We perform these two steps iteratively, until convergence of our parameters.
 
 \section{Gaussian Mixture Models (GMM)}
-\textbf{TODO: explain the gaussian mixture model setup, what an example use case for it is, what the updates look like}
-
 Our previous example was a simple but somewhat restricted application of the EM algorithm to solving a latent variable problem. We now turn to a more practical example, used widely in different contexts, called a Gaussian Mixture Model (GMM). As you might expect, a GMM consists of a combination of multiple Gaussian distributions. Among other things, it is useful for modeling latent variable scenarios whose observed data is continuous.
 
 Let's go over a more rigorous formulation of the GMM setup. First, we have observed continous data $\textbf{x}_n \in \mathbb{R}^{m}$ and latent variables $\textbf{z}_n$ which indicate which Gaussian `cluster' our observed data point was drawn from. In other words:
@@ -299,8 +293,6 @@ Fortunately, this problem setup is perfectly suited for EM! We can apply the sam
 Finally, it's worth considering the similarity between GMMs and K-Means clustering. First, as discussed previously, GMMs rely on soft assignments rather than hard assignments. Additionally, GMMs define a normal distribution over our clusters, as opposed to a fixed point in K-Means. Intuitively then, K-Means is a GMM where we only allow hard assignments and the distribution over our clusters is infinitely peaked (meaning our clusters have variance that approaches 0). In other words, K-Means is just a special case of GMMs where we've imposed more rigorous constaints than are ordinarily imposed by a GMM.
 
 \section{Admixture Models: Latent Dirichlet Allocation (LDA)}
-\textbf{TODO: explain what an admixture model is, how it's just an extension of a mixture model. explain the setup for the document example and how we optimize that model.}
-
 If we have a grasp on mixture models, then admixture models are not too difficult to understand. In a sentence: an admixture model is a mixture of mixture models. Latent Dirichlet Allocation (LDA) is a very popular form of admixture model, and it is sometimes also referred to as \textit{topic modeling}, for reasons that will become apparent shortly. Describing LDA using an example will hopefully make the idea of an admixture model more concrete.
 
 \subsection{LDA for Topic Modeling}
@@ -370,5 +362,4 @@ Now that we have our problem setup and notation laid out, we consider how we can
 The largest headache for applying the EM algorithm to LDA is keeping all of the indices in order, and this is a product of the fact that we're working with a mixture of mixtures. Once the bookkeeping is sorted out, the actual updates are straightforward.
 
 \section{Conclusion}
-\textbf{TODO: conclude our mixture model chapter}
 Mixture models are one common way of handling data that we believe is generated through a combination of unobserved, latent variables. We've seen that training these models directly is intractable (due to the marginalization over the latent variables), and so we turned to a coordinate-ascent based algorithm known as Expectation-Maximization to get around this difficulty. We then explored a couple of common mixture models, including a multinomial mixture, Gaussian Mixture Models, and an admixture model known as Latent Dirichlet Allocation. Mixture models are a subset of a broader range of models known as latent variable models, and the examples seen in this chapter are just a taste of the many different mixture models available to us. Furthermore, EM is just a single algorithm for optimizing these models. A good grasp on the fundamentals of mixture models and the EM algorithm will be useful background to expanding to more complicated, expressive latent variable models.
