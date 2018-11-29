@@ -69,20 +69,20 @@ We've now defined a general form for a mixture model: we have a distribution $p(
 \subsection{Maximum Likelihood for Mixture Models}
 Ultimately, we would like to maximize the likelihood of our observed data as normal. Because we don't actually observe the latent variables $z$ which determine the class of each observed data point, we can simply sum over the possible classes for each of our $N$ data points as follows:
 \begin{align*}
-    p(\textbf{X}; w) = \prod_{n=1}^{N} \sum_{c=0}^{C} p(x_{n}, z_{n, c}; \theta, w)
+    p(\textbf{X}; w) = \prod_{n=1}^{N} \sum_{k=0}^{K} p(x_{n}, z_{n, k}; \theta, w)
 \end{align*}
 Taking the logarithm to get our log-likelihood as usual:
 \begin{align} \label{intractable-log-likelihood}
-    \log p(\textbf{X}; w) = \sum_{n=1}^{N} \log \sum_{c=0}^{C} p(x_{n}, z_{n, c}; \theta, w)
+    \log p(\textbf{X}; w) = \sum_{n=1}^{N} \log \sum_{k=0}^{K} p(x_{n}, z_{n, k}; \theta, w)
 \end{align}
-It may not be immediately obvious, but under this setup, the maximum likelihood calculation for our parameters $\theta, w$ is now intractable. The summation over the $C$ classes of our latent variable $z_{n}$, which is required because we don't actually observe those classes, is inside of the logarithm, which prevents us from arriving at a closed form solution (it may be helpful to try to solve it yourself, you'll realize that consolidating a summation inside of a logarithm is not possible). The rest of this chapter will deal with how we can optimize our mixture model in the face of this challenge.
+It may not be immediately obvious, but under this setup, the maximum likelihood calculation for our parameters $\theta, w$ is now intractable. The summation over the $K$ classes of our latent variable $z_{n}$, which is required because we don't actually observe those classes, is inside of the logarithm, which prevents us from arriving at a closed form solution (it may be helpful to try to solve it yourself, you'll realize that consolidating a summation inside of a logarithm is not possible). The rest of this chapter will deal with how we can optimize our mixture model in the face of this challenge.
 
 \subsection{Complete Data Log Likelihood}
 We have a problem with computing the MLE for our model parameters. If we only knew which classes our data points came from, we would be able to calculate $\log p(z, x)$ with relative ease because we would no longer require a summation in the log:
 \begin{align} \label{complete-data-log-likelihood}
     \log p(\textbf{X}, \textbf{Z}) &= \sum_{n=1}^{N} \log p(x_n, z_n; \theta, w) \\
-    &= \sum_{n=1}^{N} \log[p(x_n | z_n = c; w) p(z_n = c; \theta)] \\
-    &= \sum_{n=1}^{N} \log p(x_n | z_n = c; w) + \log p(z_n = c; \theta) \\
+    &= \sum_{n=1}^{N} \log[p(x_n | z_n = C_k; w) p(z_n = C_k; \theta)] \\
+    &= \sum_{n=1}^{N} \log p(x_n | z_n = C_k; w) + \log p(z_n = C_k; \theta) \\
 \end{align}
 Notice that because we've now observed $z_{n}$, we don't have to marginalize over its possible values. This motivates an interesting approach that takes advantage of our ability to work with $p(z, x)$ if we only knew $z$.
 
@@ -142,18 +142,18 @@ After performing the E-step, we now have an expectation for our latent variables
 
 \subsection{Maximization Step}
 \textbf{TODO: outline the max step, updating our model parameters based on the current q values}
-After the expectation step, we have $\textbf{q}_n$ values associated with each data point $\textbf{x}_n$, which describe our belief that each data point came from each class $C_i$. Now that we have these updated `class assignments', it's possible for us to update our model parameters $\boldsymbol{\theta}$ and $\textbf{w}$.
+After the expectation step, we have $\textbf{q}_n$ values associated with each data point $\textbf{x}_n$, which describe our belief that each data point came from each class $C_k$. Now that we have these updated `class assignments', it's possible for us to update our model parameters $\boldsymbol{\theta}$ and $\textbf{w}$.
 
 Recall that it's possible for us to optimize these parameters because the complete-data log likelihood is tractable (as we saw above, we no longer need to sum over the possible classes inside of the logarithm). Although we do not have the actual complete-data (we don't actually know the $\textbf{z}_n$ values), we have an estimation of the complete-data through our $\textbf{q}_n$ values! We use these values of $\textbf{q}_n$ to make the optimization of our model parameters tractable.
 
 Notice that our $\textbf{q}_n$ values are `soft' assignments - meaning that unlike the $\textbf{z}_n$ values, which are one-hot encodings of assignments to a class, the $\textbf{q}_n$ values have a probability that each data point $\textbf{x}_n$ came from each class. Fortunately, this does not affect our maximization, which starts with out complete-data log likelihood:
 \begin{align*}
-    \log p(\textbf{X}, \textbf{Z}) = \sum_{n=1}^{N} \log p(x_n | z_n = c; w) + \log p(z_n = c; \theta) \\
+    \log p(\textbf{X}, \textbf{Z}) = \sum_{n=1}^{N} \log p(x_n | z_n = C_k; w) + \log p(z_n = C_k; \theta) \\
 \end{align*}
 Applying the expectation with respect to $\textbf{z}_n | \textbf{x}_n$, which will require the $\textbf{q}_n$ computed in the expectation step:
 \begin{align*}
-    \mathrm{E}_{\textbf{z}_n | \textbf{x}_n} [\log p(\textbf{X}, \textbf{Z})] &= \sum_{c=1}^{C} p(z_{n, c} | \textbf{x}) \sum_{n=1}^{N} \log p(x_n | z_n = c; w) + \log p(z_n = c; \theta) \\
-    &= \sum_{c=1}^{C} q_{n, c} \sum_{n=1}^{N} \log p(x_n | z_n = c; w) + \log p(z_n = c; \theta) \\
+    \mathrm{E}_{\textbf{z}_n | \textbf{x}_n} [\log p(\textbf{X}, \textbf{Z})] &= \sum_{k=1}^{K} p(z_{n, k} | \textbf{x}) \sum_{n=1}^{N} \log p(x_n | z_n = C_k; w) + \log p(z_n = C_k; \theta) \\
+    &= \sum_{k=1}^{K} q_{n, k} \sum_{n=1}^{N} \log p(x_n | z_n = C_k; w) + \log p(z_n = C_k; \theta) \\
 \end{align*}
 Notice the crucial difference between this summation and that of Equation \ref{intractable-log-likelihood}: the summation over the classes is now outside of the logarithm! Recall that using the log-likelihood directly was intractable initially because the summation over the classes was inside of the logarithm. Notice that this maximization became possible by taking the expectation of our latent variables (using the values we computed in the E-step), which pushed the summation over the classes outside of the logarithm.
 
@@ -169,12 +169,12 @@ Now that we have a grasp on the high level goal of the EM algorithm, as well as 
         \textbf{q}_n = \mathbb{E}[\textbf{z}_n | \textbf{x}_n] = \begin{bmatrix}
                 p(\textbf{z}_n = C_1 | \textbf{x}_n; \boldsymbol{\theta}^{(i)}, \textbf{w}^{(i)}) \\
                 \vdots \\
-                p(\textbf{z}_n = C_k | \textbf{x}_n; \boldsymbol{\theta}^{(i)}, \textbf{w}^{(i)}) \\
+                p(\textbf{z}_n = C_K | \textbf{x}_n; \boldsymbol{\theta}^{(i)}, \textbf{w}^{(i)}) \\
             \end{bmatrix} 
             \propto \begin{bmatrix}
             p(\textbf{x}_n | \textbf{z}_n = C_1; \textbf{w}^{(i)})p(\textbf{z}_n = C_1; \boldsymbol{\theta}^{(i)}) \\
             \vdots \\
-            p(\textbf{x}_n | \textbf{z}_n = C_k; \textbf{w}^{(i)})p(\textbf{z}_n = C_k; \boldsymbol{\theta}^{(i)}) \\
+            p(\textbf{x}_n | \textbf{z}_n = C_K; \textbf{w}^{(i)})p(\textbf{z}_n = C_K; \boldsymbol{\theta}^{(i)}) \\
         \end{bmatrix} \\
     \end{align*}
     \item[3.] M step: compute the values of $\textbf{w}$ and $\boldsymbol{\theta}$ that maximize our expected complete data log likelihood for the current setting of the values of $\textbf{q}$.
@@ -254,8 +254,121 @@ We now have everything we need to perform EM for this setup. After initializing 
 \section{Gaussian Mixture Models (GMM)}
 \textbf{TODO: explain the gaussian mixture model setup, what an example use case for it is, what the updates look like}
 
+Our previous example was a simple but somewhat restricted application of the EM algorithm to solving a latent variable problem. We now turn to a more practical example, used widely in different contexts, called a Gaussian Mixture Model (GMM). As you might expect, a GMM consists of a combination of multiple Gaussian distributions. Among other things, it is useful for modeling latent variable scenarios whose observed data is continuous.
+
+Let's go over a more rigorous formulation of the GMM setup. First, we have observed continous data $\textbf{x}_n \in \mathbb{R}^{m}$ and latent variables $\textbf{z}_n$ which indicate which Gaussian `cluster' our observed data point was drawn from. In other words:
+\begin{align*}
+    p(\textbf{x}_n | \textbf{z}_n = C_k) = \mathcal{N}(\textbf{x}_n; \boldsymbol{\mu}_k, \boldsymbol{\Sigma}_k)
+\end{align*}
+where $\boldsymbol{\mu}_k, \boldsymbol{\Sigma}_k$ are the mean and covariance parameters respectively for the $k^{th}$ cluster center.
+
+The data generation process works as follows: we first sample a cluster center from a Categorical distribution parameterized by $\boldsymbol{\theta} \in \mathrm{R}^{c}$. Then, based on the sampled cluster center, we sample a data point $\textbf{x}_n \in \mathrm{R}^{m}$, which is the only piece of data that we actually observe. As usual for a mixture model, it is our goal to use the observed data to determine the cluster means and covariances, as well as the parameters of the Categorical distribution that selects the cluster centers.
+
+Fortunately, this problem setup is perfectly suited for EM! We can apply the same machinery we've discussed in the chapter and used in the previous problem.
+
+\begin{itemize}
+    \item[1.] First, we randomly initialize our parameters $\boldsymbol{\theta}, \{ \boldsymbol{\mu}_k, \boldsymbol{\Sigma}_k \}_{k=1}^{K}$.
+    \item[2.] [E-Step] Calculate the posterior distribution over $\textbf{z}_n$ given by $\textbf{q}_n$:
+        \begin{align*}
+            \textbf{q}_n = \mathrm{E}[\textbf{z}_n | \textbf{x}_n] &= \begin{bmatrix}
+                p(\textbf{z}_n = C_1 | \textbf{x}_n; \theta_1, \boldsymbol{\mu}_1, \boldsymbol{\Sigma}_1) \\
+                \vdots \\
+                p(\textbf{z}_n = C_K | \textbf{x}_n; \theta_K, \boldsymbol{\mu}_K, \boldsymbol{\Sigma}_K) \\
+            \end{bmatrix} \\
+            &\propto \begin{bmatrix}
+                \theta_1 \mathcal{N}(\textbf{x}_n; \boldsymbol{\mu}_1, \boldsymbol{\Sigma}_1) \\
+                \vdots \\
+                \theta_K \mathcal{N}(\textbf{x}_n; \boldsymbol{\mu}_K, \boldsymbol{\Sigma}_K) \\
+            \end{bmatrix} \\
+        \end{align*}
+        This is the current expectation for our latent variables $\textbf{z}_n$ given our data $\textbf{x}_n$ and the current setting of our model parameters $\boldsymbol{\theta}, \{ \boldsymbol{\mu}_k, \boldsymbol{\Sigma}_k \}_{k=1}^{K}$.
+    \item[3.] [M-Step] Using our values of $\textbf{q}_n$, calculate the expected complete-data log likelihood, and then use that term to optimize our model parameters:
+        \begin{align*}
+            \mathbb{E}_{\textbf{q}}[\log p(\textbf{X}, \textbf{Z})] &= \mathbb{E}_{\textbf{q}} \bigg[ \sum_{n=1}^{N} \ln(p(\textbf{x}_n, \textbf{z}_n; \boldsymbol{\theta}, \{ \boldsymbol{\mu}_k, \boldsymbol{\Sigma}_k \}_{k=1}^{K})) \bigg] \\
+            &= \sum_{n=1}^{N} \sum_{k=1}^{K} q_{n, k} \ln \theta_k + q_{n, k} \ln \mathcal{N}(\textbf{x}_n; \boldsymbol{\mu}_k, \boldsymbol{\Sigma}_k) \\
+        \end{align*}
+        We can then use this expected complete-data log likelihood to optimize our model parameters $\boldsymbol{\theta}, \{ \boldsymbol{\mu}_k, \boldsymbol{\Sigma}_k \}_{k=1}^{K}$ by computing the MLE as usual. Using a Lagrange multiplier to enforce $\sum_{k=1}^{K} \theta_k = 1$, we recover the update equations:
+        \begin{align*}
+            \theta_k^{(i + 1)} &\leftarrow \frac{\sum_{n=1}^{N} q_{n, k}}{N} \\
+            \boldsymbol{\mu}_k^{(i + 1)} &\leftarrow \frac{\sum_{n=1}^{N} q_{n, k} \textbf{x}_n}{\sum_{n=1}^{N} q_{n, k}} \\
+            \boldsymbol{\Sigma}_k^{(i + 1)} &\leftarrow \frac{\sum_{n=1}^{N} q_{n, k} (\textbf{x}_n - \boldsymbol{\mu}_k^{(i + 1)})(\textbf{x}_n - \boldsymbol{\mu}_k^{(i + 1)})^{T}}{\sum_{n=1}^{N} q_{n, k}} \\
+        \end{align*}
+    \item[4.] Return to step 2. Repeat until convergence.
+\end{itemize}
+
+Finally, it's worth considering the similarity between GMMs and K-Means clustering. First, as discussed previously, GMMs rely on soft assignments rather than hard assignments. Additionally, GMMs define a normal distribution over our clusters, as opposed to a fixed point in K-Means. Intuitively then, K-Means is a GMM where we only allow hard assignments and the distribution over our clusters is infinitely peaked (meaning our clusters have variance that approaches 0). In other words, K-Means is just a special case of GMMs where we've imposed more rigorous constaints than are ordinarily imposed by a GMM.
+
 \section{Admixture Models: Latent Dirichlet Allocation (LDA)}
 \textbf{TODO: explain what an admixture model is, how it's just an extension of a mixture model. explain the setup for the document example and how we optimize that model.}
 
+If we have a grasp on mixture models, then admixture models are not too difficult to understand. In a sentence: an admixture model is a mixture of mixture models. Latent Dirichlet Allocation (LDA) is a very popular form of admixture model, and it is sometimes also referred to as \textit{topic modeling}, for reasons that will become apparent shortly. Describing LDA using an example will hopefully make the idea of an admixture model more concrete.
+
+\subsection{LDA for Topic Modeling}
+Consider the following data generating process for a set of text documents. We have a Dirichlet distribution $\boldsymbol{\theta} \sim Dir(\boldsymbol{\alpha})$ over the possible topics a document can take on.
+
+\readernote{If you haven't seen the Dirichlet before, it is a distribution over an $n$-dimensional vector whose components sum to 1. For example, a sample from a dirichlet distribution in 3-dimensions could produce a sample that is the vector $$\begin{bmatrix} 0.2 \\ 0.5 \\ 0.3 \\ \end{bmatrix}$$.}
+
+We sample from that Dirichlet distribution to determine the mixture of topics in our document $D_n$:
+\begin{align*}
+    \boldsymbol{\theta}_n \sim Dir(\boldsymbol{\alpha})
+\end{align*}
+Then, for each possible topic $k$, we sample from a Dirichlet distribution that determines the mixture of words in that topic:
+\begin{align*}
+    \boldsymbol{\phi}_k \sim Dir(\boldsymbol{\beta})
+\end{align*}
+Then, for each word $j$ in the document $D_n$, we first sample from a Categorical parameterized by the topic mixture $\boldsymbol{\theta}_n$ to determine which topic that word will come from:
+\begin{align*}
+    z_{n, j} \sim Cat(\boldsymbol{\theta}_n)
+\end{align*}
+Then, now that we have a topic given by $z_{n, j}$ for this word, we sample from a Categorical parameterized by that topic's mixture over words given by $\boldsymbol{\phi}_{z_{n, j}}$:
+\begin{align*}
+    w_{n, j} \sim Cat(\boldsymbol{\phi}_{z_{n, j}})
+\end{align*}
+
+Notice the mixture of mixtures at play here: we have a mixture model over the topics to produce each document in our corpus, and then for every word in a given document, we have a mixture over the topics to generate each individual word.
+
+The indexing is particularly confusing because there are several layers of mixtures here, but to clarify: $n \in 1..N$ indexes each document $D_n$ in our corpus, $k \in 1..K$ indexes each possible topic $k$, and $j \in 1..J$ indexes each word $\textbf{w}_{n,j}$ in document $D_n$, and $e \in 1..E$ indexes each word in our dictionary (note that $\textbf{w}_{n,j} \in \mathbb{R}^{E}$).
+
+$\boldsymbol{\theta}_n$ specifies the distribution over topics in document $D_n$, and $\boldsymbol{\alpha}$ is the hyperparameter for the distribution that produces $\boldsymbol{\theta}_n$. Similarly, $\boldsymbol{\phi}_k$ specifies the distribution over words for a specific topic $k$, and $\boldsymbol{\beta}$ is the hyperparameter for the distribution that produces $\boldsymbol{\phi}_k$.
+
+\subsection{Applying EM to LDA}
+Now that we have our problem setup and notation laid out, we consider how we can apply EM to optimize the parameters $\boldsymbol{\theta}_n$ (the mixture over topics in a document) and $\boldsymbol{\phi}_k$ (the mixture over words for a topic). Note that we can simplify the problem slightly by considering $\boldsymbol{\theta}_n$ and $\boldsymbol{\phi}_k$ to be deterministic parameters for optimization (rather than random variables parameterized by $\boldsymbol{\alpha}$ and $\boldsymbol{\beta}$). Then, EM proceeds as follows:
+
+\begin{itemize}
+    \item[1.] First, we randomly initialize our parameters \{$\boldsymbol{\theta}_n \}_{n=1}^{N}, \{ \boldsymbol{\phi}_k\}_{k=1}^{K}$.
+    \item[2.] [E-Step] Fix the topic distribution of the document given by $\boldsymbol{\theta}_n$ and the word distribution under a topic given by $\boldsymbol{\phi}_k$. Calculate the posterior distribution $\textbf{q}_{n, j} = p(\textbf{z}_{n, j} | \textbf{w}_{n, j})$, and note that this is the distribution over the possible topics of a word:
+        \begin{align*}
+            \textbf{q}_{n, j} = \mathrm{E}[\textbf{z}_{n, j} | \textbf{w}_{n, j}] &= \begin{bmatrix}
+                p(\textbf{z}_{n, j} = C_1 | \textbf{w}_{n, j}; \boldsymbol{\theta}_n, \boldsymbol{\phi}_1) \\
+                \vdots \\
+                p(\textbf{z}_{n, j} = C_K | \textbf{w}_{n, j}; \boldsymbol{\theta}_n, \boldsymbol{\phi}_K) \\
+            \end{bmatrix} \\
+            &\propto \begin{bmatrix}
+                p(\textbf{w}_{n, j} | \textbf{z}_{n, j} = C_1; \boldsymbol{\phi}_1) p(\textbf{z}_{n, j}  = C_1; \boldsymbol{\theta}_n) \\
+                \vdots \\
+                p(\textbf{w}_{n, j} | \textbf{z}_{n, j} = C_K; \boldsymbol{\phi}_K) p(\textbf{z}_{n, j}  = C_K; \boldsymbol{\theta}_n) \\
+            \end{bmatrix} \\
+            &= \begin{bmatrix}
+                \phi_{1, \textbf{w}_{n, j}} \cdot \theta_{n, 1} \\
+                \vdots \\
+                \phi_{K, \textbf{w}_{n, j}} \cdot \theta_{n, K} \\
+            \end{bmatrix} \\
+        \end{align*}
+    \item[3.] [M-Step] Using our values of $\textbf{q}_n$, calculate the expected complete-data log likelihood (which marginalizes over the unknown hidden variables $\textbf{z}_{n, j}$), and then use that term to optimize our model parameters $\boldsymbol{\theta}_n$ and $\boldsymbol{\phi}_k$:
+        \begin{align*}
+            \mathbb{E}_{\textbf{q}}[\log p(\textbf{W}, \textbf{Z})] &= \mathbb{E}_{\textbf{q}} \bigg[ \sum_{n=1}^{N} \sum_{j=1}^{J} \ln(p(\textbf{w}_{n, j}, \textbf{z}_{n, j}; \{\boldsymbol{\theta}_n \}_{n=1}^{N}, \{ \boldsymbol{\phi}_k\}_{k=1}^{K} \bigg] \\
+            &= \sum_{n=1}^{N} \sum_{j=1}^{J} \sum_{k=1}^{K} q_{n, j, k} \ln \theta_{n, k} + q_{n, j, k} \ln \phi_{k, \textbf{w}_{n, j}} \\
+        \end{align*}
+        We can then use this expected complete-data log likelihood to optimize our model parameters $\{\boldsymbol{\theta}_n \}_{n=1}^{N}, \{ \boldsymbol{\phi}_k\}_{k=1}^{K}$ by computing the MLE as usual. Using a Lagrange multipliers to enforce $\forall n \sum_{k=1}^{K} \theta_{n, k} = 1$ and $\forall k \sum_{e=1}^{E} \phi_{k, e} = 1$ (where $e$ indexes each word in our dictionary), we recover the update equations:
+        \begin{align*}
+            \theta_{n, k}^{(i + 1)} &\leftarrow \frac{\sum_{j=1}^{J} q_{n, j, k}}{J} \\
+            \phi_{k, d}^{(i + 1)} &\leftarrow \frac{\sum_{n=1}^{N} \sum_{j=1}^{J} q_{n, j, k} w_{n, j, d}}{\sum_{n=1}^{N} \sum_{j=1}^{J} q_{n, j, k}} \\
+        \end{align*}
+    \item[4.] Return to step 2. Repeat until convergence.
+\end{itemize}
+
+The largest headache for applying the EM algorithm to LDA is keeping all of the indices in order, and this is a product of the fact that we're working with a mixture of mixtures. Once the bookkeeping is sorted out, the actual updates are straightforward.
+
 \section{Conclusion}
 \textbf{TODO: conclude our mixture model chapter}
+Mixture models are one common way of handling data that we believe is generated through a combination of unobserved, latent variables. We've seen that training these models directly is intractable (due to the marginalization over the latent variables), and so we turned to a coordinate-ascent based algorithm known as Expectation-Maximization to get around this difficulty. We then explored a couple of common mixture models, including a multinomial mixture, Gaussian Mixture Models, and an admixture model known as Latent Dirichlet Allocation. Mixture models are a subset of a broader range of models known as latent variable models, and the examples seen in this chapter are just a taste of the many different mixture models available to us. Furthermore, EM is just a single algorithm for optimizing these models. A good grasp on the fundamentals of mixture models and the EM algorithm will be useful background to expanding to more complicated, expressive latent variable models.
