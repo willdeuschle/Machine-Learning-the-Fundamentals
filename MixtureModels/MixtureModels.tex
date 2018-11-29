@@ -61,50 +61,49 @@ While the classes of data in a mixture model will typically be discrete, the cla
 \end{mlcube}
 
 \section{Applications}
-TODO: pick up proofreading here
-Since most of the data we observe in our world has some sort of unobserved category associated with it, there are a wide variety of applications for mixture models. We present a few here:
+Since most of the data we observe in our world has some sort of unobserved category associated with it, there are a wide variety of applications for mixture models. Here are just a few:
 \begin{enumerate}
     \item Handwriting image recognition. The categories are given by the characters (letters, numbers, etc.) and the class-conditional is a distribution over what each of those characters might look like.
-    \item Modeling the topics in a document. Words or sentences in a document can be thought of as corresponding to specific topics and the class-condition for a specific topic determines a distribution over the words you might see for that topic.
+    \item Modeling the topics in a document. Words or sentences in a document can be thought of as corresponding to specific topics and the class-condition for a specific topic determines a distribution over the words you might observe for that topic. More on this in the section on LDA at the end of the chapter.
     \item Vehicle prices. Vehicle can be categorized a number of different ways (gas mileage, size, safety, etc.). The class-conditional for a given category determines the distribution over the price of that vehicle.
 \end{enumerate}
 
 \section{Fitting a Model}
-We've now defined a general form for a mixture model: we have a distribution $p(z; \theta)$ over our classes and a distribution $p(x|z; w)$ over our class-conditional distribution. A natural approach would be to compute the maximum likelihood values for our parameters $\theta$ and $w$. Let's consider how me might go about this for a mixture model.
+We've defined the general form of a mixture model: we have a distribution $p(\textbf{z}; \boldsymbol{\theta})$ over our classes and a distribution $p(\textbf{x}|\textbf{z} = C_k; \textbf{w})$ over our class-conditional distribution. A natural approach would be to compute the maximum likelihood values for our parameters $\boldsymbol{\theta}$ and $\textbf{w}$. Let's consider how me might go about this for a mixture model.
 
 \subsection{Maximum Likelihood for Mixture Models}
-Ultimately, we would like to maximize the likelihood of our observed data as normal. Because we don't actually observe the latent variables $z$ which determine the class of each observed data point, we can simply sum over the possible classes for each of our $N$ data points as follows:
+Our goal is to maximize the likelihood of our observed data. Because we don't actually observe the latent variables $\textbf{z}_n$ which determine the class of each observed data point $\textbf{x}_n$, we can simply sum over the possible classes for each of our $N$ data points as follows:
 \begin{align*}
-    p(\textbf{X}; w) = \prod_{n=1}^{N} \sum_{k=0}^{K} p(x_{n}, z_{n, k}; \theta, w)
+    p(\textbf{X}; \boldsymbol{\theta}, \textbf{w}) = \prod_{n=1}^{N} \sum_{k=1}^{K} p(\textbf{x}_{n}, z_{n, k}; \boldsymbol{\theta}, \textbf{w})
 \end{align*}
 Taking the logarithm to get our log-likelihood as usual:
 \begin{align} \label{intractable-log-likelihood}
-    \log p(\textbf{X}; w) = \sum_{n=1}^{N} \log \sum_{k=0}^{K} p(x_{n}, z_{n, k}; \theta, w)
+    \log p(\textbf{X}; \boldsymbol{\theta}, \textbf{w}) = \sum_{n=1}^{N} \log \sum_{k=1}^{K} p(\textbf{x}_{n}, z_{n, k}; \boldsymbol{\theta}, \textbf{w})
 \end{align}
-It may not be immediately obvious, but under this setup, the maximum likelihood calculation for our parameters $\theta, w$ is now intractable. The summation over the $K$ classes of our latent variable $z_{n}$, which is required because we don't actually observe those classes, is inside of the logarithm, which prevents us from arriving at a closed form solution (it may be helpful to try to solve it yourself, you'll realize that consolidating a summation inside of a logarithm is not possible). The rest of this chapter will deal with how we can optimize our mixture model in the face of this challenge.
+It may not be immediately obvious, but under this setup, the maximum likelihood calculation for our parameters $\boldsymbol{\theta}, \textbf{w}$ is now intractable. The summation over the $K$ classes of our latent variable $\textbf{z}_{n}$, which is required because we don't actually observe those classes, is inside of the logarithm, which prevents us from arriving at a closed form solution (it may be helpful to try to solve this yourself, you'll realize that consolidating a summation inside of a logarithm is not possible). The rest of this chapter will deal with how we can optimize our mixture model in the face of this challenge.
 
-\subsection{Complete Data Log Likelihood}
-We have a problem with computing the MLE for our model parameters. If we only knew which classes our data points came from, we would be able to calculate $\log p(z, x)$ with relative ease because we would no longer require a summation in the log:
+\subsection{Complete-Data Log Likelihood}
+We have a problem with computing the MLE for our model parameters. If we only knew which classes our data points came from, we would be able to calculate $\log p(\textbf{x}, \textbf{z})$ with relative ease because we would no longer require a summation inside the logarithm:
 \begin{align} \label{complete-data-log-likelihood}
-    \log p(\textbf{X}, \textbf{Z}) &= \sum_{n=1}^{N} \log p(x_n, z_n; \theta, w) \\
-    &= \sum_{n=1}^{N} \log[p(x_n | z_n = C_k; w) p(z_n = C_k; \theta)] \\
-    &= \sum_{n=1}^{N} \log p(x_n | z_n = C_k; w) + \log p(z_n = C_k; \theta) \\
+    \log p(\textbf{X}, \textbf{Z}) &= \sum_{n=1}^{N} \log p(\textbf{x}_n, \textbf{z}_n; \boldsymbol{\theta}, \textbf{w}) \\
+    &= \sum_{n=1}^{N} \log[p(\textbf{x}_n | \textbf{z}_n = C_k; \textbf{w}) p(\textbf{z}_n = C_k; \boldsymbol{\theta})] \\
+    &= \sum_{n=1}^{N} \log p(\textbf{x}_n | \textbf{z}_n = C_k; \textbf{w}) + \log p(\textbf{z}_n = C_k; \boldsymbol{\theta}) \\
 \end{align}
-Notice that because we've now observed $z_{n}$, we don't have to marginalize over its possible values. This motivates an interesting approach that takes advantage of our ability to work with $p(z, x)$ if we only knew $z$.
+Notice that because we've now observed $\textbf{z}_{n}$, we don't have to marginalize over its possible values. This motivates an interesting approach that takes advantage of our ability to work with $p(\textbf{x}, \textbf{z})$ if we only knew $\textbf{z}$.
 
-The expression p(z, x) is known as the \textit{complete data} because it assumes that we have both our observation $x$ and the classs $z$ that $x$ came from. Our ability to efficiently calculate the complete data log likelihood $\log p(z, x)$ is the crucial piece of the algorithm we will present to optimize our mixture model parameters. This algorithm is known as Expectation-Maximization, or EM.
+The expression p(\textbf{x}, \textbf{z}) is known as the \textit{complete-data} because it assumes that we have both our observation $\textbf{x}$ and the classs $\textbf{z}$ that $\textbf{x}$ came from. Our ability to efficiently calculate the complete-data log likelihood $\log p(\textbf{x}, \textbf{z})$ is the crucial piece of the algorithm we will present to optimize our mixture model parameters. This algorithm is known as \textbf{Expectation-Maximization}, or \textbf{EM} for short.
 
 \section{Expectation-Maximization (EM)}
-The motivation for the EM algorithm, as presented in the previous section, is that we do not have a closed form optimization for our model parameters because of a summation inside of a logarithm. This summation was required because we didn't observe a crucial piece of data, the class $z_{n}$, and therefore we had to sum over its values.
+The motivation for the EM algorithm, as presented in the previous section, is that we do not have a closed form optimization for our mixture model parameters due to the summation inside of the logarithm. This summation was required because we didn't observe a crucial piece of data, the class $\textbf{z}$, and therefore we had to sum over its values.
 
-EM uses an iterative approach to optimize our model parameters. It proposes a value for $z_{n}$ using an expectation calculation, and then based on that proposed value, it maximizes our complete-data log likelihood with respect to the model parameters $\boldsymbol{\theta}$ and $\textbf{w}$ via a standard MLE procedure.
+EM uses an iterative approach to optimize our model parameters. It proposes a value for $\textbf{z}$ using an expectation calculation, and then based on that proposed value, it maximizes our complete-data log likelihood with respect to the model parameters $\boldsymbol{\theta}$ and $\textbf{w}$ via a standard MLE procedure.
 
-Notice that EM is composed of two distinct steps: taking an expectation over our class parameters and performing a maximization over our model parameters. These two steps (expectation and maximization) obviously give the algorithm its name, but more generally, this type of approach is also referred to as \textit{coordinate ascent}. The high level idea behind coordinate ascent is that we can replace a hard problem (maximizing the log likelihood for our mixture model directly) with two easier problems (taking an expectation over our latent variables and maximizing our model parameters based on the complete data, which relies on the current setting of our latent variables). We alternate between the two easier problems, executing each of them until we reach a point of convergence or decide that we've done enough.
+Notice that EM is composed of two distinct steps: taking an expectation over our latent class variables and performing a maximization over our model parameters. These two steps (expectation and maximization) obviously give the algorithm its name, but more generally, this type of approach is also referred to as \textbf{coordinate ascent}. The idea behind coordinate ascent is that we can replace a hard problem (maximizing the log likelihood for our mixture model directly) with two easier problems (taking an expectation over our latent variables and maximizing our model parameters based on the complete-data, which relies on the current setting of our latent variables). We alternate between the two easier problems, executing each of them until we reach a point of convergence or decide that we've done enough.
 
-We'll walk through the details of each of these steps and then tie them together with the complete algorithm.
+We'll walk through the details of each of these two steps and then tie them together with the complete algorithm.
 
 \subsection{Expectation Step}
-The purpose of the expectation step (sometimes just referred to as the 'E'-step) in the EM algorithm is to set the most likely values for our latent variables $z_n$. In an ideal world, we would know what these classes are, and if we did, we could simply optimize our complete-data log likelihood directly as we've seen above. However, since we don't get to observe these values, one way we can get around this is just to compute the expectation of the latent variables. Let's consider what this looks like using a concrete example.
+The purpose of the expectation step (sometimes just referred to as the `E-step') in the EM algorithm is to set the most likely values for our latent variables $\textbf{z}_n$. In an ideal world, we would know what these classes are, and if we did, we could simply optimize our complete-data log likelihood directly as we've seen above. However, since we don't get to observe these values, one way we can get around this is just to compute the expectation of the latent variables. Let's consider what this looks like with a concrete example.
 
 Let's say our data points $\textbf{x}_n$ can come from one of three classes. Then, we can represent the latent variable $\textbf{z}_n$ associated with each data point using a one-hot encoded vector. For example, if $\textbf{z}_n$ came from class $C_1$, we would denote this:
 \begin{align*}
@@ -115,7 +114,7 @@ Let's say our data points $\textbf{x}_n$ can come from one of three classes. The
             0 \\
         \end{bmatrix}
 \end{align*}
-As we've already described, we don't know the value of this latent variable. Instead, we will compute its conditional expectation based on the current setting of our model parameters and our observed data $\textbf{x}_n$. We denote these expected latent variables $\textbf{q}_n$, and we calculate them as follows:
+As we've already explained, we don't know the true value of this latent variable. Instead, we will compute its conditional expectation based on the current setting of our model parameters and our observed data $\textbf{x}_n$. We denote the expectation of our latent variables as $\textbf{q}_n$, and we calculate them as follows:
 \begin{align*}
     \textbf{q}_n = \mathbb{E}[\textbf{z}_n | \textbf{x}_n] &= \begin{bmatrix}
             p(\textbf{z}_n = C_1 | \textbf{x}_n; \boldsymbol{\theta}, \textbf{w}) \\
@@ -128,7 +127,7 @@ As we've already described, we don't know the value of this latent variable. Ins
             p(\textbf{x}_n | \textbf{z}_n = C_3; \textbf{w})p(\textbf{z}_n = C_3; \boldsymbol{\theta}) \\
         \end{bmatrix} \\
 \end{align*}
-Notice that we can switch from proportionality of our $\textbf{q}_n$ values to actually probabilities by simply taking a softmax over the unnormalized values. Then, our $\textbf{q}_n$ values will look something like the following, where a larger number indicates that we have a stronger belief that the data point $\textbf{x}_n$ came from that class:
+Notice that we can switch from proportionality in our $\textbf{q}_n$ values to actually probabilities by simply taking a softmax over the unnormalized values. Then, our $\textbf{q}_n$ values will look something like the following, where a larger number indicates a stronger belief that the data point $\textbf{x}_n$ came from that class:
 \begin{align*}
     \textbf{q}_n = \begin{bmatrix}
             0.8 \\
@@ -136,26 +135,27 @@ Notice that we can switch from proportionality of our $\textbf{q}_n$ values to a
             0.1 \\
         \end{bmatrix}
 \end{align*}
-There are two important things to note about the expectation step. First, notice that the model parameters ($\boldsymbol{\theta}$ and \textbf{w}) are held fixed during this step. We're computing the expectation of our latent variables based on the current setting of those model parameters. Those parameters are randomly initialized if this is our first expectation round.
+There are two important things to note about the expectation step. First, the model parameters $\boldsymbol{\theta}$ and \textbf{w} are held fixed. We're computing the expectation of our latent variables based on the current setting of those model parameters. Those parameters are randomly initialized if this is our first time running the expectation step.
 
-Second, notice that we have a value of $\textbf{q}_n$ to compute for every data point $\textbf{x}_n$ in our data set during this step. As a result, these are sometimes called \textit{local} variables, since there is one assigned to each data point. This is in contrast to our model parameters, which are considered \textit{global} variables. The size of the global model parameters doesn't fluctuate based on the size of our data set.
+Second, notice that we have a value of $\textbf{q}_n$ for every data point $\textbf{x}_n$ in our data set. As a result, $\textbf{q}_n$ are sometimes called \textit{local} variables, since there is one assigned to each data point. This is in contrast to our model parameters $\boldsymbol{\theta}$ and \textbf{w}, which are considered \textit{global} parameters. The size of the global model parameters doesn't fluctuate based on the size of our data set.
 
-After performing the E-step, we now have an expectation for our latent variables, given by $\textbf{q}_n$. In the maximization step, which we descrbie next, we use these $\textbf{q}_n$ values to optimize our model parameters.
+After performing the E-step, we now have an expectation for our latent variables, given by $\textbf{q}_n$. In the maximization step, which we describe next, we use these $\textbf{q}_n$ values to optimize our model parameters.
 
 \subsection{Maximization Step}
-After the expectation step, we have $\textbf{q}_n$ values associated with each data point $\textbf{x}_n$, which describe our belief that each data point came from each class $C_k$. Now that we have these updated `class assignments', it's possible for us to update our model parameters $\boldsymbol{\theta}$ and $\textbf{w}$.
+After the expectation step, we have a $\textbf{q}_n \in \mathbb{R}^K$ associated with each data point $\textbf{x}_n$, which describes our belief that the data point came from each class $C_k$. Now that we have these expected `class assignments', it's possible for us to update our model parameters $\boldsymbol{\theta}$ and $\textbf{w}$.
 
-Recall that it's possible for us to optimize these parameters because the complete-data log likelihood is tractable (as we saw above, we no longer need to sum over the possible classes inside of the logarithm). Although we do not have the actual complete-data (we don't actually know the $\textbf{z}_n$ values), we have an estimation of the complete-data through our $\textbf{q}_n$ values! We use these values of $\textbf{q}_n$ to make the optimization of our model parameters tractable.
+Recall that optimizing our parameters using the complete-data log likelihood is tractable because we avoid summing over the classes inside of the logarithm. Although we do not have the actual complete-data (we don't know the true $\textbf{z}_n$ values), we have an estimation of the complete-data through our $\textbf{q}_n$ values! We use these values of $\textbf{q}_n$ to make the optimization of our model parameters tractable.
 
-Notice that our $\textbf{q}_n$ values are `soft' assignments - meaning that unlike the $\textbf{z}_n$ values, which are one-hot encodings of assignments to a class, the $\textbf{q}_n$ values have a probability that each data point $\textbf{x}_n$ came from each class. Fortunately, this does not affect our maximization, which starts with out complete-data log likelihood:
+Notice that our $\textbf{q}_n$ values are `soft' assignments - meaning that unlike the $\textbf{z}_n$ values, which are one-hot encodings of assignments to a class, the $\textbf{q}_n$ values have a probability that a data point $\textbf{x}_n$ came from each class. Fortunately, this does not affect our maximization, which starts with out complete-data log likelihood:
 \begin{align*}
-    \log p(\textbf{X}, \textbf{Z}) = \sum_{n=1}^{N} \log p(x_n | z_n = C_k; w) + \log p(z_n = C_k; \theta) \\
+    \log p(\textbf{X}, \textbf{Z}) = \sum_{n=1}^{N} \log p(\textbf{x}_n | \textbf{z}_n = C_k; \textbf{w}) + \log p(\textbf{z}_n = C_k; \boldsymbol{\theta}) \\
 \end{align*}
 Applying the expectation with respect to $\textbf{z}_n | \textbf{x}_n$, which will require the $\textbf{q}_n$ computed in the expectation step:
 \begin{align*}
-    \mathrm{E}_{\textbf{z}_n | \textbf{x}_n} [\log p(\textbf{X}, \textbf{Z})] &= \sum_{k=1}^{K} p(z_{n, k} | \textbf{x}) \sum_{n=1}^{N} \log p(x_n | z_n = C_k; w) + \log p(z_n = C_k; \theta) \\
-    &= \sum_{k=1}^{K} q_{n, k} \sum_{n=1}^{N} \log p(x_n | z_n = C_k; w) + \log p(z_n = C_k; \theta) \\
+    \mathrm{E}_{\textbf{z}_n | \textbf{x}_n} [\log p(\textbf{X}, \textbf{Z})] &= \sum_{n=1}^{N} \sum_{k=1}^{K} p(\textbf{z}_n = C_k | \textbf{x}_n) \big( \log p(\textbf{x}_n | \textbf{z}_n = C_k; w) + \log p(\textbf{z}_n = C_k; \boldsymbol{\theta}) \big) \\
+    &= \sum_{n=1}^{N} \sum_{k=1}^{K} q_{n, k} \big( \log p(\textbf{x}_n | \textbf{z}_n = C_k; \textbf{w}) + \log p(\textbf{z}_n = C_k; \boldsymbol{\theta}) \big) \\
 \end{align*}
+TODO: pickup here, and write a few more steps for the above calculation you did
 Notice the crucial difference between this summation and that of Equation \ref{intractable-log-likelihood}: the summation over the classes is now outside of the logarithm! Recall that using the log-likelihood directly was intractable initially because the summation over the classes was inside of the logarithm. Notice that this maximization became possible by taking the expectation of our latent variables (using the values we computed in the E-step), which pushed the summation over the classes outside of the logarithm.
 
 We can now complete the M-step by performing the maximization of our now tractable equation with respect to our model parameters $\boldsymbol{\theta}$ and $\textbf{w}$. We simply take the derivative with respect to the parameter of interest, set to 0, solve, and update the parameter with the result.
