@@ -1,4 +1,184 @@
 \chapter{Hidden Markov Models}
-HMM intro
+Many of the techniques we've considered so far in this book were motivated by the \textit{types} of data we could expect to work with. For example, many of the supervised learning techniques (different forms of regression, neural networks, support vector machines, etc.) were motivated by the fact that we had labelled training data. We ventured into different types of techniques, like clustering and dimensionality reduction, when we had interesting data to learn from without a specific prediction target. In the last chapter, we were developing techniques for \textit{incomplete} data with latent variable models. In this chapter we turn to a technique for handling data that is indexed through \textit{time}.
+
 \section{Motivation}
-\section{TODO}
+One major type of data that we have not yet paid explicit attention to yet is that of \textit{time-series data}. Much of the data we record comes with some sort of a timestamp, whether or not it is actually of interest. For example, any time we perform an action online, there is a high probability that whatever database is storing that data is also indexing it with a timestamp. Physical sensors in the real world always record timestamps because it would be very difficult to make sense of the information if it was not indexed by time. When we undergo medical exams, the results are recorded along with a timestamp. It's almost inconceivable at this point that we would record information without also keeping track of when that data was generated, or at the very least when we chose to save that data.
+
+Beyond the fact that we almost always record timestamp information with whatever type of data we're collecting, there are also many reasons to consider time to be an exceedingly special data point. There are many reasons to take this view. For example, as we've already discussed, time is one of the most universal features of any data set. It's difficult to imagine a dataset that couldn't come with timestamps attached to the individual data points. Time also encodes a lot of information that we take for granted about the physical and digital worlds. For example, if the sensors on a plane record the current velocity of the plane at a specific point in time, we would expect the surrounding data points to be relatively similar, or at least move in a consistent direction. In a more general sense, we expect that time constrains other aspects of the data it is attached to in specific ways.
+
+Because we know that time posseses these special and unique properties, it follows that we wish to exploit these special properties to create more expressive models. In this chapter, we will focus on one such model known as a \textbf{Hidden Markov Model} or \textbf{HMM}. At a high level, the goal of an HMM is to model the state of an entity over time, with the caveat that we never actually observe the state itself. Instead we observe a data point $x$ at each time step that is some function of the true state $s$. For example, we could model the position of a robot over time given a noisy estimation of that robots current position at each time step. Furthermore, we have some belief about how one state transition to the next state. Graphically, an HMM looks like the DGM found in Figure \ref{fig:HMM-DGM}.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\paperwidth]{../HiddenMarkovModels/fig/HMM_DGM.png}
+    \caption{The directed graphical model for an HMM.}
+    \label{fig:HMM-DGM}
+\end{figure}
+
+We will probe HMMs in more detail over the course of the chapter, but for now we can consider their properties using the ML cube.
+
+\begin{mlcube}{Hidden Markov Models}
+As usual, let's inspect the categories HMMs fall into for our ML framework cube. First, it is possible for HMMs to work with discrete or continuous output domains, but for the scope of this text, we will consider only discrete valued states. Second, an HMM is not optimizing for a prediction target; rather, it's working on an unsupervised basis to approximate the state at a given timestep. Therefore, it is most aptly considered an unsupervised method. Finally, it is most common to describe the relationships between the hidden and observed states, as well as the transitions between hidden states, probabilistically, making HMMs a probabilistic technique.
+\begin{center}
+    \begin{tabular}{c|c|c}
+    \textit{\textbf{Domain}} & \textit{\textbf{Training}} & \textit{\textbf{Probabilistic}} \\
+    \hline
+    Discrete & Unsupervised & Yes \\
+    \end{tabular}
+\end{center}
+\end{mlcube}
+
+\section{HMM Data, Model, and Parameterization}
+As explained above, HMMs model the state of an entity over time given some noisy observations, as shown in Figure \ref{fig:HMM-DGM}.
+
+\subsection{HMM Data}
+A complete data point for an HMM consists of the sequence of one-hot encoded states $\textbf{s}_1, ..., \textbf{s}_n$ as well as the corresponding sequence of observed emissions $\textbf{x}_1, ..., \textbf{x}_n$. Each state corresponds to one of $K$ possible options, and each emission corresponds to one of $M$ possible options. Note that we don't have access to the complete data points, but only the observed emissions. It's our goal to infer the hidden states.
+\readernote{In general, the hidden states and observed emissions don't have to be discrete, but for simplicity, we present the discrete interpretation here.}
+
+Note that a single \textit{data point} consists of a sequence of $n$ emissions $\textbf{x}_1, ..., \textbf{x}_n$. A data set is said to have $N$ data points, meaning $N$ sequences where each sequence is composed of $n$ emissions. To summarize:
+\begin{itemize}
+	\item A data set consists of $N$ sequences.
+	\item Each sequence is composed of $n$ observed emissions $\textbf{x}_1, ..., \textbf{x}_n$.
+	\item It's our goal to infer the hidden states $\textbf{s}_1, ..., \textbf{s}_n$ for each sequence.
+	\item Each emission $\textbf{x}_{t}$ takes on one of $M$ possible options.
+	\item Each hidden state $\textbf{s}_{t}$ take on one of $K$ possible options.
+\end{itemize}
+
+\subsection{HMM Model Assumptions}
+Ultimately, the goal of HMMs is to optimize the joint distribution over hidden states and observed emissions given by:
+\begin{equation} \label{large-joint}
+	p(\textbf{s}_1, ..., \textbf{s}_n, \textbf{x}_1, ..., \textbf{x}_n) = p(\textbf{s}_1, ..., \textbf{s}_n) p(\textbf{x}_1, ..., \textbf{x}_n | \textbf{s}_1, ..., \textbf{s}_n)
+\end{equation}
+It's not immediately obvious how we go about optimizing our model parameters for this complex joint distribution. Fortunately, HMMs make this easier via the following assumptions:
+\begin{itemize}
+    \item[1.] State $\textbf{s}_{t+1}$ depends only on the previous state $\textbf{s}_t$:
+	    \begin{align*}
+	    	p(\textbf{s}_{t+1} | \textbf{s}_{1}, ..., \textbf{s}_{t}, \textbf{x}_{1}, ..., \textbf{x}_{t}) = p(\textbf{s}_{t+1} | \textbf{s}_{t}) 
+	    \end{align*}
+    	This is the \textit{Markov Property}, and it means that given the previous time step, we can ignore all earlier time steps.
+    \item[2.] At each time step $t$, the observed emission $\textbf{x}_t$ depends only on the current state $\textbf{s}_t$.
+    	\begin{align*}
+	    	p(\textbf{x}_{t} | \textbf{s}_{1}, ..., \textbf{s}_{t}, \textbf{x}_{1}, ..., \textbf{x}_{t-1}) = p(\textbf{x}_{t} | \textbf{s}_{t}) 
+	    \end{align*}
+\end{itemize}
+\readernote{Markovian assumption for the transition between states, as well as the fact that we do not observe the true states, gives rise to the \textit{Hidden Markov Model} name.}
+Notice that these two assumptions allow us to factorize the large joint distribution given by Equation \ref{large-joint} as follows:
+\begin{equation} \label{factorized-joint}
+	p(\textbf{s}_1, ..., \textbf{s}_n) p(\textbf{x}_1, ..., \textbf{x}_n | \textbf{s}_1, ..., \textbf{s}_n) = p(\textbf{s}_1) \prod_{t=1}^{n-1} p(\textbf{s}_{t+1} | \textbf{s}_t) \prod_{t=1}^{n} p(\textbf{x}_t | \textbf{s}_t)
+\end{equation}
+This factorization will prove important to making inference tractable for HMMs.
+
+\subsection{HMM Parameterization}
+Now that we have an understanding of both the form of the data as well as the modeling assumptions made by an HMM, we can make the parameterization of the model explicit. Referencing the factorized joint distribution from Equation \ref{factorized-joint}, it's clear that we will need three distinct sets of parameters.
+
+One set of parameters will be for the prior over our states $p(\textbf{s}_1)$. It will be denoted $\boldsymbol{\theta} \in \mathbb{R}^{K}$, such that:
+\begin{align*}
+	p(\textbf{s}_t = k) = \theta_k
+\end{align*}
+Another set of parameters will be for the transition probabilities between states $p(\textbf{s}_{t+1} | \textbf{s}_t)$. It will be denoted $\textbf{T} \in \mathbb{R}^{K \times K}$, such that:
+\begin{align*}
+	p(\textbf{s}_{t+1} = j | \textbf{s}_t = i) = T_{i,j}
+\end{align*}
+which is the probability of transitioning from state $i$ to state $j$. Finally, we have a set of parameters for the conditional probabilities of the observed emissions given the hidden state $p(\textbf{x}_t | \textbf{s}_t)$. It will be denoted $\boldsymbol{\pi} \in \mathbb{R}^{K \times M}$, such that:
+\begin{align*}
+	p(\textbf{x}_t = m | \textbf{s} = k) = \pi_{k, m}
+\end{align*}
+Note that a natural interpretation of the parameter matrix $\boldsymbol{\pi}$ is that each possible state (of which there are $K$ options) has an $M$-dimensional vector describing the probability of an emission given that state.
+
+In sum, we have three sets of parameters $\boldsymbol{\theta} \in \mathbb{R}^{K}$, $\textbf{T} \in \mathbb{R}^{K \times K}$, and $\boldsymbol{\pi} \in \mathbb{R}^{K \times M}$ that we need to learn from our data set. Then, using this trained model, we will be able to perform several types of inference over our hidden states.
+
+\section{EM for HMMs and Forward-Backward Algorithm}
+Recall the motivation for the Expectation-Maximization algorithm from the previous chapter: we had parameters we wished to optimize but unobserved variables made direct optimization of those parameters intractable. We're now faced with a similar problem.
+
+Given a data set of observed emissions $\{ \textbf{x}^{i} \}_{i=1}^{N}$ where each data point $\textbf{x}^{i}$ represents the sequence $(\textbf{x}_{1}^{i}, ..., \textbf{x}_{n}^{i})$, our goal is to estimate our parameters $\boldsymbol{\theta}, \textbf{T}, \boldsymbol{\pi}$ described in the previous section. If we knew the hidden states, it would be possible for us to write the joint probability $p(\textbf{s}^{i}, \textbf{x}^{i})$ directly, and maximize our parameters without issue. However, the true hidden states are latent variables, and thus we would need to sum over their possible values, which is what makes the direct maximization of our parameters intractable.
+
+Instead, we will use the Expectation-Maximization algorithm we developed in the previous chapter. This amounts to computing the expectation over our hidden states in the E step, and then based on those fixed expectations, we can maximize our parameters in the M step. As usual, we perform these operations iteratively until convergence.
+
+So far, there is no clear departure from the same exact EM algorithm that we saw in the last chapter. However, before we go about detailing the E and M steps, we need to consider something known as the \textbf{Forward-Backward Algorithm}.
+
+\subsection{Forward-Backward Algorithm}
+Let's consider what would actually be required of us to perform the E-step for the hidden states of an HMM. To compute the expected value of state $\textbf{s}_t$ using the full joint distribution $p(\textbf{s}_1, ..., \textbf{s}_n, \textbf{x}_1, ..., \textbf{x}_n) = p(\textbf{s}_1) \prod_{t=1}^{n-1} p(\textbf{s}_{t+1} | \textbf{s}_t) \prod_{t=1}^{n} p(\textbf{x}_t | \textbf{s}_t)$ would require marginalizing over all the unobserved states other than $\textbf{s}_{t}$ as follows:
+\begin{align*}
+	\mathbb{E}[\textbf{s}_t | \textbf{s}_1, ..., \textbf{s}_{t-1}, \textbf{s}_{t + 1}, ..., \textbf{s}_n, \textbf{x}_1, ..., \textbf{x}_n] = p(\textbf{s}_t | \textbf{s}_1, ..., \textbf{s}_{t-1}, \textbf{s}_{t + 1}, ..., \textbf{s}_n, \textbf{x}_1, ..., \textbf{x}_n) &= \\
+	\sum_{k^1 \in K} ... \sum_{k^{t-1} \in K} \sum_{k^{t+1} \in K} ... \sum_{k^{n} \in K} p(\textbf{s}_t | \textbf{s}_1=k^1, ..., \textbf{s}_{t-1}=k^{t-1}, \textbf{s}_{t+1}=k^{t+1}, ..., \textbf{s}_n=k^n, \textbf{x}_1, ..., \textbf{x}_n)
+\end{align*}
+
+If we were to do this naively, marginalizing over all states at each time step, it would be a very expensive and wasteful computation. For example, computing the expected value of the state at time step 2 would require summing over all possible states for $\textbf{s}_1, \textbf{s}_3, ..., \textbf{s}_n$. Then, to get the expected value at time step 3, we would need to sum over all possible states for $\textbf{s}_1, \textbf{s}_2, \textbf{s}_4, ..., \textbf{s}_n$. Notice that this approach duplicates a lot of work. Rather than performing these summations over and over again, we can instead \textit{memoize} (or reuse) these summations using the Forward-Backward algorithm.
+
+The Forward-Backward algorithm is an example of a \textit{message-passing} scheme, which means that we compute information and then pass it around our model in the form of reusable messages. The goal is to avoid duplicating work, instead using the messages directly. If you've encounted dynamic programming before, the Forward-Backward Algorithm is an example of it. Ultimately, the purpose of the Foward-Backward algorithm is to make the expectation step over our HMM more efficient.
+
+This algorithm passes messages, unsurprisingly, forwards and backwards through `time', meaning up and down the chain shown in the graphical model representation given by Figure \ref{fig:HMM-DGM}. The forward messages are defined at each state as $\alpha_t(\textbf{s}_t)$, while the backward messages are defined at each state as $\beta_t(\textbf{s}_t)$. Let's be more explicity about what these $\alpha$ and $\beta$ values are.
+
+The $\alpha_t$'s represent the joint probability of all our observed emissions from time $1..t$ as well as the state exactly at time $t$:
+\begin{equation} \label{unfactorized-alphas}
+	\alpha_t(\textbf{s}_t) = p(\textbf{x}_1, ..., \textbf{x}_t, \textbf{s}_t)
+\end{equation}
+Graphically, this means that the $\alpha_t$'s are capturing the portion of the DGM shown in Figure \ref{fig:HMM-DGM-alpha}.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\paperwidth]{../HiddenMarkovModels/fig/HMM_DGM_alpha.png}
+    \caption{$\alpha_t$'s capture the joint probability for the boxed portion of this DGM.}
+    \label{fig:HMM-DGM-alpha}
+\end{figure}
+
+Note that Equation \ref{unfactorized-alphas} is an unfactorized joint probability over observed emissions and a hidden state. We can factorize this joint probability the same way we factorized the entire joint distribution given by Equation \ref{large-joint}:
+\begin{align} \label{factorized-alphas}
+	\alpha_t(\textbf{s}_t) &= p(\textbf{x}_1, ..., \textbf{x}_t, \textbf{s}_t) \\
+	&= p(\textbf{x}_t | \textbf{s}_t) \sum_{\textbf{s}_{t-1}} p(\textbf{s}_t | \textbf{s}_{t-1}) p(\textbf{x}_1, ..., \textbf{x}_{t-1}, \textbf{s}_{t-1}) \\
+	&= p(\textbf{x}_t | \textbf{s}_t) \sum_{\textbf{s}_{t-1}} p(\textbf{s}_t | \textbf{s}_{t-1}) \alpha_{t-1}(\textbf{s}_{t-1})
+\end{align}
+Pay careful attention to the last line of Equation \ref{factorized-alphas}. Notice that our calculation for $\alpha_t(\textbf{s}_t)$ actually includes the calculation for $\alpha_{t-1}(\textbf{s}_{t-1})$, which is the $\alpha$ from the previous time step. This is significant because it means we can define our messages \textit{recursively}. After we've computed the $\alpha$'s at one time step, instead of having to recompute those values to get the alphas at the next time step, we can simply \textit{pass} them forwards along the chain. In other words, we compute the $\alpha$ at state $\textbf{s}_1$, then pass that message along to compute the $\alpha$ at state $\textbf{s}_2$, on and on until we've reached the end of the chain and have all the $\alpha$'s in hand.
+\readernote{These $\alpha$ values will be useful when performing the expectation step during training, as well as for general inference once we've finished training our HMM.}
+
+At this point, we've now handled the forward messages, which sends information from the beginning of the chaing to the end of the chain. We also need to send information from the end of the chain to the beginning of the chain, which constitutes the backwards portion of the algorithm. This is where we will compute our $\beta$ values.
+
+The $\beta_t$'s represent the joint probability over all the observed emissions from time $t+1, ..., n$ conditioned on the state at time $t$:
+\begin{equation} \label{unfactorized-betas}
+	\beta_t(\textbf{s}_t) = p(\textbf{x}_{t+1}, ..., \textbf{x}_n | \textbf{s}_t)
+\end{equation}
+Graphically, this means that the $\beta_t$'s are capturing the portion of the DGM shown in Figure \ref{fig:HMM-DGM-beta}.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\paperwidth]{../HiddenMarkovModels/fig/HMM_DGM_beta.png}
+    \caption{$\beta_t$'s capture the joint probability for the boxed portion of this DGM.}
+    \label{fig:HMM-DGM-beta}
+\end{figure}
+
+We can factorize Equation \ref{unfactorized-betas} in a similar way to how we factorized the distribution described by the $\alpha$'s:
+\begin{align} \label{factorized-betas}
+	\beta_t(\textbf{s}_t) &= p(\textbf{x}_{t+1}, ..., \textbf{x}_n | \textbf{s}_t) \\
+	&= \sum_{\textbf{s}_{t+1}} p(\textbf{s}_{t+1} | \textbf{s}_t) p(\textbf{x}_{t+1}, ..., \textbf{x}_n | \textbf{s}_{t+1}) \\
+	&= \sum_{\textbf{s}_{t+1}} p(\textbf{s}_{t+1} | \textbf{s}_t) p(\textbf{x}_{t+1} | \textbf{s}_{t+1}) p(\textbf{x}_{t+2}, ..., \textbf{x}_n | \textbf{s}_{t+1}) \\
+	&= \sum_{\textbf{s}_{t+1}} p(\textbf{s}_{t+1} | \textbf{s}_t) p(\textbf{x}_{t+1} | \textbf{s}_{t+1}) \beta_{t+1}(\textbf{s}_{t+1})
+\end{align}
+Again, as we saw with our calculation of the $\alpha$'s, we have our $\beta$'s defined recursively. Once again, this means that we can propagate messages efficiently. In this case, we start at the end of the chain, and compute our $\beta$'s for each state by passing messages back toward the front.
+
+To summarize, the Forward-Backward algorithm is an optimization that will make the EM algorithm, as well as inference over a trained HMM, efficient. We calculate the $\alpha$ and $\beta$ values as follows:
+\begin{align*}
+	\alpha_t(\textbf{s}_t) &=
+	\begin{cases} 
+      p(\textbf{x}_t | \textbf{s}_t) \sum_{\textbf{s}_{t-1}} p(\textbf{s}_t | \textbf{s}_{t-1}) \alpha_{t-1}(\textbf{s}_{t-1}) & 1 < t \leq n \\
+      p(\textbf{x}_1 | \textbf{s}_{1}) p(\textbf{s}_1) & \text{otherwise} \\
+   \end{cases} \\
+   \beta_t(\textbf{s}_t) &=
+   \begin{cases} 
+      \sum_{\textbf{s}_{t+1}} p(\textbf{s}_{t+1} | \textbf{s}_t) p(\textbf{x}_{t+1} | \textbf{s}_{t+1}) \beta_{t+1}(\textbf{s}_{t+1}) & 1 \leq t < n \\
+      1 & \text{otherwise} \\
+   \end{cases}
+\end{align*}
+\readernote{Notice that the base case for the $\beta$'s is 1. This is just a quirk of indexing, and it ensures we have valid messages when we pass from the final state $\textbf{s}_n$.}
+
+\subsection{E-Step}
+TODO
+
+\subsection{M-Step}
+TODO
+
+\subsection{Different Types of HMM Inference}
+TODO
+
+\section{Example: Kalman Filters}
+TODO
+
+\section{Conclusion}
+TODO
